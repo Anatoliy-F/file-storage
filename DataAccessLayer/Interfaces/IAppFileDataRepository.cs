@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Entities;
+using DataAccessLayer.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,7 @@ namespace DataAccessLayer.Interfaces
 {
     public interface IAppFileDataRepository : IRepository<AppFileData>
     {
-        public Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(int userId, int pageSize, int pageIndex,
-            string? sortColumn = null, string? sortOrder = null,
-            string? filterColumn = null, string? filterQuery = null);
+        public Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(int userId, QueryOptionsModel query);
 
         public Task<int> GetUserFilesCountAsync(int userId);
     }

@@ -1,6 +1,7 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
+using DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections;
@@ -21,12 +22,10 @@ namespace DataAccessLayer.Repositories
         { 
         }
 
-        public async Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(int userId, int pageSize, int pageIndex, 
-            string? sortColumn = null, string? sortOrder = null, string? filterColumn = null, 
-            string? filterQuery = null)
+        public async Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(int userId, QueryOptionsModel query)
         {
             var source = Table.Where(e => e.AppUserId == userId);
-            return await TakePageFilteredAndOrdered(source, pageSize, pageIndex, sortColumn, sortOrder, filterColumn, filterQuery);
+            return await TakePageFilteredAndOrdered(source, query);
         }
 
         public async Task<int> GetUserFilesCountAsync(int userId) => await Table.Where(e => e.AppUserId == userId).CountAsync();
