@@ -10,6 +10,7 @@ using DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Linq.Dynamic.Core;
+using DataAccessLayer.Models;
 
 namespace DataAccessLayer.Repositories
 {
@@ -106,10 +107,9 @@ namespace DataAccessLayer.Repositories
 
         public virtual void Update(T entity) => Table.Update(entity);
 
-        public async Task<ICollection<T>> GetPageFilteredAndOrdered(int pageSize, int pageIndex, string? sortColumn = null, 
-            string? sortOrder = null, string? filterColumn = null, string? filterQuery = null)
+        public async Task<ICollection<T>> GetPageFilteredAndOrdered(QueryOptionsModel query)
         {
-            return await TakePageFilteredAndOrdered(Table, pageSize, pageIndex, sortColumn, sortOrder, filterColumn, filterQuery);
+            return await TakePageFilteredAndOrdered(Table, query);
         }
 
 
@@ -125,22 +125,21 @@ namespace DataAccessLayer.Repositories
         /// <param name="filterQuery">The filtering auery (value to lookup)</param>
         /// <returns>A object containing the IQueryable paged/sorted/filtered result
         /// and all the relevant paging/sorting/filtering navigation info</returns>
-        protected async Task<ICollection<T>> TakePageFilteredAndOrdered(IQueryable<T> source, int pageSize, int pageIndex, string? sortColumn = null,
-            string? sortOrder = null, string? filterColumn = null, string? filterQuery = null)
+        protected async Task<ICollection<T>> TakePageFilteredAndOrdered(IQueryable<T> source, QueryOptionsModel query)
         {
-            if(!string.IsNullOrEmpty(filterColumn) && !string.IsNullOrEmpty(filterQuery) && IsValidProperty(filterColumn))
+            if(!string.IsNullOrEmpty(query.filterColumn) && !string.IsNullOrEmpty(query.filterQuery) && IsValidProperty(query.filterColumn))
             {
-                source = source.Where(string.Format("{0}.StartsWith(@0)", filterColumn), filterQuery);
+                source = source.Where(string.Format("{0}.StartsWith(@0)", query.filterColumn), query.filterQuery);
             }
 
-            if(!string.IsNullOrEmpty(sortColumn) && IsValidProperty(sortColumn))
+            if(!string.IsNullOrEmpty(query.sortColumn) && IsValidProperty(query.sortColumn))
             {
-                sortOrder = !string.IsNullOrEmpty(sortOrder) && sortOrder.ToUpper() == "ASC"
+                query.sortOrder = !string.IsNullOrEmpty(query.sortOrder) && query.sortOrder.ToUpper() == "ASC"
                     ? "ASC" : "DESC";
-                source = source.OrderBy(string.Format("{0} {1}", sortColumn, sortOrder));
+                source = source.OrderBy(string.Format("{0} {1}", query.sortColumn, query.sortOrder));
             }
 
-            source = source.Skip(pageIndex * pageSize).Take(pageSize);
+            source = source.Skip(query.pageIndex * query.pageSize).Take(query.pageSize);
             return await source.ToListAsync();
         }
 

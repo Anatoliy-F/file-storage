@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataAccessLayer.Entities;
+using DataAccessLayer.Models;
 
 namespace DataAccessLayer.Interfaces
 {
@@ -11,9 +12,7 @@ namespace DataAccessLayer.Interfaces
     {
         Task<ICollection<TEntity>> GetPageAsync(int pageSize, int pageIndex);
         Task<ICollection<TEntity>> GetAllAsync();
-        Task<ICollection<TEntity>> GetPageFilteredAndOrdered(int pageSize, int pageIndex,
-            string? sortColumn = null, string? sortOrder = null,
-            string? filterColumn = null, string? filterQuery = null);
+        Task<ICollection<TEntity>> GetPageFilteredAndOrdered(QueryOptionsModel query);
 
         Task<TEntity?> FindByIdAsync(int id);
         Task AddAsync(TEntity entity);
