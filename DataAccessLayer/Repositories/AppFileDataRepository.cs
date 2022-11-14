@@ -22,12 +22,12 @@ namespace DataAccessLayer.Repositories
         { 
         }
 
-        public async Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(int userId, QueryOptionsModel query)
+        public async Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(Guid userId, QueryOptionsModel query)
         {
             var source = Table.Where(e => e.AppUserId == userId);
             return await TakePageFilteredAndOrdered(source, query);
         }
 
-        public async Task<int> GetUserFilesCountAsync(int userId) => await Table.Where(e => e.AppUserId == userId).CountAsync();
+        public async Task<int> GetUserFilesCountAsync(Guid userId) => await Table.Where(e => e.AppUserId == userId).CountAsync();
     }
 }

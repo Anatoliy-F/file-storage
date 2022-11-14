@@ -14,10 +14,10 @@ namespace DataAccessLayer.Interfaces
         Task<ICollection<TEntity>> GetAllAsync();
         Task<ICollection<TEntity>> GetPageFilteredAndOrdered(QueryOptionsModel query);
 
-        Task<TEntity?> FindByIdAsync(int id);
+        Task<TEntity?> FindByIdAsync(Guid id);
         Task AddAsync(TEntity entity);
         void Delete(TEntity entity);
-        void DeleteByIdAsync(int id);
+        void DeleteByIdAsync(Guid id);
         void Update(TEntity entity);
     }
 }

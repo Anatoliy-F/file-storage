@@ -10,8 +10,8 @@ namespace DataAccessLayer.Interfaces
 {
     public interface IAppFileDataRepository : IRepository<AppFileData>
     {
-        public Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(int userId, QueryOptionsModel query);
+        public Task<ICollection<AppFileData>> GetFilteredSortedPageByUser(Guid userId, QueryOptionsModel query);
 
-        public Task<int> GetUserFilesCountAsync(int userId);
+        public Task<int> GetUserFilesCountAsync(Guid userId);
     }
 }

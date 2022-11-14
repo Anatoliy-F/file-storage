@@ -83,14 +83,14 @@ namespace DataAccessLayer.Repositories
 
         public async Task<ICollection<T>> GetAllAsync() => await Table.ToListAsync();
 
-        public virtual async Task<T?> FindByIdAsync(int id) => await Table.FindAsync(id);
+        public virtual async Task<T?> FindByIdAsync(Guid id) => await Table.FindAsync(id);
 
         public async Task AddAsync(T entity) => await Table.AddAsync(entity);
 
         public void Delete(T entity) => Table.Remove(entity);
 
 
-        public virtual async void DeleteByIdAsync(int id)
+        public virtual async void DeleteByIdAsync(Guid id)
         {
             await Task.Run(() =>
             {

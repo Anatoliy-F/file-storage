@@ -7,7 +7,7 @@ namespace DataAccessLayer.Entities
     public abstract class BaseEntity: IEntity
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Used for concurrency checking

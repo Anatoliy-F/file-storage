@@ -13,15 +13,25 @@ using Microsoft.AspNetCore.Identity;
 
 namespace DataAccessLayer.Data
 {
-    public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
+    public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+        //To create migrations without DI
+        /*public AppDbContext() { }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-OHE8HBB\SQLEXPRESS;Initial Catalog=FileStorage;trusted_connection=true;Encrypt=False");
+        }*/
+        //End of creating migrations without DI
 
         public DbSet<AppFileData> AppFilesData => Set<AppFileData>();
         public DbSet<AppUser> AppUsersData => Set<AppUser>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
             //TODO: setup entities with Fluent API
 
             //set ono-to-one with File and FileData. File choosed as principal (because app retrive AppFileData at first)
@@ -34,8 +44,19 @@ namespace DataAccessLayer.Data
             {
                 entity.HasOne(d => d.AppFileDataNav)
                     .WithOne(p => p.AppFileNav)
-                    .HasPrincipalKey<AppFileData>(d => d.AppFileId)
+                    .HasForeignKey<AppFileData>(d => d.AppFileId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            //set one-to-one with ShortLink and AppFileData.
+            builder.Entity<ShortLink>(entity => {
+                entity.HasIndex(e => e.AppFileDataId, "IX_ShortLink_FileDataId").IsUnique();
+            });
+
+            builder.Entity<AppFileData>(entity => {
+                entity.HasOne(d => d.ShortLinkNav)
+                    .WithOne(p => p.AppFileDataNav)
+                    .HasForeignKey<ShortLink>(d => d.AppFileDataId);
             });
 
             //set relationship between shared files and users who can view them
