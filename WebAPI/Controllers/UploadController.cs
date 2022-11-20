@@ -11,6 +11,7 @@ using System.Globalization;
 using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers
 {
@@ -44,6 +45,7 @@ namespace WebAPI.Controllers
         [HttpPost]
         [DisableFormValueModelBinding]
         //[ValidateAntiForgeryToken]
+        [Authorize(Roles = "RegisteredUser")]
         public async Task<IActionResult> UploadDatabase()
         {
             if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
@@ -136,7 +138,7 @@ namespace WebAPI.Controllers
             }
 
             // Bind form data to the model
-            /*var formData = new FormData();
+            var formData = new FormData();
             var formValueProvider = new FormValueProvider(
                 BindingSource.Form,
                 new FormCollection(formAccumulator.GetResults()),
@@ -148,15 +150,16 @@ namespace WebAPI.Controllers
                 ModelState.AddModelError("File", "The request couldn't be processed (Error 5)");
                 //TODO: log error
                 return BadRequest(ModelState);
-            }*/
+            }
 
             var file = new AppFileData()
             {
                 AppFileNav = new AppFile { Content = streamedFileContent },
                 UnstrustedName = untrustedFileNameForStorage,
-                Note = "Test upload",//formData.Note,
+                Note = formData.Note,
                 Size = streamedFileContent.LongLength,
-                UploadDT = DateTime.UtcNow
+                UploadDT = DateTime.UtcNow,
+                AppUserId = new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
             };
 
             await _unitOfWork.AppFileDataRepository.AddAsync(file);

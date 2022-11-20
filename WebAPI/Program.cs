@@ -1,6 +1,11 @@
 using DataAccessLayer.Data;
 using DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using DataAccessLayer.Entities;
+using WebAPI.Utilities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -14,15 +19,53 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("http://localhost:4200");
+            policy.AllowAnyHeader();
+            policy.AllowAnyMethod();
         });
 });
 
 builder.Services.AddControllers();
 
+//setup EF 
 var connectionString = builder.Configuration.GetConnectionString("FileStorage");
 builder.Services.AddDbContext<AppDbContext>(opts =>
 {
     opts.UseSqlServer(connectionString);
+});
+
+//setup Identity
+//TODO: without TRole no exception! Need setup TRole
+builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
+{
+    options.SignIn.RequireConfirmedPhoneNumber = false; //confirm phone number
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+}).AddEntityFrameworkStores<AppDbContext>();
+
+//setup JWT service
+builder.Services.AddScoped<JwtHandler>();
+
+//setup JWTBearerMiddleware
+builder.Services.AddAuthentication(opt =>
+{
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        RequireExpirationTime = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecurityKey"]))
+    };
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -45,6 +88,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(MyAllowSpecificOrigins);
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
