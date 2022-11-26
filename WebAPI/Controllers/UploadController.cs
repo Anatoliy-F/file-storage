@@ -12,6 +12,7 @@ using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace WebAPI.Controllers
 {
@@ -27,7 +28,7 @@ namespace WebAPI.Controllers
     public class UploadController : ControllerBase
     {
         private readonly long _filesizeLimit;
-        private readonly string[] _permittedExtensions = { ".txt" };
+        private readonly string[] _permittedExtensions = { ".txt", ".png" };
         // Get the default form options so that we can use them to set the default 
         // limits for request body data.
         //TODO: Should i use it???
@@ -40,6 +41,32 @@ namespace WebAPI.Controllers
         {
             _filesizeLimit = config.GetValue<long>("FileSizeLimit");
             _unitOfWork = unitOfWork;   
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ShortUrl()
+        {
+            var shortUrl = WebEncoders.Base64UrlEncode(new Guid("7FE43A9F-DDC4-4D7D-70FA-08DACB19CE30").ToByteArray().Take(4).ToArray());
+            return new JsonResult(new {Key = shortUrl});
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> DownloadFile(Guid id)
+        {
+            AppFileData? afd = await _unitOfWork.AppFileDataRepository
+                .GetAppFileDataWithContentAsync(id);
+            if(afd == null)
+            {
+                return BadRequest();
+            }
+            //"7FE43A9F-DDC4-4D7D-70FA-08DACB19CE30"
+            //byte[] data = afd.AppFileNav.Content;
+            new FileExtensionContentTypeProvider().TryGetContentType(afd.UnstrustedName, out string? contentType);
+            return File(afd.AppFileNav?.Content, contentType, afd.UnstrustedName);
+
+            
+            
+
         }
 
         [HttpPost]
@@ -81,6 +108,7 @@ namespace WebAPI.Controllers
                         untrustedFileNameForStorage = contentDisposition.FileName.Value;
                         // Don't trust the file name sent by the client. To display
                         // the file name, HTML-encode the value.
+                        //TO DO: should i need it?
                         trustedFileNameForDisplay = WebUtility.HtmlEncode(contentDisposition.FileName.Value);
                         streamedFileContent = await FileHelpers.ProcessStreamedFile(
                             section, contentDisposition, ModelState, _permittedExtensions, _filesizeLimit);
@@ -159,7 +187,7 @@ namespace WebAPI.Controllers
                 Note = formData.Note,
                 Size = streamedFileContent.LongLength,
                 UploadDT = DateTime.UtcNow,
-                AppUserId = new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
+                AppUserId = JwtHandler.GetUserId(this.User)//new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
             };
 
             await _unitOfWork.AppFileDataRepository.AddAsync(file);

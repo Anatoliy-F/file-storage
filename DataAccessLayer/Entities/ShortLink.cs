@@ -13,6 +13,7 @@ namespace DataAccessLayer.Entities
     {
         [Required]
         [StringLength(50)]
+        //TODO: make Unique
         public string Link { get; set; } = string.Empty;
         
         public Guid AppFileDataId { get; set; }

@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccessLayer.Models
+namespace BuisnessLogicLayer.Models
 {
-    [NotMapped]
-    public class QueryOptionsModel
+    public class PaginationRequestModel
     {
-        public int PageIndex { get; set; }
-        public int PageSize { get; set; }
+        public int PageIndex { get; set; } = 0;
+        public int PageSize { get; set; } = 10;
         public string? SortColumn { get; set; } = null;
         public string? SortOrder { get; set; } = null;
         public string? FilterColumn { get; set; } = null;

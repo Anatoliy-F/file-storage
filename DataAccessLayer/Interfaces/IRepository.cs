@@ -17,7 +17,7 @@ namespace DataAccessLayer.Interfaces
         Task<TEntity?> FindByIdAsync(Guid id);
         Task AddAsync(TEntity entity);
         void Delete(TEntity entity);
-        void DeleteByIdAsync(Guid id);
+        Task DeleteByIdAsync(Guid id);
         void Update(TEntity entity);
     }
 }

@@ -9,6 +9,8 @@ namespace DataAccessLayer.Interfaces
 {
     public interface IAppUserRepository : IRepository<AppUser>
     {
+        public Task<AppUser?> FindByIdWithRelatedAsync(Guid userId);
 
+        public Task<int> GetSharedWithUserFilesCountAsync(Guid userId);
     }
 }

@@ -6,6 +6,7 @@ using DataAccessLayer.Entities;
 using WebAPI.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http.Features;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -31,6 +32,12 @@ var connectionString = builder.Configuration.GetConnectionString("FileStorage");
 builder.Services.AddDbContext<AppDbContext>(opts =>
 {
     opts.UseSqlServer(connectionString);
+});
+
+//set limit for the length of each multipart body 256MB
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 268435456;
 });
 
 //setup Identity

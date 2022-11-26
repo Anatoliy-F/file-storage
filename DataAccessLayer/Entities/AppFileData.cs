@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.VisualBasic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLayer.Entities
@@ -43,6 +44,6 @@ namespace DataAccessLayer.Entities
         [InverseProperty(nameof(ShortLink.AppFileDataNav))]
         public ShortLink? ShortLinkNav { get; set; }
 
-        public ICollection<AppUser> FileViewers { get; set; } = new List<AppUser>();
+        public ICollection<AppUser>? FileViewers { get; set; }
     }
 }

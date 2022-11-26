@@ -90,7 +90,7 @@ namespace DataAccessLayer.Repositories
         public void Delete(T entity) => Table.Remove(entity);
 
 
-        public virtual async void DeleteByIdAsync(Guid id)
+        public virtual async Task DeleteByIdAsync(Guid id)
         {
             await Task.Run(() =>
             {
@@ -117,29 +117,30 @@ namespace DataAccessLayer.Repositories
         /// Pages, sorts and/or filters a IQueryable source
         /// </summary>
         /// <param name="source">An IQueryable source of generic type</param>
-        /// <param name="pageIndex">Zero-based current page index (0 = first page)</param>
-        /// <param name="pageSize">The actual size of each page</param>
-        /// <param name="sortColumn">The sorting column name</param>
-        /// <param name="sortOrder">The sorting order ("ASC" or "DESC")</param>
-        /// <param name="filterColumn">The filtering column name</param>
-        /// <param name="filterQuery">The filtering auery (value to lookup)</param>
+        /// <param name="PageIndex">Zero-based current page index (0 = first page)</param>
+        /// <param name="PageSize">The actual size of each page</param>
+        /// <param name="SortColumn">The sorting column name</param>
+        /// <param name="SortOrder">The sorting order ("ASC" or "DESC")</param>
+        /// <param name="FilterColumn">The filtering column name</param>
+        /// <param name="FilterQuery">The filtering auery (value to lookup)</param>
         /// <returns>A object containing the IQueryable paged/sorted/filtered result
         /// and all the relevant paging/sorting/filtering navigation info</returns>
         protected async Task<ICollection<T>> TakePageFilteredAndOrdered(IQueryable<T> source, QueryOptionsModel query)
         {
-            if(!string.IsNullOrEmpty(query.filterColumn) && !string.IsNullOrEmpty(query.filterQuery) && IsValidProperty(query.filterColumn))
+            if(!string.IsNullOrEmpty(query.FilterColumn) && !string.IsNullOrEmpty(query.FilterQuery) && IsValidProperty(query.FilterColumn))
             {
-                source = source.Where(string.Format("{0}.StartsWith(@0)", query.filterColumn), query.filterQuery);
+                source = source.Where(string.Format("{0}.StartsWith(@0)", query.FilterColumn), query.FilterQuery);
             }
 
-            if(!string.IsNullOrEmpty(query.sortColumn) && IsValidProperty(query.sortColumn))
+            if(!string.IsNullOrEmpty(query.SortColumn) && IsValidProperty(query.SortColumn))
             {
-                query.sortOrder = !string.IsNullOrEmpty(query.sortOrder) && query.sortOrder.ToUpper() == "ASC"
+                query.SortOrder = !string.IsNullOrEmpty(query.SortOrder) && query.SortOrder.ToUpper() == "ASC"
                     ? "ASC" : "DESC";
-                source = source.OrderBy(string.Format("{0} {1}", query.sortColumn, query.sortOrder));
+                source = source.OrderBy(string.Format("{0} {1}", query.SortColumn, query.SortOrder));
             }
 
-            source = source.Skip(query.pageIndex * query.pageSize).Take(query.pageSize);
+            source = source.Skip(query.PageIndex * query.PageSize).Take(query.PageSize);
+            //TODO: check this solution. maybe i shoudn't create list so early
             return await source.ToListAsync();
         }
 

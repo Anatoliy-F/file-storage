@@ -39,6 +39,16 @@ namespace WebAPI.Utilities
             return jwtOptions;
         }
 
+        public static Guid GetUserId(ClaimsPrincipal user)
+        {
+            string? id = user?.Claims?.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if(id == null)
+            {
+                throw new UnauthorizedAccessException("Bearer doesn't contain id");
+            }
+            return new Guid(id);
+        }
+
         private async Task<List<Claim>> GetClaimsAsync(AppUser user)
         {
             var claims = new List<Claim>
