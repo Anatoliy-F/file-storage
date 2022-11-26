@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BuisnessLogicLayer.Models
+﻿namespace BuisnessLogicLayer.Models
 {
-    public class PaginationRequestModel
+    public class QueryModel
     {
         public int PageIndex { get; set; } = 0;
         public int PageSize { get; set; } = 10;

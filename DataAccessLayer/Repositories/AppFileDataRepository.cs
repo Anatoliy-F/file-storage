@@ -1,14 +1,7 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
-using DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccessLayer.Repositories
 {
@@ -22,38 +15,46 @@ namespace DataAccessLayer.Repositories
         { 
         }
             
-        public async Task<AppFileData?> GetAppFileDataWithContentAsync(Guid id)
+        public async Task<AppFileData?> GetByIdWithContentAsync(Guid id)
         {
-            /*var data = await Table.FindAsync(id);
-            if (data != null)
-            {
-                await Context.Entry(data).Reference(e => e.AppFileNav).LoadAsync();
-                return data;
-            }*/
             return await Table.Include(af => af.AppFileNav).FirstOrDefaultAsync(af => af.Id == id);
         }
 
-        public async Task<ICollection<AppFileData>> GetFilteredSortedPageByUserAsync(Guid userId, QueryOptionsModel query)
+        public async Task<AppFileData?> GetByIdWithRelatedAsync(Guid id)
         {
-            var source = Table.Where(e => e.AppUserId == userId);
-            return await TakePageFilteredAndOrdered(source, query);
+            return await Table.Include(af => af.OwnerNav)
+                .Include(af => af.FileViewers)
+                .Include(af => af.ShortLinkNav)
+                .FirstOrDefaultAsync(af => af.Id == id);
         }
 
-        public async Task<ICollection<AppFileData>> GetFilteredSortedWithUserDataAsync(QueryOptionsModel query)
+        /*public async Task<IQueryable<AppFileData>> GetFilteredSortedPageByUserAsync(Guid userId, QueryOptionsModel query)
         {
-            var source = Table.Include(af => af.AppUserNav);
-            return await TakePageFilteredAndOrdered(source, query);
-        }
+            var source = Table.Where(e => e.OwnerId == userId);
+            return source.ToList();
+            //return await TakePageFilteredAndOrdered(source, query);
+        }*/
 
-        public async Task<ICollection<AppFileData>> GetFilteredSortedSharedWithUserAsync(Guid userId, QueryOptionsModel query)
+       /* public async Task<ICollection<AppFileData>> GetFilteredSortedWithUserDataAsync(QueryOptionsModel query)
+        {
+            var source = Table.Include(af => af.OwnerNav);
+            return source.ToList();
+            //return await TakePageFilteredAndOrdered(source, query);
+        }*/
+
+        /*public async Task<ICollection<AppFileData>> GetFilteredSortedSharedWithUserAsync(Guid userId, QueryOptionsModel query)
         {
             var source = Table.Include(fd => fd.FileViewers).Where(fd => fd.FileViewers.Any(u => u.Id == userId));
-            return await TakePageFilteredAndOrdered(source, query);
+            return source.ToList();
+            //return await TakePageFilteredAndOrdered(source, query);
 
-        }
+        }*/
 
-        public async Task<int> GetUserFilesCountAsync(Guid userId) => await Table.Where(e => e.AppUserId == userId).CountAsync();
+        public async Task<int> GetUserFilesCountAsync(Guid userId) => await Table.Where(e => e.OwnerId == userId).CountAsync();
 
         public async Task<int> GetFilesCountAsync() => await Table.CountAsync();
+
+        public IQueryable<AppFileData> GetAllNoTraking() => Table.AsNoTracking();
+        
     }
 }

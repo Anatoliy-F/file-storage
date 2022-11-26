@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Entities;
+using DataAccessLayer.Exceptions;
 using DataAccessLayer.Interfaces;
 using DataAccessLayer.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -28,7 +29,20 @@ namespace DataAccessLayer.Data
 
         public async Task SaveAsync()
         {
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (CustomException)
+            {
+                //TODO: already logged - should handle
+                throw;
+            }
+            catch (Exception ex)
+            {
+                //TODO: log and handle
+                throw new CustomException("An error occurred updating the database", ex);
+            }
         }
 
         private bool disposed = false;

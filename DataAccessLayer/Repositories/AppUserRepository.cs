@@ -20,17 +20,19 @@ namespace DataAccessLayer.Repositories
         {
         }
 
-        public async Task<AppUser?> FindByIdWithRelatedAsync(Guid userId)
+        public async Task<AppUser?> GetByIdWithRelatedAsync(Guid userId)
         {
             return await Table.Include(u => u.AppFiles)
                 .Include(u => u.ReadOnlyFiles)
-                .ThenInclude(fd => fd.AppUserNav)
+                .ThenInclude(fd => fd.OwnerNav)
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
-        public async Task<int> GetSharedWithUserFilesCountAsync(Guid userId)
+        public async Task<int> GetReadOnlyFilesCountAsync(Guid userId)
         {
-            return await Table.Include(u => u.ReadOnlyFiles).CountAsync();
+            var user = await Table.Include(u => u.ReadOnlyFiles)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+            return user?.ReadOnlyFiles?.Count ?? 0;
         }
     }
 }

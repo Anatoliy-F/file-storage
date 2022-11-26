@@ -53,8 +53,7 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> DownloadFile(Guid id)
         {
-            AppFileData? afd = await _unitOfWork.AppFileDataRepository
-                .GetAppFileDataWithContentAsync(id);
+            AppFileData? afd = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(id);
             if(afd == null)
             {
                 return BadRequest();
@@ -71,7 +70,6 @@ namespace WebAPI.Controllers
 
         [HttpPost]
         [DisableFormValueModelBinding]
-        //[ValidateAntiForgeryToken]
         [Authorize(Roles = "RegisteredUser")]
         public async Task<IActionResult> UploadDatabase()
         {
@@ -187,7 +185,7 @@ namespace WebAPI.Controllers
                 Note = formData.Note,
                 Size = streamedFileContent.LongLength,
                 UploadDT = DateTime.UtcNow,
-                AppUserId = JwtHandler.GetUserId(this.User)//new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
+                OwnerId = JwtHandler.GetUserId(this.User)//new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
             };
 
             await _unitOfWork.AppFileDataRepository.AddAsync(file);

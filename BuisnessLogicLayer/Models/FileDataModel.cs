@@ -21,8 +21,6 @@ namespace BuisnessLogicLayer.Models
         
         public bool IsPublic { get; set; }
 
-        //public Guid FileId { get; set; } = Guid.Empty;
-
         public Guid OwnerId { get; set; } = Guid.Empty;
 
         public string OwnerName { get; set; } = string.Empty;

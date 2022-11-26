@@ -2,29 +2,25 @@
 using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
-using DataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BuisnessLogicLayer.Services
 {
-    public class FileService
+    public class FileService : BaseService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public FileService(IUnitOfWork unitOfWork, IMapper mapper)
+        public FileService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
 
         public async Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId)
         {
-            var fileData = await _unitOfWork.AppFileDataRepository.FindByIdAsync(fileId);
+            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileId);
             if (fileData != null && fileData.IsPublic)
             {
                 return _mapper.Map<ShortFileDataModel>(fileData);
@@ -32,11 +28,11 @@ namespace BuisnessLogicLayer.Services
             return null;
         }
 
-        public async Task<PaginationResultModel<FileDataModel>> GetUserFilesDataAsync(Guid userId, PaginationRequestModel queryOptions) 
+        public async Task<PaginationResultModel<FileDataModel>> GetUserFilesDataNoTrackingAsync(Guid userId, QueryModel query) 
         {
             int count = await _unitOfWork.AppFileDataRepository.GetUserFilesCountAsync(userId);
-            var query = _mapper.Map<QueryOptionsModel>(queryOptions);
-            var list = await _unitOfWork.AppFileDataRepository.GetFilteredSortedPageByUserAsync(userId, query);
+            var source = _unitOfWork.AppFileDataRepository.GetAllNoTraking().Where(fd => fd.OwnerId == userId);
+            var list = this.TakePageFilteredAndOrdered<AppFileData>(source, query);
 
             return new PaginationResultModel<FileDataModel>
             {
@@ -46,11 +42,11 @@ namespace BuisnessLogicLayer.Services
         }
 
         //method for admins only
-        public async Task<PaginationResultModel<FileDataModel>> GetFilesDataAsync(PaginationRequestModel queryOptions)
+        public async Task<PaginationResultModel<FileDataModel>> GetFilesDataAsync(QueryModel query)
         {
             int count = await _unitOfWork.AppFileDataRepository.GetFilesCountAsync();
-            var query = _mapper.Map<QueryOptionsModel>(queryOptions);
-            var list = await _unitOfWork.AppFileDataRepository.GetFilteredSortedWithUserDataAsync(query);
+            var source = _unitOfWork.AppFileDataRepository.GetAllNoTraking();
+            var list = this.TakePageFilteredAndOrdered<AppFileData>(source, query);
 
             return new PaginationResultModel<FileDataModel>
             {
@@ -62,22 +58,32 @@ namespace BuisnessLogicLayer.Services
         //get all files shared with user
         public async Task<ICollection<FileDataModel>> GetAllFilesSharedWithUserAsync(Guid userId)
         {
-            var user = await _unitOfWork.AppUserRepository.FindByIdWithRelatedAsync(userId);
+            var user = await _unitOfWork.AppUserRepository.GetByIdWithRelatedAsync(userId);
             var list = user?.ReadOnlyFiles ?? new List<AppFileData>();
 
             return _mapper.Map<ICollection<FileDataModel>>(list);
         }
 
         public async Task<PaginationResultModel<FileDataModel>> 
-            GetSharedWithUserFilesDataAsync(Guid userId, PaginationRequestModel queryOptions)
+            GetSharedWithUserFilesDataAsync(Guid userId, QueryModel query)
         {
-            var count = await _unitOfWork.AppUserRepository.GetSharedWithUserFilesCountAsync(userId);
-            var query = _mapper.Map<QueryOptionsModel>(queryOptions);
-            var list = _unitOfWork.AppFileDataRepository.GetFilteredSortedSharedWithUserAsync(userId, query);
+            var user = await _unitOfWork.AppUserRepository.GetByIdWithRelatedAsync(userId) ?? new AppUser();
+            
+            if(user.ReadOnlyFiles.Count == 0)
+            {
+                return new PaginationResultModel<FileDataModel>
+                {
+                    TotalCount = user.ReadOnlyFiles.Count,
+                    Data = new List<FileDataModel>()
+                };
+            }
+
+            var source = (IQueryable<AppFileData>) user.ReadOnlyFiles;
+            var list = this.TakePageFilteredAndOrdered<AppFileData>(source, query);
 
             return new PaginationResultModel<FileDataModel>
             {
-                TotalCount = count,
+                TotalCount = user.ReadOnlyFiles.Count,
                 Data = _mapper.Map<ICollection<FileDataModel>>(list)
             };
         }
