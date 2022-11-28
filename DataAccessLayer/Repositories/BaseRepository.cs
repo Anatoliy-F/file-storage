@@ -34,7 +34,7 @@ namespace DataAccessLayer.Repositories
 
         public async Task AddAsync(T entity) => await Table.AddAsync(entity);
 
-        public void Delete(T entity) => Table.Remove(entity);
+        public virtual void Delete(T entity) => Table.Remove(entity);
 
         public virtual async Task DeleteByIdAsync(Guid id)
         {

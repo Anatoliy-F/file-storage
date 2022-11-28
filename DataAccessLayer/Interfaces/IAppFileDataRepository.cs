@@ -4,18 +4,40 @@ namespace DataAccessLayer.Interfaces
 {
     public interface IAppFileDataRepository : IRepository<AppFileData>
     {
-        //public Task<ICollection<AppFileData>> GetFilteredSortedPageByUserAsync(Guid userId, QueryOptionsModel query);
-
+        /// <summary>
+        /// Get all entities (without related data), result should be filtered, ordered and paginated
+        /// No tracked, for readonly usage
+        /// </summary>
+        /// <returns>Collection for read-only usage</returns>
         public IQueryable<AppFileData> GetAllNoTraking();
 
+        /// <summary>
+        /// Returns the number of files the user owns
+        /// </summary>
+        /// <param name="userId">Files owner id</param>
+        /// <returns>Total users files count</returns>
         public Task<int> GetUserFilesCountAsync(Guid userId);
 
+        /// <summary>
+        /// Get AppFileData object by id, with AppFile content (byte[])
+        /// </summary>
+        /// <param name="id">Id of AppFileData object</param>
+        /// <returns>AppFileData with Appfile nested object</returns>
         public Task<AppFileData?> GetByIdWithContentAsync(Guid id);
 
+        /// <summary>
+        /// Get total files count in storage
+        /// </summary>
+        /// <returns>Total files count</returns>
         public Task<int> GetFilesCountAsync();
 
-        //public Task<ICollection<AppFileData>> GetFilteredSortedSharedWithUserAsync(Guid userId, QueryOptionsModel query);
-
-        //public Task<ICollection<AppFileData>> GetFilteredSortedWithUserDataAsync(QueryOptionsModel query);
+        /// <summary>
+        /// Get AppFileData object by id, with related Owner (User object),
+        /// list of fileViwers (who also have permission to read this file), link for shortNavigation
+        /// NO FILE CONTENT
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>AppFileData object with related</returns>
+        public Task<AppFileData?> GetByIdWithRelatedAsync(Guid id);
     }
 }

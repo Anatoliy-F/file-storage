@@ -35,7 +35,7 @@ namespace BuisnessLogicLayer.Services
         /// <param name="FilterQuery">The filtering auery (value to lookup)</param>
         /// <returns>A object containing the IQueryable paged/sorted/filtered result
         /// and all the relevant paging/sorting/filtering navigation info</returns>
-        protected async Task<ICollection<T>> TakePageFilteredAndOrdered<T>
+        protected async Task<ICollection<T>> TakePageFilteredAndOrderedAsync<T>
             (IQueryable<T> source, QueryModel query) where T : class, IEntity, new()
         {
             if (!string.IsNullOrEmpty(query.FilterColumn) && !string.IsNullOrEmpty(query.FilterQuery) && IsValidProperty<T>(query.FilterColumn))

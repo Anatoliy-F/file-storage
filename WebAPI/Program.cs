@@ -7,6 +7,10 @@ using WebAPI.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Http.Features;
+using BuisnessLogicLayer;
+using AutoMapper;
+using BuisnessLogicLayer.Interfaces;
+using BuisnessLogicLayer.Services;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -77,6 +81,12 @@ builder.Services.AddAuthentication(opt =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+//setup AutoMapper
+var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile(new AutoMapperProfile()));
+builder.Services.AddScoped<IMapper, Mapper>(i => new Mapper(mapperConfig));
+
+//setup services
+builder.Services.AddScoped<IFileService, FileService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
@@ -12,7 +13,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BuisnessLogicLayer.Services
 {
-    public class FileService : BaseService
+    public class FileService : BaseService, IFileService
     {
         public FileService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
@@ -28,17 +29,34 @@ namespace BuisnessLogicLayer.Services
             return null;
         }
 
+        public async Task<FileDataModel?> GetOwnByIdAsync(Guid userId, Guid id)
+        {
+            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(id);
+            if(fileData != null && fileData.OwnerId == userId)
+            {
+                return _mapper.Map<FileDataModel>(fileData);
+            }
+            return null;
+        }
+
         public async Task<PaginationResultModel<FileDataModel>> GetUserFilesDataNoTrackingAsync(Guid userId, QueryModel query) 
         {
             int count = await _unitOfWork.AppFileDataRepository.GetUserFilesCountAsync(userId);
             var source = _unitOfWork.AppFileDataRepository.GetAllNoTraking().Where(fd => fd.OwnerId == userId);
-            var list = this.TakePageFilteredAndOrdered<AppFileData>(source, query);
+            //var list = await this.TakePageFilteredAndOrderedAsync<AppFileData>(source, query);
 
-            return new PaginationResultModel<FileDataModel>
+
+            var result = await GetFilteredOrderedPaginatedAsync(source, query);
+            result.TotalCount = count;
+
+            return result;
+            /*return new PaginationResultModel<FileDataModel>
             {
                 TotalCount = count,
+                PageIndex = query.PageIndex,
+                PageSize = query.PageSize,
                 Data = _mapper.Map<ICollection<FileDataModel>>(list)
-            };
+            };*/
         }
 
         //method for admins only
@@ -46,13 +64,23 @@ namespace BuisnessLogicLayer.Services
         {
             int count = await _unitOfWork.AppFileDataRepository.GetFilesCountAsync();
             var source = _unitOfWork.AppFileDataRepository.GetAllNoTraking();
-            var list = this.TakePageFilteredAndOrdered<AppFileData>(source, query);
+            /*if (query.SortColumn == "name") { 
+                query.SortColumn = "UnstrustedName";
+            }
+            var list = await this.TakePageFilteredAndOrderedAsync<AppFileData>(source, query);
 
             return new PaginationResultModel<FileDataModel>
             {
                 TotalCount = count,
+                PageIndex = query.PageIndex,
+                PageSize = query.PageSize,
                 Data = _mapper.Map<ICollection<FileDataModel>>(list)
-            };
+            };*/
+
+            var result = await GetFilteredOrderedPaginatedAsync(source, query);
+            result.TotalCount = count;
+
+            return result;
         }
 
         //get all files shared with user
@@ -74,18 +102,27 @@ namespace BuisnessLogicLayer.Services
                 return new PaginationResultModel<FileDataModel>
                 {
                     TotalCount = user.ReadOnlyFiles.Count,
+                    PageIndex = query.PageIndex,
+                    PageSize = query.PageSize,
                     Data = new List<FileDataModel>()
                 };
             }
 
             var source = (IQueryable<AppFileData>) user.ReadOnlyFiles;
-            var list = this.TakePageFilteredAndOrdered<AppFileData>(source, query);
+            /*var list = await this.TakePageFilteredAndOrderedAsync<AppFileData>(source, query);
 
             return new PaginationResultModel<FileDataModel>
             {
                 TotalCount = user.ReadOnlyFiles.Count,
+                PageIndex = query.PageIndex,
+                PageSize = query.PageSize,
                 Data = _mapper.Map<ICollection<FileDataModel>>(list)
-            };
+            };*/
+
+            var result = await GetFilteredOrderedPaginatedAsync(source, query);
+            result.TotalCount = user.ReadOnlyFiles.Count;
+
+            return result;
         }
 
         public async Task DeleteFileByIdAsync(Guid fileId)
@@ -93,7 +130,68 @@ namespace BuisnessLogicLayer.Services
             await _unitOfWork.AppFileDataRepository.DeleteByIdAsync(fileId);
             await _unitOfWork.SaveAsync();
         }
+        public async Task DeleteOwnByIdAsync(Guid userId, Guid fileId)
+        {
+            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
+            if (fileData != null && fileData.OwnerId == userId)
+            {
+                _unitOfWork.AppFileDataRepository.Delete(fileData);
+                await _unitOfWork.SaveAsync();
+            }
+            //TODO: something with validation
+        }
 
-        
+
+        private async Task<PaginationResultModel<FileDataModel>> GetFilteredOrderedPaginatedAsync
+            (IQueryable<AppFileData> source, QueryModel query)
+        {
+            if(!string.IsNullOrEmpty(query.FilterColumn) && !string.IsNullOrEmpty(query.FilterQuery))
+            {
+                source = query.FilterColumn.ToLower() switch
+                {
+                    "name" => source.Where(e => e.UnstrustedName.StartsWith(query.FilterQuery)),
+                    "note" => source.Where(e => e.Note.StartsWith(query.FilterQuery)),
+                    "ispublic" => source.Where(e => e.IsPublic == (query.FilterQuery.ToLower() == "true")),
+                    _ => source
+                };
+            }
+
+            if (!string.IsNullOrEmpty(query.SortColumn))
+            {
+                query.SortOrder = !string.IsNullOrEmpty(query.SortOrder) && query.SortOrder.ToUpper() == "ASC"
+                    ? "ASC" : "DESC";
+
+                source = query.SortColumn.ToLower() switch
+                {
+                    "name" => query.SortOrder == "ASC" ?
+                        source.OrderBy(e => e.UnstrustedName) :
+                        source.OrderByDescending(e => e.UnstrustedName),
+                    "note" => query.SortOrder == "ASC" ?
+                        source.OrderBy(e => e.Note) :
+                        source.OrderByDescending(e => e.Note),
+                    "size" => query.SortOrder == "ASC" ?
+                        source.OrderBy(e => e.Size) :
+                        source.OrderByDescending(e => e.Size),
+                    "uploaddatetime" => query.SortOrder == "ASC" ?
+                        source.OrderBy(e => e.UploadDT) :
+                        source.OrderByDescending(e => e.UploadDT),
+                    _ => source
+                };
+            }
+
+            source = source.Skip(query.PageIndex * query.PageSize).Take(query.PageSize);
+            var list = await source.ToListAsync();
+
+            return new PaginationResultModel<FileDataModel>
+            {
+                Data = _mapper.Map<ICollection<FileDataModel>>(list),
+                PageIndex = query.PageIndex,
+                PageSize = query.PageSize,
+                FilterColumn = query.FilterColumn,
+                FilterQuery = query.FilterQuery,
+                SortColumn = query.SortColumn,
+                SortOrder = query.SortOrder,
+            };
+        }
     }
 }

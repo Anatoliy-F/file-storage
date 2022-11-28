@@ -36,11 +36,13 @@ namespace WebAPI.Controllers
 
         //TODO: inject UoW, logger;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly JwtHandler _jwtHandler;
 
-        public UploadController(IConfiguration config, IUnitOfWork unitOfWork)
+        public UploadController(IConfiguration config, IUnitOfWork unitOfWork, JwtHandler jwtHandler)
         {
             _filesizeLimit = config.GetValue<long>("FileSizeLimit");
-            _unitOfWork = unitOfWork;   
+            _unitOfWork = unitOfWork;
+            _jwtHandler = jwtHandler;
         }
 
         [HttpGet]
@@ -185,7 +187,7 @@ namespace WebAPI.Controllers
                 Note = formData.Note,
                 Size = streamedFileContent.LongLength,
                 UploadDT = DateTime.UtcNow,
-                OwnerId = JwtHandler.GetUserId(this.User)//new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
+                OwnerId = _jwtHandler.GetUserId(this.User)//new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
             };
 
             await _unitOfWork.AppFileDataRepository.AddAsync(file);

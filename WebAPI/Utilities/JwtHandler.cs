@@ -39,7 +39,7 @@ namespace WebAPI.Utilities
             return jwtOptions;
         }
 
-        public static Guid GetUserId(ClaimsPrincipal user)
+        public Guid GetUserId(ClaimsPrincipal user)
         {
             string? id = user?.Claims?.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if(id == null)
