@@ -29,8 +29,8 @@ namespace BuisnessLogicLayer.Models
 
         public string ShortLink { get; set; } = string.Empty;
 
-        //TODO: change Guid to emails
-        public ICollection<Guid> Viewers { get; set; } = new List<Guid>();
+        //Viewers email
+        public ICollection<string> Viewers { get; set; } = new List<string>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

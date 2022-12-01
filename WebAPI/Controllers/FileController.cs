@@ -101,5 +101,22 @@ namespace WebAPI.Controllers
                 //throw;
             }
         }
+
+        [HttpPut("share/{email}")]
+        public async Task<ActionResult> Share(string email, [FromBody] FileDataModel model)
+        {
+            if(!model.Viewers.Any(fv => fv == email))
+            {
+                return BadRequest();
+            }
+
+            var userId = _jwtHandler.GetUserId(this.User);
+            var fdm = await _fileService.ShareByEmailAsync(userId, email, model.Id);
+            if(fdm == null)
+            {
+                BadRequest();
+            }
+            return Ok(fdm);
+        }
     }
 }

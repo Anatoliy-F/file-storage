@@ -18,5 +18,20 @@ namespace DataAccessLayer.Interfaces
         /// <param name="userId">User id</param>
         /// <returns>Number of read-only accessed files</returns>
         public Task<int> GetReadOnlyFilesCountAsync(Guid userId);
+
+        /// <summary>
+        /// Check is user exist in database
+        /// use NORMALIZED EMAIL (in UPPERCASE)
+        /// </summary>
+        /// <param name="userEmail"></param>
+        /// <returns>TRUE if user exist? FALSE otherwise</returns>
+        public Task<bool> IsExistByEmailAsync(string userEmail);
+
+        /// <summary>
+        /// Return user by Email or NULL
+        /// </summary>
+        /// <param name="userEmail"></param>
+        /// <returns></returns>
+        public Task<AppUser?> GetByEmailAsync(string userEmail);
     }
 }

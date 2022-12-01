@@ -169,6 +169,20 @@ namespace BuisnessLogicLayer.Services
             //TODO: something with validation
         }
 
+        public async Task<FileDataModel?> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId)
+        {
+            if (String.IsNullOrEmpty(userEmail)) return null;
+            var user = await _unitOfWork.AppUserRepository.GetByEmailAsync(userEmail);
+            if (user == null) return null;
+            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(fileDataId);
+            if(fileData == null) return null;
+            if(fileData.OwnerId != ownerId) return null;
+
+            fileData?.FileViewers?.Add(user);
+            await _unitOfWork.SaveAsync();  
+            return _mapper.Map<FileDataModel?>(fileData);
+        }
+
 
         private async Task<PaginationResultModel<FileDataModel>> GetFilteredOrderedPaginatedAsync
             (IQueryable<AppFileData> source, QueryModel query)

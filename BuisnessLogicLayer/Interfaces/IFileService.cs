@@ -83,5 +83,14 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="model"></param>
         /// <returns></returns>
         public Task UpdateByUserAsync(Guid userId, FileDataModel model);
+
+        /// <summary>
+        /// Share file with user by email
+        /// </summary>
+        /// <param name="ownerId">File owner id</param>
+        /// <param name="userEmail">User id</param>
+        /// <param name="fileDataId">FileData id</param>
+        /// <returns></returns>
+        public Task<FileDataModel?> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId);
     }
 }

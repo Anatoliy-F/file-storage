@@ -34,5 +34,15 @@ namespace DataAccessLayer.Repositories
                 .FirstOrDefaultAsync(u => u.Id == userId);
             return user?.ReadOnlyFiles?.Count ?? 0;
         }
+
+        public async Task<bool> IsExistByEmailAsync(string userEmail)
+        {
+            return await Table.Where(e => e.NormalizedEmail == userEmail.ToUpper()).AnyAsync();
+        }
+
+        public async Task<AppUser?> GetByEmailAsync(string userEmail)
+        {
+            return await Table.FirstOrDefaultAsync(u => u.NormalizedEmail == userEmail.ToUpper());
+        }
     }
 }
