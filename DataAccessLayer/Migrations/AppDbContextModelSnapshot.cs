@@ -28,6 +28,9 @@ namespace DataAccessLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("AppFileDataId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<byte[]>("Content")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
@@ -39,6 +42,11 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppFileDataId")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "AppFileDataId" }, "IX_Files_FileDataId");
+
                     b.ToTable("Files", "dbo");
                 });
 
@@ -46,9 +54,6 @@ namespace DataAccessLayer.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AppFileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsPublic")
@@ -70,7 +75,7 @@ namespace DataAccessLayer.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<string>("UnstrustedName")
+                    b.Property<string>("UntrustedName")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -81,9 +86,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
-
-                    b.HasIndex(new[] { "AppFileId" }, "IX_FileData_FileId")
-                        .IsUnique();
 
                     b.ToTable("FileData", "dbo");
                 });
@@ -169,9 +171,7 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(16)");
 
                     b.Property<byte[]>("TimeStamp")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("Id");
 
@@ -330,22 +330,25 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.AppFileData", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.AppFile", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.AppFile", "AppFileNav")
-                        .WithOne("AppFileDataNav")
-                        .HasForeignKey("DataAccessLayer.Entities.AppFileData", "AppFileId")
+                    b.HasOne("DataAccessLayer.Entities.AppFileData", "AppFileDataNav")
+                        .WithOne("AppFileNav")
+                        .HasForeignKey("DataAccessLayer.Entities.AppFile", "AppFileDataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AppFileDataNav");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.AppFileData", b =>
+                {
                     b.HasOne("DataAccessLayer.Entities.AppUser", "OwnerNav")
                         .WithMany("AppFiles")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_FileData_OwnerId");
-
-                    b.Navigation("AppFileNav");
 
                     b.Navigation("OwnerNav");
                 });
@@ -429,13 +432,10 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.AppFile", b =>
-                {
-                    b.Navigation("AppFileDataNav");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entities.AppFileData", b =>
                 {
+                    b.Navigation("AppFileNav");
+
                     b.Navigation("ShortLinkNav");
                 });
 

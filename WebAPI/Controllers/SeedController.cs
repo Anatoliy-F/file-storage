@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
                     var file = new AppFileData
                     {
                         AppFileNav = new AppFile { Content = content },
-                        UnstrustedName = $"file#{i}.txt",
+                        UntrustedName = $"file#{i}.txt",
                         Note = $"File Note #{i}. Something important",
                         Size = content.LongLength,
                         UploadDT = new DateTime(2022, 11, 1 + i/2),
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
                     var file = new AppFileData
                     {
                         AppFileNav = new AppFile { Content = content },
-                        UnstrustedName = $"file#{i}.txt",
+                        UntrustedName = $"file#{i}.txt",
                         Note = $"File Note #{i}. Something very important",
                         Size = content.LongLength,
                         UploadDT = new DateTime(2022, 11, 1 + i / 2),
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
                     var file = new AppFileData
                     {
                         AppFileNav = new AppFile { Content = content },
-                        UnstrustedName = $"file#{i}.txt",
+                        UntrustedName = $"file#{i}.txt",
                         Note = $"File Note #{i}. Something very important",
                         Size = content.LongLength,
                         UploadDT = new DateTime(2022, 11, 1 + i / 2),
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
             return new JsonResult(new
             {
                 Count = list.Count,
-                Users = list.Select(fd => new { Name = fd.UnstrustedName, Note = fd.Note, 
+                Users = list.Select(fd => new { Name = fd.UntrustedName, Note = fd.Note, 
                     Size = fd.Size, UploadDT = fd.UploadDT, OwnerId = fd.OwnerId, IsPublic = fd.IsPublic })
             });
         }

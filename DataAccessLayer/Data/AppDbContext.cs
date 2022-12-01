@@ -34,12 +34,12 @@ namespace DataAccessLayer.Data
         {
             base.OnModelCreating(builder);
 
-            //set ono-to-one with File and FileData. File choosed as principal (because app retrive AppFileData at first)
+            
             builder.Entity<AppFileData>(entity =>
             {
                 entity.ToTable("FileData", "dbo");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.UnstrustedName).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.UntrustedName).IsRequired().HasMaxLength(1000);
                 entity.Property(e => e.Note).IsRequired().HasMaxLength(4000);
                 entity.Property(e => e.Size).IsRequired();
                 entity.Property(e => e.UploadDT).IsRequired();
@@ -52,7 +52,10 @@ namespace DataAccessLayer.Data
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_FileData_OwnerId");
 
-                entity.HasIndex(e => e.AppFileId, "IX_FileData_FileId").IsUnique();
+                entity.HasOne(d => d.AppFileNav)
+                    .WithOne(p => p.AppFileDataNav)
+                    .HasForeignKey<AppFile>(d => d.AppFileDataId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<ShortLink>(entity =>
@@ -60,7 +63,7 @@ namespace DataAccessLayer.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Link).IsRequired().HasMaxLength(16);
                 entity.HasIndex(e => e.Link).IsUnique();
-                entity.Property(e => e.TimeStamp).IsRowVersion().IsConcurrencyToken();
+                entity.Property(e => e.TimeStamp);
             });
 
             builder.Entity<AppFile>(entity =>
@@ -70,10 +73,9 @@ namespace DataAccessLayer.Data
                 entity.Property(e => e.Content).IsRequired();
                 entity.Property(e => e.TimeStamp).IsRowVersion().IsConcurrencyToken();
 
-                entity.HasOne(d => d.AppFileDataNav)
-                    .WithOne(p => p.AppFileNav)
-                    .HasForeignKey<AppFileData>(d => d.AppFileId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(e => e.AppFileDataId, "IX_Files_FileDataId");
+
+                
             });
 
             //set one-to-one with ShortLink and AppFileData.

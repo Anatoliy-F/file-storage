@@ -11,6 +11,8 @@ namespace BuisnessLogicLayer.Models
     {
         public Guid Id { get; set; } = Guid.Empty;
 
+        public byte[]? TimeStamp { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
         public string Note { get; set; } = string.Empty;

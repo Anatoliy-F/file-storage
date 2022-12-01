@@ -2,7 +2,7 @@
 {
     public class AppFileData : BaseEntity
     {
-        public string UnstrustedName { get; set; } = "Empty name";
+        public string UntrustedName { get; set; } = "Empty name";
 
         public string Note { get; set; } = "Empty note";
 
@@ -11,8 +11,6 @@
         public DateTime UploadDT { get; set; }
 
         public bool IsPublic { get; set; } = false;
-
-        public Guid AppFileId { get; set; }
 
         public Guid OwnerId { get; set; }
 

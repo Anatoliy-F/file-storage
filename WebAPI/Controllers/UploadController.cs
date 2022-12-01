@@ -62,8 +62,8 @@ namespace WebAPI.Controllers
             }
             //"7FE43A9F-DDC4-4D7D-70FA-08DACB19CE30"
             //byte[] data = afd.AppFileNav.Content;
-            new FileExtensionContentTypeProvider().TryGetContentType(afd.UnstrustedName, out string? contentType);
-            return File(afd.AppFileNav?.Content, contentType, afd.UnstrustedName);
+            new FileExtensionContentTypeProvider().TryGetContentType(afd.UntrustedName, out string? contentType);
+            return File(afd.AppFileNav?.Content, contentType, afd.UntrustedName);
 
             
             
@@ -183,7 +183,7 @@ namespace WebAPI.Controllers
             var file = new AppFileData()
             {
                 AppFileNav = new AppFile { Content = streamedFileContent },
-                UnstrustedName = untrustedFileNameForStorage,
+                UntrustedName = untrustedFileNameForStorage,
                 Note = formData.Note,
                 Size = streamedFileContent.LongLength,
                 UploadDT = DateTime.UtcNow,

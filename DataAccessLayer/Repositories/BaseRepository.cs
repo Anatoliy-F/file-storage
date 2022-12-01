@@ -36,20 +36,17 @@ namespace DataAccessLayer.Repositories
 
         public virtual void Delete(T entity) => Table.Remove(entity);
 
-        public virtual async Task DeleteByIdAsync(Guid id)
+        /*public virtual void DeleteById(Guid id)
         {
-            await Task.Run(() =>
+            if (Table.Local.Any(e => e.Id == id))
             {
-                if (Table.Local.Any(e => e.Id == id))
-                {
-                    Table.Remove(Table.Local.First(e => e.Id == id));
-                }
-                else
-                {
-                    Context.Entry(new T { Id = id }).State = EntityState.Deleted;
-                }
-            });
-        }
+                Table.Remove(Table.Local.First(e => e.Id == id));
+            }
+            else
+            {
+                Context.Entry(new T { Id = id }).State = EntityState.Deleted;
+            }
+        }*/
 
         public virtual void Update(T entity) => Table.Update(entity);
 

@@ -39,5 +39,13 @@ namespace DataAccessLayer.Interfaces
         /// <param name="id"></param>
         /// <returns>AppFileData object with related</returns>
         public Task<AppFileData?> GetByIdWithRelatedAsync(Guid id);
+
+        /// <summary>
+        /// Check, is this User owning this file
+        /// </summary>
+        /// <param name="fileId">File Id</param>
+        /// <param name="OwnerId">User Id</param>
+        /// <returns>TRUE if owning, FALSE otherwise</returns>
+        public Task<bool> IsOwner(Guid fileId, Guid OwnerId);
     }
 }

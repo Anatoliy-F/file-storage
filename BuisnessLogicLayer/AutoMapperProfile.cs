@@ -14,9 +14,8 @@ namespace BuisnessLogicLayer
         public AutoMapperProfile()
         {
             CreateMap<AppFileData, FileDataModel>()
-                .ForMember(dm => dm.Name, d => d.MapFrom(e => e.UnstrustedName))
+                .ForMember(dm => dm.Name, d => d.MapFrom(e => e.UntrustedName))
                 .ForMember(dm => dm.UploadDateTime, d => d.MapFrom(e => e.UploadDT))
-                //.ForMember(dm => dm.FileId, d => d.MapFrom(e => e.AppFileId))
                 .ForMember(dm => dm.OwnerId, d => d.MapFrom(e => e.OwnerId))
                 .ForMember(dm => dm.OwnerName, d => d.MapFrom(e => e.OwnerNav == null ? string.Empty : e.OwnerNav.UserName))
                 .ForMember(dm => dm.ShortLink, d => d.MapFrom(e => e.ShortLinkNav == null ? string.Empty : e.ShortLinkNav.Link))
@@ -25,7 +24,7 @@ namespace BuisnessLogicLayer
                 .ReverseMap();
 
             CreateMap<AppFileData, ShortFileDataModel>()
-                .ForMember(dm => dm.Name, d => d.MapFrom(e => e.UnstrustedName))
+                .ForMember(dm => dm.Name, d => d.MapFrom(e => e.UntrustedName))
                 .ForMember(dm => dm.UploadDateTime, d => d.MapFrom(e => e.UploadDT));
 
             

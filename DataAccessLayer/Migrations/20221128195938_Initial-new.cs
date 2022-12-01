@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataAccessLayer.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initialnew : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,20 +49,6 @@ namespace DataAccessLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "File",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Content = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    TimeStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_File", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -177,29 +163,43 @@ namespace DataAccessLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UnstrustedName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UntrustedName = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
                     Size = table.Column<long>(type: "bigint", nullable: false),
                     UploadDT = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
-                    AppFileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AppUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TimeStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FileData", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FileData_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_FileData_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Files",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Content = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    AppFileDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TimeStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Files", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FileData_File_AppFileId",
-                        column: x => x.AppFileId,
+                        name: "FK_Files_FileData_AppFileDataId",
+                        column: x => x.AppFileDataId,
                         principalSchema: "dbo",
-                        principalTable: "File",
+                        principalTable: "FileData",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -233,9 +233,9 @@ namespace DataAccessLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Link = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Link = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
                     AppFileDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TimeStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                    TimeStamp = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -289,17 +289,23 @@ namespace DataAccessLayer.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FileData_AppUserId",
+                name: "IX_FileData_OwnerId",
                 schema: "dbo",
                 table: "FileData",
-                column: "AppUserId");
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FileData_FileId",
+                name: "IX_Files_AppFileDataId",
                 schema: "dbo",
-                table: "FileData",
-                column: "AppFileId",
+                table: "Files",
+                column: "AppFileDataId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Files_FileDataId",
+                schema: "dbo",
+                table: "Files",
+                column: "AppFileDataId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FileViewer_UserId",
@@ -310,6 +316,12 @@ namespace DataAccessLayer.Migrations
                 name: "IX_ShortLink_FileDataId",
                 table: "ShortLink",
                 column: "AppFileDataId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShortLink_Link",
+                table: "ShortLink",
+                column: "Link",
                 unique: true);
         }
 
@@ -331,6 +343,10 @@ namespace DataAccessLayer.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Files",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
                 name: "FileViewer");
 
             migrationBuilder.DropTable(
@@ -345,10 +361,6 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "File",
-                schema: "dbo");
         }
     }
 }

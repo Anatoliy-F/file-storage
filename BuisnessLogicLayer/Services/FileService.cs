@@ -13,10 +13,14 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BuisnessLogicLayer.Services
 {
-    public class FileService : BaseService, IFileService
+    public class FileService : IFileService
     {
-        public FileService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        protected readonly IUnitOfWork _unitOfWork;
+        protected readonly IMapper _mapper;
+        public FileService(IUnitOfWork unitOfWork, IMapper mapper)
         {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId)
@@ -35,6 +39,29 @@ namespace BuisnessLogicLayer.Services
             if(fileData != null && fileData.OwnerId == userId)
             {
                 return _mapper.Map<FileDataModel>(fileData);
+            }
+            return null;
+        }
+
+        //TODO: test it
+        public async Task UpdateByUserAsync(Guid userId, FileDataModel model)
+        {
+            if (await _unitOfWork.AppFileDataRepository.IsOwner(model.Id, userId))
+            {
+                //TODO: Validate
+                var fileData = _mapper.Map<AppFileData>(model);
+                _unitOfWork.AppFileDataRepository.Update(fileData);
+                await _unitOfWork.SaveAsync();
+            }
+            
+        }
+
+        public async Task<AppFileData?> GetFileByIdAsync(Guid userId, Guid fileId)
+        {
+            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
+            if (fileData != null && fileData.OwnerId == userId)
+            {
+                return fileData;
             }
             return null;
         }
@@ -65,7 +92,7 @@ namespace BuisnessLogicLayer.Services
             int count = await _unitOfWork.AppFileDataRepository.GetFilesCountAsync();
             var source = _unitOfWork.AppFileDataRepository.GetAllNoTraking();
             /*if (query.SortColumn == "name") { 
-                query.SortColumn = "UnstrustedName";
+                query.SortColumn = "UntrustedName";
             }
             var list = await this.TakePageFilteredAndOrderedAsync<AppFileData>(source, query);
 
@@ -125,12 +152,13 @@ namespace BuisnessLogicLayer.Services
             return result;
         }
 
-        public async Task DeleteFileByIdAsync(Guid fileId)
+        public async Task DeleteFileByIdAsync(FileDataModel fileDataModel)
         {
-            await _unitOfWork.AppFileDataRepository.DeleteByIdAsync(fileId);
+            var fileData = this._mapper.Map<AppFileData>(fileDataModel);
+            _unitOfWork.AppFileDataRepository.Delete(fileData);
             await _unitOfWork.SaveAsync();
         }
-        public async Task DeleteOwnByIdAsync(Guid userId, Guid fileId)
+        public async Task DeleteOwnAsync(Guid userId, Guid fileId)
         {
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
             if (fileData != null && fileData.OwnerId == userId)
@@ -149,7 +177,7 @@ namespace BuisnessLogicLayer.Services
             {
                 source = query.FilterColumn.ToLower() switch
                 {
-                    "name" => source.Where(e => e.UnstrustedName.StartsWith(query.FilterQuery)),
+                    "name" => source.Where(e => e.UntrustedName.StartsWith(query.FilterQuery)),
                     "note" => source.Where(e => e.Note.StartsWith(query.FilterQuery)),
                     "ispublic" => source.Where(e => e.IsPublic == (query.FilterQuery.ToLower() == "true")),
                     _ => source
@@ -164,8 +192,8 @@ namespace BuisnessLogicLayer.Services
                 source = query.SortColumn.ToLower() switch
                 {
                     "name" => query.SortOrder == "ASC" ?
-                        source.OrderBy(e => e.UnstrustedName) :
-                        source.OrderByDescending(e => e.UnstrustedName),
+                        source.OrderBy(e => e.UntrustedName) :
+                        source.OrderByDescending(e => e.UntrustedName),
                     "note" => query.SortOrder == "ASC" ?
                         source.OrderBy(e => e.Note) :
                         source.OrderByDescending(e => e.Note),

@@ -30,12 +30,12 @@
         /// <param name="entity">Entity instance</param>
         void Delete(TEntity entity);
 
-        /// <summary>
+       /* /// <summary>
         /// Delete entity from storage by Guid id, witout retrieving entity from storage
         /// </summary>
         /// <param name="id">Entity id</param>
         /// <returns></returns>
-        Task DeleteByIdAsync(Guid id);
+        void DeleteById(Guid id);*/
 
         /// <summary>
         /// Update entity in storage

@@ -36,33 +36,11 @@ namespace DataAccessLayer.Repositories
 
         public override void Delete(AppFileData fileData)
         {
-            if(fileData.AppFileNav != null)
-            {
-                Context.AppFiles.Remove(fileData.AppFileNav);
-            }
-            else
-            {
-                Context.Entry(new AppFile { Id = fileData.AppFileId}).State = EntityState.Deleted;
-            }
             Context.AppFilesData.Remove(fileData);
         }
 
-        public override async Task DeleteByIdAsync(Guid id)
-        {
-            /*var fileData = await this.GetByIdAsync(id);
-            if(fileData != null)
-            {
-                Context.Entry(new AppFile { Id = fileData.AppFileId }).State = EntityState.Deleted;
-            }*/
-            if(Table.Local.Any(fd => fd.Id == id))
-            {
-                Table.Remove(Table.Local.First(fd => fd.Id == id));
-            }
-            else
-            {
-                Context.Entry(new AppFileData { Id = id }).State = EntityState.Deleted;
-            }
-        }
+        public async Task<bool> IsOwner(Guid fileId, Guid OwnerId) =>
+            await Table.Where(e => e.Id == fileId && e.OwnerId == OwnerId).AnyAsync();
 
     }
 }

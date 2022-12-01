@@ -11,6 +11,7 @@ using BuisnessLogicLayer.Models;
 using DataAccessLayer.Interfaces;
 using BuisnessLogicLayer.Interfaces;
 using WebAPI.Utilities;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace WebAPI.Controllers
 {
@@ -45,7 +46,7 @@ namespace WebAPI.Controllers
             var userId = _jwtHandler.GetUserId(this.User);
             var fileData = await _fileService.GetOwnByIdAsync(userId, id);
 
-            if(fileData == null)
+            if (fileData == null)
             {
                 return NotFound();
             }
@@ -62,8 +63,43 @@ namespace WebAPI.Controllers
 
             //TODO: add try, or result object
             var userId = _jwtHandler.GetUserId(this.User);
-            await _fileService.DeleteOwnByIdAsync(userId, id);
+            await _fileService.DeleteOwnAsync(userId, id);
             return Ok();
+        }
+
+        [HttpGet("download/{id}")]
+        public async Task<ActionResult> DownloadFile(Guid id)
+        {
+            var userId = _jwtHandler.GetUserId(this.User);
+            var fileData = await _fileService.GetFileByIdAsync(userId, id);
+            if (fileData == null || fileData.AppFileNav == null)
+            {
+                return NotFound();
+            }
+
+            new FileExtensionContentTypeProvider().TryGetContentType(fileData.UntrustedName, out string? contentType);
+            return File(fileData.AppFileNav.Content, contentType ?? "text/plain", fileData.UntrustedName);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update(Guid Id, [FromBody] FileDataModel model)
+        {
+            if(Id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var userId = _jwtHandler.GetUserId(this.User);
+                await _fileService.UpdateByUserAsync(userId, model);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+                //throw;
+            }
         }
     }
 }
