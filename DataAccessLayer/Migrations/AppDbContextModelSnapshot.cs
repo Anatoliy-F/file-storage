@@ -181,7 +181,7 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex(new[] { "AppFileDataId" }, "IX_ShortLink_FileDataId")
                         .IsUnique();
 
-                    b.ToTable("ShortLink");
+                    b.ToTable("ShortLink", (string)null);
                 });
 
             modelBuilder.Entity("FileViewer", b =>
@@ -196,7 +196,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FileViewer");
+                    b.ToTable("FileViewer", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>

@@ -20,12 +20,14 @@ namespace WebAPI.Controllers
     public class FileController : ControllerBase
     {
         private readonly IFileService _fileService;
+        private readonly IShortLinkService _shortLinkService;
         private readonly JwtHandler _jwtHandler;
 
-        public FileController(IFileService fileService, JwtHandler jwtHandler)
+        public FileController(IFileService fileService, JwtHandler jwtHandler, IShortLinkService shortLinkService)
         {
             _fileService = fileService;
             _jwtHandler = jwtHandler;
+            _shortLinkService = shortLinkService;
         }
 
         [HttpGet]
@@ -100,6 +102,41 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
                 //throw;
             }
+        }
+
+        [HttpDelete("short/{link:length(6)}")]
+        public async Task<ActionResult> DeleteShortLink(string link, [FromBody] FileDataModel model)
+        {
+            var result = await _shortLinkService.DeleteLinkAsync(link);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            else
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+        }
+
+        [HttpPut("short/{id}")]
+        public async Task<ActionResult> CreateShortlink(Guid id, [FromBody] FileDataModel model)
+        {
+            if(id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            var result = await _shortLinkService.GenerateForFileById(id);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            else
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
         }
 
         [HttpPut("share/{email}")]

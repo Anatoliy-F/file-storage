@@ -87,6 +87,7 @@ builder.Services.AddScoped<IMapper, Mapper>(i => new Mapper(mapperConfig));
 
 //setup services
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IShortLinkService, ShortLinkService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

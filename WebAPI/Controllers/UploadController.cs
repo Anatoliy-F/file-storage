@@ -45,12 +45,12 @@ namespace WebAPI.Controllers
             _jwtHandler = jwtHandler;
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public async Task<IActionResult> ShortUrl()
         {
             var shortUrl = WebEncoders.Base64UrlEncode(new Guid("7FE43A9F-DDC4-4D7D-70FA-08DACB19CE30").ToByteArray().Take(4).ToArray());
             return new JsonResult(new {Key = shortUrl});
-        }
+        }*/
 
         [HttpGet("{id}")]
         public async Task<IActionResult> DownloadFile(Guid id)

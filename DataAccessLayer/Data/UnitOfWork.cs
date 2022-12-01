@@ -16,6 +16,7 @@ namespace DataAccessLayer.Data
         private readonly AppDbContext _context;
         private IAppUserRepository? _userRepository;
         private IAppFileDataRepository? _fileDataRepository;
+        private IShortLinkRepository? _shortLinkRepository;
 
         public UnitOfWork(AppDbContext context)
         {
@@ -26,6 +27,7 @@ namespace DataAccessLayer.Data
 
         public IAppUserRepository AppUserRepository => _userRepository ??= new AppUserRepository(_context);
 
+        public IShortLinkRepository ShortLinkRepository => _shortLinkRepository ??= new ShortLinkRepository(_context);
 
         public async Task SaveAsync()
         {

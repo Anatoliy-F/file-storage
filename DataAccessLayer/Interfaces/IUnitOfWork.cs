@@ -6,6 +6,8 @@
         
         IAppUserRepository AppUserRepository { get; }
         
+        IShortLinkRepository ShortLinkRepository { get; }
+
         Task SaveAsync();
     }
 }

@@ -29,6 +29,7 @@ namespace DataAccessLayer.Data
         public DbSet<AppFileData> AppFilesData => Set<AppFileData>();
         public DbSet<AppUser> AppUsersData => Set<AppUser>();
         public DbSet<AppFile> AppFiles => Set<AppFile>();
+        public DbSet<ShortLink> ShortLink => Set<ShortLink>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

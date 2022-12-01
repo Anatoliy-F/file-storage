@@ -160,7 +160,8 @@ namespace BuisnessLogicLayer.Services
         }
         public async Task DeleteOwnAsync(Guid userId, Guid fileId)
         {
-            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
+            //var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
+            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(fileId);
             if (fileData != null && fileData.OwnerId == userId)
             {
                 _unitOfWork.AppFileDataRepository.Delete(fileData);
