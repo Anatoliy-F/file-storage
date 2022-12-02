@@ -1,4 +1,4 @@
-﻿namespace BuisnessLogicLayer.Models
+﻿namespace WebAPI.Models
 {
     public class LoginResponseModel
     {

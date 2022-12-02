@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BuisnessLogicLayer.Models
+namespace WebAPI.Models
 {
     public class RegistrationRequestModel : IValidatableObject
     {

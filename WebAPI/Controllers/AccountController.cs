@@ -1,5 +1,5 @@
 ﻿using BuisnessLogicLayer.Interfaces;
-using BuisnessLogicLayer.Models;
+using WebAPI.Models;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
