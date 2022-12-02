@@ -77,12 +77,15 @@ namespace WebAPI.Controllers
                 });
             }
 
+            bool isAdmin = await _userManager.IsInRoleAsync(user, "Administrator");
+
             var secToken = await _jwtHandler.GetTokenAsync(user);
             var jwt = new JwtSecurityTokenHandler().WriteToken(secToken);
             return Ok(new LoginResponseModel()
             {
                 Success = true,
                 Message = "Login successful",
+                IsAdmin = isAdmin,
                 Token = jwt
             });
         }
