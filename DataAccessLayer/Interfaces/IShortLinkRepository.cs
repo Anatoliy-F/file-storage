@@ -16,5 +16,7 @@ namespace DataAccessLayer.Interfaces
         public Task<AppFileData?> GetFileContetntByLinkAsync(string link);
 
         public Task<ShortLink?> GetShortLinkAsync(string link);
+
+        public Task<AppFileData?> GetFileDataByLinkAsync(string link);
     }
 }

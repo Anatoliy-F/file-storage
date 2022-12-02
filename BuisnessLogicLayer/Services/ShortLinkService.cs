@@ -6,6 +6,7 @@ using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -18,6 +19,8 @@ namespace BuisnessLogicLayer.Services
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IMapper _mapper;
 
+        private const string INVALID_LINK = "Invalid link";
+
         public ShortLinkService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -29,7 +32,7 @@ namespace BuisnessLogicLayer.Services
             var fileData = await _unitOfWork.ShortLinkRepository.GetFileContetntByLinkAsync(link);
             if(fileData == null || !fileData.IsPublic)
             {
-                return (false, null, "Invalid link");
+                return (false, null, INVALID_LINK);
             }
             return (true, fileData, String.Empty);
         }
@@ -40,7 +43,7 @@ namespace BuisnessLogicLayer.Services
             
             if(linkObj == null)
             {
-                return (false, null, "invalid link");
+                return (false, null, INVALID_LINK);
             }
 
             //TODO: maybe request fileData first?
@@ -49,6 +52,16 @@ namespace BuisnessLogicLayer.Services
             await _unitOfWork.SaveAsync();
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileDataId);
             return (true, _mapper.Map<FileDataModel>(fileData), String.Empty);
+        }
+
+        public async Task<(bool IsSuccess, ShortFileDataModel? Data, string? ErrorMessage)> GetShortFileDataAsync(string link)
+        {
+            var fileData = await _unitOfWork.ShortLinkRepository.GetFileDataByLinkAsync(link);
+            if(fileData == null)
+            {
+                return (false, null, INVALID_LINK);
+            }
+            return (true, _mapper.Map<ShortFileDataModel>(fileData), null);
         }
 
         public async Task<(bool IsSuccess, FileDataModel? Data, string? ErrorMessage)> GenerateForFileById(Guid fileId)

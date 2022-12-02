@@ -36,6 +36,12 @@ namespace DataAccessLayer.Repositories
             return linkObj?.AppFileDataNav ?? null;
         }
 
+        public async Task<AppFileData?> GetFileDataByLinkAsync(string link)
+        {
+            var linkObj = await Table.Include(sl => sl.AppFileDataNav).FirstOrDefaultAsync(sl => sl.Link == link);
+            return linkObj?.AppFileDataNav ?? null;
+        }
+
         public Task<ShortLink?> GetShortLinkAsync(string link)
         {
             return Table.FirstOrDefaultAsync(sl => sl.Link == link);

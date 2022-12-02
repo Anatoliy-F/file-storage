@@ -15,5 +15,7 @@ namespace BuisnessLogicLayer.Interfaces
         public Task<(bool IsSuccess, AppFileData? Data, string? ErrorMessage)> GetFileByShortLinkAsync(string link);
 
         public Task<(bool IsSuccess, FileDataModel? Data, string? ErrorMessage)> DeleteLinkAsync(string link);
+
+        public Task<(bool IsSuccess, ShortFileDataModel? Data, string? ErrorMessage)> GetShortFileDataAsync(string link);
     }
 }
