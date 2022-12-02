@@ -1,5 +1,7 @@
-﻿using BuisnessLogicLayer.Models;
+﻿using BuisnessLogicLayer.Interfaces;
+using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,15 +14,16 @@ namespace WebAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+        private readonly IUserService _userService;
         private readonly JwtHandler _jwtHandler;
 
-        public AccountController(UserManager<AppUser> userManager, JwtHandler jwtHandler, RoleManager<IdentityRole<Guid>> roleManager)
+        public AccountController(UserManager<AppUser> userManager, JwtHandler jwtHandler, RoleManager<IdentityRole<Guid>> roleManager, IUserService userService)
         {
             _userManager = userManager;
             _jwtHandler = jwtHandler;
             _roleManager = roleManager;
+            _userService = userService;
         }
 
         [HttpPost("Registration")]
@@ -82,6 +85,18 @@ namespace WebAPI.Controllers
                 Message = "Login successful",
                 Token = jwt
             });
+        }
+
+        [Authorize(Roles = "RegisteredUser")]
+        [HttpGet("isExist/{email}")]
+        public async Task<IActionResult> IsUserExist(string email)
+        {
+            var isSuccess = await _userService.IsExistByEmailAsync(email);
+            if (isSuccess)
+            {
+                return Ok(new { isSuccess = true });
+            }
+            return NotFound();
         }
     }
 }

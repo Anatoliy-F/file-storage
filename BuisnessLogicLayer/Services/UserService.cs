@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BuisnessLogicLayer.Interfaces;
 using DataAccessLayer.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BuisnessLogicLayer.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IMapper _mapper;
@@ -19,7 +20,7 @@ namespace BuisnessLogicLayer.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> IsExistByEmail(string userEmail)
+        public async Task<bool> IsExistByEmailAsync(string userEmail)
         {
             if (string.IsNullOrEmpty(userEmail))
             {
