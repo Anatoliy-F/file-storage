@@ -3,6 +3,9 @@ using DataAccessLayer.Exceptions;
 using DataAccessLayer.Interfaces;
 using DataAccessLayer.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +21,12 @@ namespace DataAccessLayer.Data
         private IAppFileDataRepository? _fileDataRepository;
         private IShortLinkRepository? _shortLinkRepository;
 
-        public UnitOfWork(AppDbContext context)
+        public ILogger<UnitOfWork> Logger { get; set; }
+
+        public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
             _context = context;
+            Logger = logger;
         }
 
         public IAppFileDataRepository AppFileDataRepository => _fileDataRepository ??= new AppFileDataRepository(_context);
@@ -31,18 +37,29 @@ namespace DataAccessLayer.Data
 
         public async Task SaveAsync()
         {
+            
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (CustomException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                //TODO: already logged - should handle
-                throw;
+                Logger.LogError(ex, "Concurrency broken :(");
+                throw new CustomConcurrencyException("A concurrency error happened.", ex);
+            }
+            catch (RetryLimitExceededException ex)
+            {
+                Logger.LogError(ex, "SQL Server broken :(");
+                throw new CustomRetryLimitExceededException("There is a problem with SQL Server.", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                Logger.LogError(ex, "Update in trouble :(");
+                throw new CustomDbUpdateException("An error occurred updating the database", ex);
             }
             catch (Exception ex)
             {
-                //TODO: log and handle
+                Logger.LogError(ex, "Something went wrong :(");
                 throw new CustomException("An error occurred updating the database", ex);
             }
         }
@@ -51,7 +68,7 @@ namespace DataAccessLayer.Data
 
         protected virtual void Dispose(bool disposing)
         {
-            if(!disposed && disposing)
+            if (!disposed && disposing)
             {
                 _context.Dispose();
             }

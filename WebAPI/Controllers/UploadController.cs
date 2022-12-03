@@ -22,6 +22,8 @@ namespace WebAPI.Controllers
     public class UploadController : ControllerBase
     {
         private readonly long _filesizeLimit;
+        
+        //TODO: read extensions from appsetting
         private readonly string[] _permittedExtensions = { ".txt", ".png" };
 
         private static readonly FormOptions _defaultFormoptions = new();

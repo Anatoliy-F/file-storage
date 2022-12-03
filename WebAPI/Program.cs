@@ -9,6 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Http.Features;
 using BuisnessLogicLayer;
 using AutoMapper;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
 using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Services;
 
@@ -29,6 +32,7 @@ builder.Services.AddCors(options =>
         });
 });
 
+
 builder.Services.AddControllers();
 
 //setup EF 
@@ -45,7 +49,6 @@ builder.Services.Configure<FormOptions>(options =>
 });
 
 //setup Identity
-//TODO: without TRole no exception! Need setup TRole
 builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
 {
     options.SignIn.RequireConfirmedPhoneNumber = false; //confirm phone number
@@ -79,13 +82,27 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//setup Serilog
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .WriteTo.MSSqlServer(connectionString: 
+        ctx.Configuration.GetConnectionString("FileStorage"),
+        restrictedToMinimumLevel: LogEventLevel.Information,
+        sinkOptions: new MSSqlServerSinkOptions
+        {
+            TableName = "LogEvents",
+            AutoCreateSqlTable = true,
+        }
+        )
+    .WriteTo.Console()
+);
 
 //setup AutoMapper
 var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile(new AutoMapperProfile()));
 builder.Services.AddScoped<IMapper, Mapper>(i => new Mapper(mapperConfig));
 
 //setup services
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IShortLinkService, ShortLinkService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -95,6 +112,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+//uncomment, if want logging HTTP requests
+//app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

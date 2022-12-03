@@ -10,21 +10,15 @@ using System.ComponentModel;
 using DataAccessLayer.Exceptions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace DataAccessLayer.Data
 {
     public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-        //To create migrations without DI
-        /*public AppDbContext() { }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-OHE8HBB\SQLEXPRESS;Initial Catalog=FileStorage;trusted_connection=true;Encrypt=False");
-        }*/
-        //End of creating migrations without DI
+        }
 
         public DbSet<AppFileData> AppFilesData => Set<AppFileData>();
         public DbSet<AppUser> AppUsersData => Set<AppUser>();
@@ -35,7 +29,7 @@ namespace DataAccessLayer.Data
         {
             base.OnModelCreating(builder);
 
-            
+
             builder.Entity<AppFileData>(entity =>
             {
                 entity.ToTable("FileData", "dbo");
@@ -46,7 +40,7 @@ namespace DataAccessLayer.Data
                 entity.Property(e => e.UploadDT).IsRequired();
                 entity.Property(e => e.IsPublic).IsRequired();
                 entity.Property(e => e.TimeStamp).IsRowVersion().IsConcurrencyToken();
-                
+
                 entity.HasOne(d => d.OwnerNav)
                     .WithMany(p => p.AppFiles)
                     .HasForeignKey(d => d.OwnerId)
@@ -76,15 +70,17 @@ namespace DataAccessLayer.Data
 
                 entity.HasIndex(e => e.AppFileDataId, "IX_Files_FileDataId");
 
-                
+
             });
 
             //set one-to-one with ShortLink and AppFileData.
-            builder.Entity<ShortLink>(entity => {
+            builder.Entity<ShortLink>(entity =>
+            {
                 entity.HasIndex(e => e.AppFileDataId, "IX_ShortLink_FileDataId").IsUnique();
             });
 
-            builder.Entity<AppFileData>(entity => {
+            builder.Entity<AppFileData>(entity =>
+            {
                 entity.HasOne(d => d.ShortLinkNav)
                     .WithOne(p => p.AppFileDataNav)
                     .HasForeignKey<ShortLink>(d => d.AppFileDataId);
@@ -108,34 +104,6 @@ namespace DataAccessLayer.Data
                         .HasForeignKey("FileDataId")
                         .HasConstraintName("FK_FileViewer_FileData_FileDataId")
                         .OnDelete(DeleteBehavior.ClientCascade));
-        }
-
-        public override int SaveChanges()
-        {
-            try
-            {
-                return base.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                //TODO: log and handle
-                throw new CustomConcurrencyException("A concurrency error happened.", ex);
-            }
-            catch (RetryLimitExceededException ex)
-            {
-                //TODO: log and handle
-                throw new CustomRetryLimitExceededException("There is a problem with SQL Server.", ex);
-            }
-            catch (DbUpdateException ex)
-            {
-                //TODO: log and handle
-                throw new CustomDbUpdateException("An error occurred updating the database", ex);
-            }
-            catch (Exception ex)
-            {
-                //TODO: log and handle
-                throw new CustomException("An error occurred updating the database", ex);
-            }
         }
     }
 }
