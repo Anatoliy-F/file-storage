@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 using BuisnessLogicLayer.Enums;
 using DataAccessLayer.Exceptions;
-//using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BuisnessLogicLayer.Services
 {
@@ -27,7 +26,6 @@ namespace BuisnessLogicLayer.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-
 
         //TODO: I really use it?
         public async Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId)
@@ -101,6 +99,8 @@ namespace BuisnessLogicLayer.Services
             {
                 if (await _unitOfWork.AppFileDataRepository.IsOwner(model.Id, userId))
                 {
+                    //TODO: Validate
+                    //TODO: Validate
                     //TODO: Validate
                     var fileData = _mapper.Map<AppFileData>(model);
                     _unitOfWork.AppFileDataRepository.Update(fileData);
@@ -367,11 +367,17 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //TODO: continue from this place
-        //public async Task<FileDataModel?> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId)
         public async Task<ServiceResponse<FileDataModel>> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId)
         {
-            //TODO: VALIDATE email
+            if (!IsValidEmail(userEmail))
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = $"{userEmail} hasn't valid email format"
+                };
+            }
+
             try
             {
                 var user = await _unitOfWork.AppUserRepository.GetByEmailAsync(userEmail);
@@ -480,6 +486,25 @@ namespace BuisnessLogicLayer.Services
                 SortColumn = query.SortColumn,
                 SortOrder = query.SortOrder,
             };
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            var trimmedEmail = email.Trim();
+
+            if (trimmedEmail.EndsWith("."))
+            {
+                return false;
+            }
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == trimmedEmail;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
