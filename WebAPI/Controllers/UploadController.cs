@@ -31,11 +31,14 @@ namespace WebAPI.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly JwtHandler _jwtHandler;
 
-        public UploadController(IConfiguration config, IUnitOfWork unitOfWork, JwtHandler jwtHandler)
+        public ILogger<UploadController> Logger { get; set; }
+
+        public UploadController(IConfiguration config, IUnitOfWork unitOfWork, JwtHandler jwtHandler, ILogger<UploadController> logger)
         {
             _filesizeLimit = config.GetValue<long>("FileSizeLimit");
             _unitOfWork = unitOfWork;
             _jwtHandler = jwtHandler;
+            Logger = logger;
         }
 
         [HttpPost]
@@ -46,13 +49,12 @@ namespace WebAPI.Controllers
             if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
             {
                 ModelState.AddModelError("File", $"The request couldn't be processed (Error 1 : Wrong content type)");
-                //TODO: Log error
+                Logger.LogError("The request couldn't be processed (Error 1 : Wrong content type)");
                 return BadRequest(ModelState);
             }
 
             // Accumulate the form data key-value pairs in the request (formAccumulator).
             var formAccumulator = new KeyValueAccumulator();
-            var trustedFileNameForDisplay = string.Empty;
             var untrustedFileNameForStorage = string.Empty;
             var streamedFileContent = Array.Empty<byte>();
 
@@ -92,7 +94,7 @@ namespace WebAPI.Controllers
                         if(encoding == null)
                         {
                             ModelState.AddModelError("File", $"The request couldn't be processed (Error 2).");
-                            //TODO: logError
+                            Logger.LogError("The request couldn't be processed (Error 2: can't resolve encoding)");
                             return BadRequest(ModelState);
                         }
 
@@ -116,7 +118,7 @@ namespace WebAPI.Controllers
                                 //Form key count limit of _defaultFormOptions.ValueCountLimit
                                 // is exceeded.
                                 ModelState.AddModelError("File", $"The request couldn't be processed (Error 3).");
-                                // TODO: Log error
+                                Logger.LogError("Form key count limit of _defaultFormOptions.ValueCountLimit is exceeded.");
                                 return BadRequest(ModelState);
                             }
                         }
@@ -137,8 +139,8 @@ namespace WebAPI.Controllers
 
             if (!bindingSuccessful)
             {
-                ModelState.AddModelError("File", "The request couldn't be processed (Error 5)");
-                //TODO: log error
+                ModelState.AddModelError("File", "The request couldn't be processed (Error 4)");
+                Logger.LogError("Unable bind form data");
                 return BadRequest(ModelState);
             }
 

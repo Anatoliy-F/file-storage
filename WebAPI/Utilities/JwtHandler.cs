@@ -12,13 +12,14 @@ namespace WebAPI.Utilities
         private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;
 
-        public JwtHandler(IConfiguration configuration, UserManager<AppUser> userManager)
+        public ILogger<JwtHandler> Logger { get; set; }
+
+        public JwtHandler(IConfiguration configuration, UserManager<AppUser> userManager, ILogger<JwtHandler> logger)
         {
             _configuration = configuration;
             _userManager = userManager;
+            Logger = logger;
         }
-
-        
 
         private SigningCredentials GetSigningCredentials()
         {
@@ -44,6 +45,7 @@ namespace WebAPI.Utilities
             string? id = user?.Claims?.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if(id == null)
             {
+                Logger.LogError("User don't have claims in bearer token! We under attack");
                 throw new UnauthorizedAccessException("Bearer doesn't contain id");
             }
             return new Guid(id);
