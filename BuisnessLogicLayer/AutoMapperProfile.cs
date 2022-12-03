@@ -28,6 +28,11 @@ namespace BuisnessLogicLayer
                 .ForMember(dm => dm.Name, d => d.MapFrom(e => e.UntrustedName))
                 .ForMember(dm => dm.UploadDateTime, d => d.MapFrom(e => e.UploadDT));
 
+            CreateMap<AppUser, UserModel>()
+                .ForMember(um => um.Concurrency, au => au.MapFrom(e => e.ConcurrencyStamp))
+                .ForMember(um => um.Name, au => au.MapFrom(e => e.UserName))
+                .ForMember(um => um.Email, au => au.MapFrom(e => e.Email));
+
             
 
         }

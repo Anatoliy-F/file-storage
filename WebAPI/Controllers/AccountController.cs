@@ -101,5 +101,17 @@ namespace WebAPI.Controllers
             }
             return NotFound();
         }
+
+        //[Authorize(Roles = "RegisteredUser")]
+        [HttpGet("byEmail/{email}")]
+        public async Task<IActionResult> GetByEmail(string email)
+        {
+            var user = await _userService.GetByEmailAsync(email);
+            if(user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
     }
 }

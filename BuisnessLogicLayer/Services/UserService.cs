@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BuisnessLogicLayer.Interfaces;
+using BuisnessLogicLayer.Models;
 using DataAccessLayer.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,14 @@ namespace BuisnessLogicLayer.Services
             return await _unitOfWork.AppUserRepository.IsExistByEmailAsync(userEmail);
         }
 
-        
+        public async Task<UserModel?> GetByEmailAsync(string userEmail)
+        {
+            var user = await _unitOfWork.AppUserRepository.GetByEmailAsync(userEmail);
+            if(user == null)
+            {
+                return null;
+            }
+            return _mapper.Map<UserModel>(user);
+        }
     }
 }
