@@ -13,28 +13,19 @@ using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
-    //TODO: remove in rigth space
-    public class FormData
-    {
-        public string Note { get; set; }
-    }
-
-
     [Route("api/[controller]")]
     [ApiController]
     public class UploadController : ControllerBase
     {
         private readonly long _filesizeLimit;
         private readonly string[] _permittedExtensions = { ".txt", ".png" };
-        // Get the default form options so that we can use them to set the default 
-        // limits for request body data.
-        //TODO: Should i use it???
-        private static readonly FormOptions _defaultFormoptions = new FormOptions();
 
-        //TODO: inject UoW, logger;
+        private static readonly FormOptions _defaultFormoptions = new();
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly JwtHandler _jwtHandler;
 
@@ -43,31 +34,6 @@ namespace WebAPI.Controllers
             _filesizeLimit = config.GetValue<long>("FileSizeLimit");
             _unitOfWork = unitOfWork;
             _jwtHandler = jwtHandler;
-        }
-
-        /*[HttpGet]
-        public async Task<IActionResult> ShortUrl()
-        {
-            var shortUrl = WebEncoders.Base64UrlEncode(new Guid("7FE43A9F-DDC4-4D7D-70FA-08DACB19CE30").ToByteArray().Take(4).ToArray());
-            return new JsonResult(new {Key = shortUrl});
-        }*/
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> DownloadFile(Guid id)
-        {
-            AppFileData? afd = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(id);
-            if(afd == null)
-            {
-                return BadRequest();
-            }
-            //"7FE43A9F-DDC4-4D7D-70FA-08DACB19CE30"
-            //byte[] data = afd.AppFileNav.Content;
-            new FileExtensionContentTypeProvider().TryGetContentType(afd.UntrustedName, out string? contentType);
-            return File(afd.AppFileNav?.Content, contentType, afd.UntrustedName);
-
-            
-            
-
         }
 
         [HttpPost]
@@ -106,13 +72,9 @@ namespace WebAPI.Controllers
                     if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
                     {
                         untrustedFileNameForStorage = contentDisposition.FileName.Value;
-                        // Don't trust the file name sent by the client. To display
-                        // the file name, HTML-encode the value.
-                        //TO DO: should i need it?
-                        trustedFileNameForDisplay = WebUtility.HtmlEncode(contentDisposition.FileName.Value);
                         streamedFileContent = await FileHelpers.ProcessStreamedFile(
+                          
                             section, contentDisposition, ModelState, _permittedExtensions, _filesizeLimit);
-
                         if (!ModelState.IsValid)
                         {
                             return BadRequest(ModelState);
@@ -138,8 +100,7 @@ namespace WebAPI.Controllers
                             bufferSize: 1024,
                             leaveOpen: true))
                         {
-                            // The value length limit is enforced by
-                            // MultipartBodyLengthLimit
+                            // The value length limit is enforced by MultipartBodyLengthLimit
                             var value = await streamReader.ReadToEndAsync();
                             if(string.Equals(value, "undefined", StringComparison.OrdinalIgnoreCase))
                             {
@@ -150,8 +111,7 @@ namespace WebAPI.Controllers
 
                             if(formAccumulator.ValueCount > _defaultFormoptions.ValueCountLimit)
                             {
-                                //Form key count limit of
-                                // _defaultFormOptions.ValueCountLimit 
+                                //Form key count limit of _defaultFormOptions.ValueCountLimit
                                 // is exceeded.
                                 ModelState.AddModelError("File", $"The request couldn't be processed (Error 3).");
                                 // TODO: Log error
@@ -180,25 +140,34 @@ namespace WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var file = new AppFileData()
+            try
             {
-                AppFileNav = new AppFile { Content = streamedFileContent },
-                UntrustedName = untrustedFileNameForStorage,
-                Note = formData.Note,
-                Size = streamedFileContent.LongLength,
-                UploadDT = DateTime.UtcNow,
-                OwnerId = _jwtHandler.GetUserId(this.User)//new Guid(this.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value)
-            };
+                //TODO: Create method in service 
 
-            await _unitOfWork.AppFileDataRepository.AddAsync(file);
-            await _unitOfWork.SaveAsync();
-            
-            //_context.File.Add(file);
-            //await _context.SaveChangesAsync();
+                var ownerId = _jwtHandler.GetUserId(this.User);
+
+                var file = new AppFileData()
+                {
+                    AppFileNav = new AppFile { Content = streamedFileContent },
+                    UntrustedName = untrustedFileNameForStorage,
+                    Note = formData.Note,
+                    Size = streamedFileContent.LongLength,
+                    UploadDT = DateTime.UtcNow,
+                    OwnerId = ownerId
+                };
+
+                await _unitOfWork.AppFileDataRepository.AddAsync(file);
+                await _unitOfWork.SaveAsync();
+
+                return Ok();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             //TODO: implement createdAt
             //return Created(nameof(StreamingController), null);
-            return Ok();
         }
     }
 }

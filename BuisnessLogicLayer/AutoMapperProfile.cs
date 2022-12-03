@@ -4,6 +4,7 @@ using DataAccessLayer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +15,8 @@ namespace BuisnessLogicLayer
         public AutoMapperProfile()
         {
             CreateMap<AppFileData, FileDataModel>()
-                .ForMember(dm => dm.Name, d => d.MapFrom(e => e.UntrustedName))
+                //.ForMember(dm => dm.Name, d => d.MapFrom(e => e.UntrustedName))
+                .ForMember(dm => dm.Name, d => d.MapFrom(e => WebUtility.HtmlEncode(e.UntrustedName)))
                 .ForMember(dm => dm.UploadDateTime, d => d.MapFrom(e => e.UploadDT))
                 .ForMember(dm => dm.OwnerId, d => d.MapFrom(e => e.OwnerId))
                 .ForMember(dm => dm.OwnerName, d => d.MapFrom(e => e.OwnerNav == null ? string.Empty : e.OwnerNav.UserName))

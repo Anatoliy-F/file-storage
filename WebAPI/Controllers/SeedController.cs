@@ -17,16 +17,14 @@ namespace WebAPI.Controllers
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly IWebHostEnvironment _env;
-        private readonly IConfiguration _configuration;
 
         public SeedController(AppDbContext context, RoleManager<IdentityRole<Guid>> roleManager, 
-            UserManager<AppUser> userManager, IWebHostEnvironment env, IConfiguration configuration)
+            UserManager<AppUser> userManager, IWebHostEnvironment env)
         {
             _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
             _env = env;
-            _configuration = configuration;
         }
 
         [HttpGet]
@@ -38,8 +36,6 @@ namespace WebAPI.Controllers
 
             List<AppFileData> list = new();
 
-            //if (!_context.AppFilesData.Any())
-            //{
                 var user1 = await _userManager.FindByEmailAsync("user10@email.com");
 
                 for(int i = 0; i < 50; i++)
@@ -108,9 +104,16 @@ namespace WebAPI.Controllers
 
             return new JsonResult(new
             {
-                Count = list.Count,
-                Users = list.Select(fd => new { Name = fd.UntrustedName, Note = fd.Note, 
-                    Size = fd.Size, UploadDT = fd.UploadDT, OwnerId = fd.OwnerId, IsPublic = fd.IsPublic })
+                list.Count,
+                Files = list.Select(fd => new
+                {
+                    Name = fd.UntrustedName!,
+                    fd.Note,
+                    fd.Size,
+                    fd.UploadDT,
+                    fd.OwnerId,
+                    fd.IsPublic
+                })
             });
         }
 
@@ -120,7 +123,6 @@ namespace WebAPI.Controllers
             // prevents non-development environments from running this method
             if (!_env.IsDevelopment())
                 throw new SecurityException("Not allowed");
-
 
             // setup the default role names
             string role_RegisteredUser = "RegisteredUser";
@@ -182,7 +184,7 @@ namespace WebAPI.Controllers
                     };
 
                     // insert the standard user into the DB
-                    var result = await _userManager.CreateAsync(user_User, $"Sampl3Pa$$_User{i}");
+                    await _userManager.CreateAsync(user_User, $"Sampl3Pa$$_User{i}");
 
                     // assign the "RegisteredUser" role
                     await _userManager.AddToRoleAsync(user_User,
@@ -205,7 +207,7 @@ namespace WebAPI.Controllers
 
             return new JsonResult(new
             {
-                Count = addedUserList.Count,
+                addedUserList.Count,
                 Users = addedUserList
             });
         }

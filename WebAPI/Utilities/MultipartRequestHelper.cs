@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
+using System.Text;
 
 namespace WebAPI.Utilities
 {
@@ -33,7 +31,6 @@ namespace WebAPI.Utilities
 
         public static bool HasFormDataContentDisposition(ContentDispositionHeaderValue contentDisposition)
         {
-            // Content-Disposition: form-data; name="key";
             return contentDisposition != null
                 && contentDisposition.DispositionType.Equals("form-data")
                 && string.IsNullOrEmpty(contentDisposition.FileName.Value)
@@ -53,15 +50,13 @@ namespace WebAPI.Utilities
         {
             var hasMediaTypeHeader = MediaTypeHeaderValue.TryParse(section.ContentType, out var mediaType);
 
-            // UTF-7 is insecure and shouldn't be honored. UTF-8 succeeds in 
-            // most cases.
-            if(!hasMediaTypeHeader || Encoding.UTF7.Equals(mediaType.Encoding))
+            // UTF-7 is insecure and shouldn't be honored. UTF-8 succeeds in most cases.
+            if (!hasMediaTypeHeader || Encoding.UTF7.Equals(mediaType.Encoding)
+                || mediaType.Encoding == null)
             {
                 return Encoding.UTF8;
             }
             return mediaType.Encoding;
-
-
         }
     }
 }
