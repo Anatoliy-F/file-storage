@@ -32,6 +32,7 @@ namespace WebAPI.Controllers
             _shortLinkService = shortLinkService;
         }
 
+        [Authorize(Roles = "RegisteredUser")]
         [HttpGet]
         public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
             GetFileData([FromQuery] QueryModel query)
@@ -52,8 +53,6 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
-            
         }
 
         [HttpGet("{id}")]
@@ -61,29 +60,22 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FileDataModel>> GetById(Guid id)
         {
-            //TODO: wrap in try-catch
-            var userId = _jwtHandler.GetUserId(this.User);
-            var serResp = await _fileService.GetOwnByIdAsync(userId, id);
-
-            if (serResp.ResponseResult == ResponseResult.Success && serResp.Data != null)
+            try
             {
-                return new JsonResult(serResp.Data);
+                var userId = _jwtHandler.GetUserId(this.User);
+                var serResp = await _fileService.GetOwnByIdAsync(userId, id);
+
+                if (serResp.ResponseResult == ResponseResult.Success && serResp.Data != null)
+                {
+                    return new JsonResult(serResp.Data);
+                }
+
+                return MapResponseFromBLL(serResp);
             }
-
-            return MapResponseFromBLL(serResp);
-
-            /*if (serResp.ResponseResult == ResponseResult.NotFound)
+            catch (UnauthorizedAccessException ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            if (serResp.ResponseResult == ResponseResult.AccessDenied)
-            {
-                return Forbid();
-            }
-
-            return BadRequest(serResp.ErrorMessage);*/
-            
         }
 
         [HttpDelete("{id}")]
@@ -112,25 +104,30 @@ namespace WebAPI.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return BadRequest(ex.Message);
-            }
-
-            
+            }  
         }
 
         [HttpGet("download/{id}")]
         public async Task<IActionResult> DownloadFile(Guid id)
         {
-            var userId = _jwtHandler.GetUserId(this.User);
-            var respRes = await _fileService.GetFileByIdAsync(userId, id);
-
-            if(respRes.ResponseResult == ResponseResult.Success 
-                && respRes.Data != null && respRes.Data.AppFileNav != null)
+            try
             {
-                new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.UntrustedName, out string? contentType);
-                return File(respRes.Data.AppFileNav.Content, contentType ?? "text/plain", respRes.Data.UntrustedName);
-            }
+                var userId = _jwtHandler.GetUserId(this.User);
+                var respRes = await _fileService.GetFileByIdAsync(userId, id);
 
-            return MapResponseFromBLL(respRes);
+                if (respRes.ResponseResult == ResponseResult.Success
+                    && respRes.Data != null && respRes.Data.AppFileNav != null)
+                {
+                    new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.UntrustedName, out string? contentType);
+                    return File(respRes.Data.AppFileNav.Content, contentType ?? "text/plain", respRes.Data.UntrustedName);
+                }
+
+                return MapResponseFromBLL(respRes);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -159,6 +156,7 @@ namespace WebAPI.Controllers
             }
         }
 
+        //TODO: REPLACE TO SHORTLINKCONTROLLER
         [HttpDelete("short/{link:length(6)}")]
         public async Task<ActionResult> DeleteShortLink(string link, [FromBody] FileDataModel model)
         {
@@ -173,6 +171,7 @@ namespace WebAPI.Controllers
             }
         }
 
+        //TODO: REPLACE TO SHORTLINKCONTROLLER
         [HttpPut("short/{id}")]
         public async Task<ActionResult> CreateShortlink(Guid id, [FromBody] FileDataModel model)
         {
@@ -189,7 +188,7 @@ namespace WebAPI.Controllers
             }
             else
             {
-                return BadRequest(result.ErrorMessage);
+                return MapResponseFromBLL(result);
             }
 
         }
@@ -214,11 +213,8 @@ namespace WebAPI.Controllers
             return MapResponseFromBLL(servResp);
         }
 
-
-
         private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
         {
-            //TODO: RESPONSE SUCCESS
             return response.ResponseResult switch
             {
                 ResponseResult.Success => Ok(response.Data),

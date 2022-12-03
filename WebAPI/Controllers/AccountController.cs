@@ -20,7 +20,8 @@ namespace WebAPI.Controllers
         private readonly IUserService _userService;
         private readonly JwtHandler _jwtHandler;
 
-        public AccountController(UserManager<AppUser> userManager, JwtHandler jwtHandler, RoleManager<IdentityRole<Guid>> roleManager, IUserService userService)
+        public AccountController(UserManager<AppUser> userManager, JwtHandler jwtHandler,
+            RoleManager<IdentityRole<Guid>> roleManager, IUserService userService)
         {
             _userManager = userManager;
             _jwtHandler = jwtHandler;
@@ -36,22 +37,19 @@ namespace WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            //User.
-
             var user = new AppUser
             {
                 UserName = userForRegistration.UserName,
                 Email = userForRegistration.Email,
             };
 
-            //TODO: init roles before run application
-            //create role Registereduser if it don't exist yet
             if(await _roleManager.FindByNameAsync("RegisteredUser") == null)
             {
                 await _roleManager.CreateAsync(new IdentityRole<Guid>("RegisteredUser"));
             }
 
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
+            
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description);
@@ -70,6 +68,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequestModel loginRequest)
         {
             var user = await _userManager.FindByEmailAsync(loginRequest.Email);
+
             if(user == null || !await _userManager.CheckPasswordAsync(user, loginRequest.Password))
             {
                 return Unauthorized(new LoginResponseModel()
@@ -83,6 +82,7 @@ namespace WebAPI.Controllers
 
             var secToken = await _jwtHandler.GetTokenAsync(user);
             var jwt = new JwtSecurityTokenHandler().WriteToken(secToken);
+            
             return Ok(new LoginResponseModel()
             {
                 Success = true,
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
             });
         }
 
-        //TODO: is I need this endpoint
+        //TODO: Is I need this endpoint?
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("isExist/{email}")]
         public async Task<IActionResult> IsUserExist(string email)
@@ -120,7 +120,6 @@ namespace WebAPI.Controllers
 
         private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
         {
-            //TODO: RESPONSE SUCCESS
             return response.ResponseResult switch
             {
                 ResponseResult.Success => Ok(response.Data),
