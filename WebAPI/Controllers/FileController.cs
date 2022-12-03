@@ -33,12 +33,27 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<PaginationResultModel<FileDataModel>>
+        public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
             GetFileData([FromQuery] QueryModel query)
         {
-            //TODO: wrap in try-catch
-            var userId = _jwtHandler.GetUserId(this.User);
-            return await _fileService.GetUserFilesDataNoTrackingAsync(userId, query);
+            try
+            {
+                var userId = _jwtHandler.GetUserId(this.User);
+                var respRes =  await _fileService.GetUserFilesDataNoTrackingAsync(userId, query);
+
+                if(respRes.ResponseResult == ResponseResult.Success)
+                {
+                    return Ok(respRes.Data);
+                }
+
+                return MapResponseFromBLL(respRes);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+            
         }
 
         [HttpGet("{id}")]
@@ -79,10 +94,27 @@ namespace WebAPI.Controllers
                 return BadRequest();
             }
 
-            //TODO: add try, or result object
-            var userId = _jwtHandler.GetUserId(this.User);
-            await _fileService.DeleteOwnAsync(userId, id);
-            return Ok();
+            try
+            {
+                var userId = _jwtHandler.GetUserId(this.User);
+                var servResp = await _fileService.DeleteOwnAsync(userId, id);
+                
+                if(servResp.ResponseResult == ResponseResult.Success)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return MapResponseFromBLL(servResp);
+                }
+               
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            
         }
 
         [HttpGet("download/{id}")]

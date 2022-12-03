@@ -28,7 +28,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userId">Files owner Id</param>
         /// <param name="query">QueryModel (Pagination, sort, filter info)</param>
         /// <returns>PaginationResultModel<FileDataModel></returns>
-        public Task<PaginationResultModel<FileDataModel>> GetUserFilesDataNoTrackingAsync(Guid userId, QueryModel query);
+        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetUserFilesDataNoTrackingAsync(Guid userId, QueryModel query);
 
         /// <summary>
         /// Returns PaginationResultModel (properties for pagination on client side)
@@ -37,7 +37,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// </summary>
         /// <param name="query">QueryModel (Pagination, sort, filter info)</param>
         /// <returns>PaginationResultModel<FileDataModel></returns>
-        public Task<PaginationResultModel<FileDataModel>> GetFilesDataAsync(QueryModel query);
+        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetFilesDataAsync(QueryModel query);
 
         /// <summary>
         /// Return all user's read-only FileDataModel objects (not owned) 
@@ -52,7 +52,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userId">User Id</param>
         /// <param name="query">QueryModel (Pagination, sort, filter info)</param>
         /// <returns>PaginationResultModel<FileDataModel></returns>
-        public Task<PaginationResultModel<FileDataModel>>
+        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>>
            GetSharedWithUserFilesDataAsync(Guid userId, QueryModel query);
 
         //TODO: make deccision about delete by id
@@ -72,7 +72,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userId">OwnerId</param>
         /// <param name="fileId">FileId</param>
         /// <returns>Void</returns>
-        public Task DeleteOwnAsync(Guid userId, Guid fileId);
+        public Task<ServiceResponse<bool>> DeleteOwnAsync(Guid userId, Guid fileId);
 
         public Task<ServiceResponse<AppFileData>> GetFileByIdAsync(Guid userId, Guid fileId);
 
