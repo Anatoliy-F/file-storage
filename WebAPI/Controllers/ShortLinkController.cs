@@ -39,22 +39,10 @@ namespace WebAPI.Controllers
                 return File(result.Data.AppFileNav.Content, contentType ?? "text/plain", result.Data.UntrustedName);
             }
 
-            /*if(result.ResponseResult == ResponseResult.NotFound)
-            {
-                return NotFound();
-            }
-
-            if(result.ResponseResult == ResponseResult.AccessDenied)
-            {
-                return Forbid();
-            }
-
-            return BadRequest(result.ErrorMessage);*/
             return MapResponseFromBLL(result);
         }
 
-        //TODO: file preview by short link
-        //[Authorize(Roles = "RegisteredUser")]
+        [Authorize(Roles = "RegisteredUser")]
         [HttpGet("/preview/{link:length(6)}")]
         public async Task<IActionResult> GetFileData(string link)
         {
@@ -63,17 +51,7 @@ namespace WebAPI.Controllers
             {
                 return Ok(result.Data);
             }
-            /*if (result.ResponseResult == ResponseResult.NotFound)
-            {
-                return NotFound();
-            }
 
-            if (result.ResponseResult == ResponseResult.AccessDenied)
-            {
-                return Forbid();
-            }
-
-            return BadRequest(result.ErrorMessage);*/
             return MapResponseFromBLL(result);
         }
 

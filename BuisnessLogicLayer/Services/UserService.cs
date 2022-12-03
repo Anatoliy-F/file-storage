@@ -76,7 +76,6 @@ namespace BuisnessLogicLayer.Services
             };
         }
 
-        //public async Task<UserModel?> GetByEmailAsync(string userEmail)
         public async Task<ServiceResponse<UserModel>> GetByEmailAsync(string userEmail)
         {
             if (IsValidEmail(userEmail))
