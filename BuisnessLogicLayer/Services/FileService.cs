@@ -246,7 +246,6 @@ namespace BuisnessLogicLayer.Services
             }    
         }
 
-
         private async Task<PaginationResultModel<FileDataModel>> GetFilteredOrderedPaginatedAsync
             (IQueryable<AppFileData> source, QueryModel query)
         {

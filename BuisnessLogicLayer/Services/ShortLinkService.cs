@@ -3,6 +3,7 @@ using BuisnessLogicLayer.Enums;
 using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
+using DataAccessLayer.Exceptions;
 using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using System;
@@ -21,6 +22,7 @@ namespace BuisnessLogicLayer.Services
         protected readonly IMapper _mapper;
 
         private const string INVALID_LINK = "Invalid link";
+        private const string DEFAULT_ERROR = "Something go wrong";
 
         public ShortLinkService(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -30,156 +32,233 @@ namespace BuisnessLogicLayer.Services
 
         public async Task<ServiceResponse<AppFileData>> GetFileByShortLinkAsync(string link)
         {
-            var fileData = await _unitOfWork.ShortLinkRepository.GetFileContetntByLinkAsync(link);
-            
-            if(fileData == null)
+            try
             {
-                return new ServiceResponse<AppFileData>
-                {
-                    ResponseResult = Enums.ResponseResult.NotFound,
-                    ErrorMessage = INVALID_LINK,
-                };
-            }
+                var fileData = await _unitOfWork.ShortLinkRepository.GetFileContetntByLinkAsync(link);
 
-            if (!fileData.IsPublic)
-            {
-                return new ServiceResponse<AppFileData>
+                if (fileData == null)
                 {
-                    ResponseResult = Enums.ResponseResult.AccessDenied,
-                    ErrorMessage = INVALID_LINK,
-                };
-            }
+                    return new ServiceResponse<AppFileData>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = INVALID_LINK,
+                    };
+                }
 
-            if(fileData.AppFileNav == null || fileData.AppFileNav.Content.Length == 0)
+                if (!fileData.IsPublic)
+                {
+                    return new ServiceResponse<AppFileData>
+                    {
+                        ResponseResult = ResponseResult.AccessDenied,
+                        ErrorMessage = INVALID_LINK,
+                    };
+                }
+
+                if (fileData.AppFileNav == null || fileData.AppFileNav.Content.Length == 0)
+                {
+                    return new ServiceResponse<AppFileData>
+                    {
+                        ResponseResult = ResponseResult.Error,
+                        ErrorMessage = "No file content",
+                    };
+                }
+
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = fileData
+                };
+            }
+            catch (CustomException ex)
             {
                 return new ServiceResponse<AppFileData>
                 {
-                    ResponseResult = Enums.ResponseResult.Error,
-                    ErrorMessage = "No file content",
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
                 };
             }
-            
-            return new ServiceResponse<AppFileData>
+            catch (Exception)
             {
-                ResponseResult = Enums.ResponseResult.Success,
-                Data = fileData
-            };
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
         }
 
-        //public async Task<(bool IsSuccess, FileDataModel? Data, string? ErrorMessage)> DeleteLinkAsync(string link)
         public async Task<ServiceResponse<FileDataModel>> DeleteLinkAsync(string link)
         {
-            var linkObj = await _unitOfWork.ShortLinkRepository.GetShortLinkAsync(link);
-            
-            if(linkObj == null)
+            try
             {
-                //return (false, null, INVALID_LINK);
+                var linkObj = await _unitOfWork.ShortLinkRepository.GetShortLinkWithRelatedAsync(link);
+
+                if (linkObj == null)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = INVALID_LINK,
+                    };
+                }
+
+                //TODO: maybe request fileData first?
+                var fileDataId = linkObj.AppFileDataId;
+                _unitOfWork.ShortLinkRepository.Delete(linkObj);
+                await _unitOfWork.SaveAsync();
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileDataId);
+
+                //TODO: should i return fileDataModel. Maybe no?
                 return new ServiceResponse<FileDataModel>
                 {
-                    ErrorMessage = INVALID_LINK,
+                    ResponseResult = Enums.ResponseResult.Success,
+                    Data = _mapper.Map<FileDataModel>(fileData)
                 };
             }
-
-            //TODO: maybe request fileData first?
-            var fileDataId = linkObj.AppFileDataId;
-            _unitOfWork.ShortLinkRepository.Delete(linkObj);
-            await _unitOfWork.SaveAsync();
-            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileDataId);
-            //return (true, _mapper.Map<FileDataModel>(fileData), String.Empty);
-            
-            //TODO: should i return fileDataModel. Maybe no?
-            return new ServiceResponse<FileDataModel> {
-                ResponseResult = Enums.ResponseResult.Success,
-                Data = _mapper.Map<FileDataModel>(fileData)
-            };
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
         }
 
-        
+
         public async Task<ServiceResponse<ShortFileDataModel>> GetShortFileDataAsync(string link)
         {
-            var fileData = await _unitOfWork.ShortLinkRepository.GetFileDataByLinkAsync(link);
-            if (fileData == null)
+            try
             {
-                return new ServiceResponse<ShortFileDataModel>
+                var fileData = await _unitOfWork.ShortLinkRepository.GetFileDataByLinkAsync(link);
+                if (fileData == null)
                 {
-                    ResponseResult = Enums.ResponseResult.NotFound,
-                    ErrorMessage = INVALID_LINK,
-                };
-            }
+                    return new ServiceResponse<ShortFileDataModel>
+                    {
+                        ResponseResult = Enums.ResponseResult.NotFound,
+                        ErrorMessage = INVALID_LINK,
+                    };
+                }
 
-            if (!fileData.IsPublic)
+                if (!fileData.IsPublic)
+                {
+                    return new ServiceResponse<ShortFileDataModel>
+                    {
+                        ResponseResult = Enums.ResponseResult.AccessDenied,
+                        ErrorMessage = INVALID_LINK,
+                    };
+                }
+
+                return new ServiceResponse<ShortFileDataModel>
+                {
+                    ResponseResult = Enums.ResponseResult.Success,
+                    Data = _mapper.Map<ShortFileDataModel>(fileData)
+                };
+            }
+            catch (CustomException ex)
             {
                 return new ServiceResponse<ShortFileDataModel>
                 {
-                    ResponseResult = Enums.ResponseResult.AccessDenied,
-                    ErrorMessage = INVALID_LINK,
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
                 };
             }
-            
-            return new ServiceResponse<ShortFileDataModel> {
-                ResponseResult = Enums.ResponseResult.Success,
-                Data = _mapper.Map<ShortFileDataModel>(fileData)
-            };
+            catch (Exception)
+            {
+                return new ServiceResponse<ShortFileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            } 
         }
 
         public async Task<ServiceResponse<FileDataModel>> GenerateForFileByIdAsync(Guid fileId)
         {
-            
-            if(!(await _unitOfWork.ShortLinkRepository.CanGenerate(fileId)))
+            try
             {
-                return new ServiceResponse<FileDataModel> {
-                    ResponseResult = Enums.ResponseResult.Error,
-                    ErrorMessage = "File with this [Id] already has ShortLink"
-                };
-            }
-            
-            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileId);
-            
-            if(fileData == null)
-            {
-                return new ServiceResponse<FileDataModel>
+                if (!(await _unitOfWork.ShortLinkRepository.CanGenerate(fileId)))
                 {
-                    ResponseResult = Enums.ResponseResult.NotFound,
-                    ErrorMessage = "There are no file with this [Id]"
-                };
-            }
-
-            if (!fileData.IsPublic)
-            {
-                return new ServiceResponse<FileDataModel>
-                {
-                    ResponseResult = Enums.ResponseResult.AccessDenied,
-                    ErrorMessage = "If you want share this file via short link change it accessible level to \"public\""
-                };
-            }
-
-            string shortUrl = string.Empty;
-
-            for(int i = 0; i < 10; i++)
-            {
-                var byteArr = fileId.ToByteArray().Skip(i).Take(4).ToArray();
-                shortUrl = WebEncoders.Base64UrlEncode(byteArr);
-                
-                if(!(await _unitOfWork.ShortLinkRepository.IsExist(shortUrl)))
-                {
-                    break;
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = Enums.ResponseResult.Error,
+                        ErrorMessage = "File with this [Id] already has ShortLink"
+                    };
                 }
+
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileId);
+
+                if (fileData == null)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = Enums.ResponseResult.NotFound,
+                        ErrorMessage = "There are no file with this [Id]"
+                    };
+                }
+
+                if (!fileData.IsPublic)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = Enums.ResponseResult.AccessDenied,
+                        ErrorMessage = "If you want share this file via short link change it accessible level to \"public\""
+                    };
+                }
+
+                string shortUrl = string.Empty;
+
+                for (int i = 0; i < 10; i++)
+                {
+                    var byteArr = fileId.ToByteArray().Skip(i).Take(4).ToArray();
+                    shortUrl = WebEncoders.Base64UrlEncode(byteArr);
+
+                    if (!(await _unitOfWork.ShortLinkRepository.IsExist(shortUrl)))
+                    {
+                        break;
+                    }
+                }
+
+                ShortLink link = new()
+                {
+                    Link = shortUrl,
+                    AppFileDataId = fileId,
+                };
+
+                fileData.ShortLinkNav = link;
+
+                await _unitOfWork.SaveAsync();
+
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = _mapper.Map<FileDataModel>(fileData),
+                };
             }
-
-            ShortLink link = new()
+            catch (CustomException ex)
             {
-                Link = shortUrl,
-                AppFileDataId = fileId,
-            };
-            
-            fileData.ShortLinkNav = link;
-
-            await _unitOfWork.SaveAsync();
-
-            return new ServiceResponse<FileDataModel> { 
-                ResponseResult = ResponseResult.Success,
-                Data = _mapper.Map<FileDataModel>(fileData),
-            };
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }  
         }
     }
 }
