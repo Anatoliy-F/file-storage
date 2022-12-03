@@ -82,7 +82,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userId">user Id</param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public Task UpdateByUserAsync(Guid userId, FileDataModel model);
+        public Task<ServiceResponse<bool>> UpdateByUserAsync(Guid userId, FileDataModel model);
 
         /// <summary>
         /// Share file with user by email
@@ -92,5 +92,6 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="fileDataId">FileData id</param>
         /// <returns></returns>
         public Task<ServiceResponse<FileDataModel>> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId);
+
     }
 }

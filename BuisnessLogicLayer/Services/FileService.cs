@@ -28,6 +28,8 @@ namespace BuisnessLogicLayer.Services
             _mapper = mapper;
         }
 
+
+        //TODO: I really use it?
         public async Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId)
         {
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileId);
@@ -40,46 +42,100 @@ namespace BuisnessLogicLayer.Services
 
         public async Task<ServiceResponse<FileDataModel>> GetOwnByIdAsync(Guid userId, Guid id)
         {
-            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(id);
-            
-            if(fileData == null)
+            try
+            {
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(id);
+
+                if (fileData == null)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with this id: {id}"
+                    };
+                }
+                if (fileData.OwnerId != userId)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.AccessDenied,
+                        ErrorMessage = $"You do not own the file with: {id}"
+                    };
+                }
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = _mapper.Map<FileDataModel>(fileData)
+                };
+            }
+            catch (CustomException ex)
             {
                 return new ServiceResponse<FileDataModel>
                 {
-                    ResponseResult = ResponseResult.NotFound,
-                    ErrorMessage = $"No file with this id: {id}"
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
                 };
             }
-
-            if(fileData.OwnerId != userId)
+            catch (Exception)
             {
                 return new ServiceResponse<FileDataModel>
                 {
-                    ResponseResult = ResponseResult.AccessDenied,
-                    ErrorMessage = $"You do not own the file with: {id}"
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
                 };
-            }
-
-            return new ServiceResponse<FileDataModel>
-            {
-                ResponseResult = ResponseResult.Success,
-                Data = _mapper.Map<FileDataModel>(fileData)
-            };
+            }   
         }
 
-        //TODO: test it
-        public async Task UpdateByUserAsync(Guid userId, FileDataModel model)
+        public async Task<ServiceResponse<bool>> UpdateByUserAsync(Guid userId, FileDataModel model)
         {
-            if (await _unitOfWork.AppFileDataRepository.IsOwner(model.Id, userId))
+            try
             {
-                //TODO: Validate
-                var fileData = _mapper.Map<AppFileData>(model);
-                _unitOfWork.AppFileDataRepository.Update(fileData);
-                await _unitOfWork.SaveAsync();
+                if (await _unitOfWork.AppFileDataRepository.IsOwner(model.Id, userId))
+                {
+                    //TODO: Validate
+                    var fileData = _mapper.Map<AppFileData>(model);
+                    _unitOfWork.AppFileDataRepository.Update(fileData);
+                    await _unitOfWork.SaveAsync();
+                    return new ServiceResponse<bool>
+                    {
+                        ResponseResult = ResponseResult.Success,
+                        Data = true
+                    };
+                }
+                else
+                {
+                    return new ServiceResponse<bool>
+                    {
+                        ResponseResult = ResponseResult.AccessDenied,
+                        ErrorMessage = $"You do not own the file with: {model.Id}"
+                    };
+                }
             }
-            
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
         }
 
+
+        //TODO: IMPLEMENT TRY-CATCH FROM THIS PLACE
+        //TODO: IMPLEMENT TRY-CATCH FROM THIS PLACE
+        //TODO: IMPLEMENT TRY-CATCH FROM THIS PLACE
+        //TODO: IMPLEMENT TRY-CATCH FROM THIS PLACE
+        //TODO: IMPLEMENT TRY-CATCH FROM THIS PLACE
+        //TODO: IMPLEMENT TRY-CATCH FROM THIS PLACE
         public async Task<ServiceResponse<AppFileData>> GetFileByIdAsync(Guid userId, Guid fileId)
         {
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);

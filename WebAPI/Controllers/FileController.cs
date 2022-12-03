@@ -112,13 +112,18 @@ namespace WebAPI.Controllers
             try
             {
                 var userId = _jwtHandler.GetUserId(this.User);
-                await _fileService.UpdateByUserAsync(userId, model);
-                return Ok();
+                var respRes = await _fileService.UpdateByUserAsync(userId, model);
+                
+                if(respRes.ResponseResult == ResponseResult.Success)
+                {
+                    return Ok();
+                }
+
+                return MapResponseFromBLL(respRes);
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException ex)
             {
                 return BadRequest(ex.Message);
-                //throw;
             }
         }
 
