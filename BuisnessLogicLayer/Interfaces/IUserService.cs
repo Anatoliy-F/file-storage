@@ -9,8 +9,8 @@ namespace BuisnessLogicLayer.Interfaces
 {
     public interface IUserService
     {
-        public Task<bool> IsExistByEmailAsync(string userEmail);
+        public Task<ServiceResponse<bool>> IsExistByEmailAsync(string userEmail);
 
-        public Task<UserModel?> GetByEmailAsync(string userEmail);
+        public Task<ServiceResponse<UserModel>> GetByEmailAsync(string userEmail);
     }
 }

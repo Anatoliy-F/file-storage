@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using WebAPI.Utilities;
+using BuisnessLogicLayer.Enums;
+using BuisnessLogicLayer.Models;
 
 namespace WebAPI.Controllers
 {
@@ -90,28 +92,43 @@ namespace WebAPI.Controllers
             });
         }
 
+        //TODO: is I need this endpoint
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("isExist/{email}")]
         public async Task<IActionResult> IsUserExist(string email)
         {
-            var isSuccess = await _userService.IsExistByEmailAsync(email);
-            if (isSuccess)
+            var servRes = await _userService.IsExistByEmailAsync(email);
+            if (servRes.ResponseResult == ResponseResult.Success)
             {
                 return Ok(new { isSuccess = true });
             }
-            return NotFound();
+
+            return MapResponseFromBLL(servRes);
         }
 
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("byEmail/{email}")]
         public async Task<IActionResult> GetByEmail(string email)
         {
-            var user = await _userService.GetByEmailAsync(email);
-            if(user == null)
+            var servRes = await _userService.GetByEmailAsync(email);
+            if(servRes.ResponseResult == ResponseResult.Success)
             {
-                return NotFound();
+                return Ok(servRes.Data);
             }
-            return Ok(user);
+            return MapResponseFromBLL(servRes);
+        }
+
+        private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
+        {
+            //TODO: RESPONSE SUCCESS
+            return response.ResponseResult switch
+            {
+                ResponseResult.Success => Ok(response.Data),
+                ResponseResult.NotFound => NotFound(),
+                ResponseResult.AccessDenied => Forbid(),
+                ResponseResult.Error => BadRequest(response.ErrorMessage),
+                _ => BadRequest()
+            };
         }
     }
 }

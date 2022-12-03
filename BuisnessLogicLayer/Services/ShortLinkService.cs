@@ -91,6 +91,7 @@ namespace BuisnessLogicLayer.Services
         {
             try
             {
+                //TODO: DELETE LINK WORK WRONG, JUST DELETE NO SIDE EFFECTS
                 var linkObj = await _unitOfWork.ShortLinkRepository.GetShortLinkWithRelatedAsync(link);
 
                 if (linkObj == null)
@@ -102,13 +103,10 @@ namespace BuisnessLogicLayer.Services
                     };
                 }
 
-                //TODO: maybe request fileData first?
-                var fileDataId = linkObj.AppFileDataId;
+                var fileData = linkObj.AppFileDataNav;
                 _unitOfWork.ShortLinkRepository.Delete(linkObj);
                 await _unitOfWork.SaveAsync();
-                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileDataId);
 
-                //TODO: should i return fileDataModel. Maybe no?
                 return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = Enums.ResponseResult.Success,
