@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using BuisnessLogicLayer.Enums;
+//using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BuisnessLogicLayer.Services
 {
@@ -42,6 +43,7 @@ namespace BuisnessLogicLayer.Services
             {
                 return new ServiceResponse<FileDataModel>
                 {
+                    ResponseResult = ResponseResult.NotFound,
                     ErrorMessage = $"No file with this id: {id}"
                 };
             }
@@ -50,6 +52,7 @@ namespace BuisnessLogicLayer.Services
             {
                 return new ServiceResponse<FileDataModel>
                 {
+                    ResponseResult = ResponseResult.AccessDenied,
                     ErrorMessage = $"You do not own the file with: {id}"
                 };
             }
@@ -57,7 +60,7 @@ namespace BuisnessLogicLayer.Services
             //return _mapper.Map<FileDataModel>(fileData);
             return new ServiceResponse<FileDataModel>
             {
-                IsSuccess = true,
+                ResponseResult = ResponseResult.Success,
                 Data = _mapper.Map<FileDataModel>(fileData)
             };
         }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.Entities;
 using BuisnessLogicLayer.Models;
+using BuisnessLogicLayer.Enums;
 using DataAccessLayer.Interfaces;
 using BuisnessLogicLayer.Interfaces;
 using WebAPI.Utilities;
@@ -31,10 +32,21 @@ namespace WebAPI.Controllers
         {
             var result = await _shortLinkService.GetFileByShortLinkAsync(link);
 
-            if (result.IsSuccess && result.Data != null && result.Data.AppFileNav != null)
+            if (result.ResponseResult == ResponseResult.Success
+                && result.Data != null && result.Data.AppFileNav != null)
             {
                 new FileExtensionContentTypeProvider().TryGetContentType(result.Data.UntrustedName, out string? contentType);
                 return File(result.Data.AppFileNav.Content, contentType ?? "text/plain", result.Data.UntrustedName);
+            }
+
+            if(result.ResponseResult == ResponseResult.NotFound)
+            {
+                return NotFound();
+            }
+
+            if(result.ResponseResult == ResponseResult.AccessDenied)
+            {
+                return Forbid();
             }
 
             return BadRequest(result.ErrorMessage);
@@ -46,10 +58,20 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetFileData(string link)
         {
             var result = await _shortLinkService.GetShortFileDataAsync(link);
-            if(result.IsSuccess && result.Data != null)
+            if(result.ResponseResult == ResponseResult.Success && result.Data != null)
             {
                 return Ok(result.Data);
             }
+            if (result.ResponseResult == ResponseResult.NotFound)
+            {
+                return NotFound();
+            }
+
+            if (result.ResponseResult == ResponseResult.AccessDenied)
+            {
+                return Forbid();
+            }
+
             return BadRequest(result.ErrorMessage);
         }
     }

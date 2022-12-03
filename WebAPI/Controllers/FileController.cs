@@ -12,6 +12,7 @@ using DataAccessLayer.Interfaces;
 using BuisnessLogicLayer.Interfaces;
 using WebAPI.Utilities;
 using Microsoft.AspNetCore.StaticFiles;
+using BuisnessLogicLayer.Enums;
 
 namespace WebAPI.Controllers
 {
@@ -48,10 +49,21 @@ namespace WebAPI.Controllers
             var userId = _jwtHandler.GetUserId(this.User);
             var serResp = await _fileService.GetOwnByIdAsync(userId, id);
 
-            if (serResp.IsSuccess && serResp.Data != null)
+            if (serResp.ResponseResult == ResponseResult.Success && serResp.Data != null)
             {
                 return new JsonResult(serResp.Data);
             }
+
+            if (serResp.ResponseResult == ResponseResult.NotFound)
+            {
+                return NotFound();
+            }
+
+            if (serResp.ResponseResult == ResponseResult.AccessDenied)
+            {
+                return Forbid();
+            }
+
             return BadRequest(serResp.ErrorMessage);
             
         }
@@ -109,7 +121,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> DeleteShortLink(string link, [FromBody] FileDataModel model)
         {
             var result = await _shortLinkService.DeleteLinkAsync(link);
-            if (result.IsSuccess)
+            if (result.ResponseResult == ResponseResult.Success)
             {
                 return Ok(result.Data);
             }
@@ -129,7 +141,7 @@ namespace WebAPI.Controllers
 
             var result = await _shortLinkService.GenerateForFileByIdAsync(id);
 
-            if (result.IsSuccess)
+            if (result.ResponseResult == ResponseResult.Success)
             {
                 return Ok(result.Data);
             }

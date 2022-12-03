@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BuisnessLogicLayer.Enums;
 using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
@@ -27,22 +28,40 @@ namespace BuisnessLogicLayer.Services
             _mapper = mapper;
         }
 
-        //public async Task<(bool IsSuccess, AppFileData? Data, string? ErrorMessage)> GetFileByShortLinkAsync(string link)
         public async Task<ServiceResponse<AppFileData>> GetFileByShortLinkAsync(string link)
         {
             var fileData = await _unitOfWork.ShortLinkRepository.GetFileContetntByLinkAsync(link);
-            if(fileData == null || !fileData.IsPublic)
+            
+            if(fileData == null)
             {
-                //return (false, null, INVALID_LINK);
                 return new ServiceResponse<AppFileData>
                 {
+                    ResponseResult = Enums.ResponseResult.NotFound,
                     ErrorMessage = INVALID_LINK,
                 };
             }
-            //return (true, fileData, String.Empty);
+
+            if (!fileData.IsPublic)
+            {
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = Enums.ResponseResult.AccessDenied,
+                    ErrorMessage = INVALID_LINK,
+                };
+            }
+
+            if(fileData.AppFileNav == null || fileData.AppFileNav.Content.Length == 0)
+            {
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = Enums.ResponseResult.Error,
+                    ErrorMessage = "No file content",
+                };
+            }
+            
             return new ServiceResponse<AppFileData>
             {
-                IsSuccess = true,
+                ResponseResult = Enums.ResponseResult.Success,
                 Data = fileData
             };
         }
@@ -70,38 +89,46 @@ namespace BuisnessLogicLayer.Services
             
             //TODO: should i return fileDataModel. Maybe no?
             return new ServiceResponse<FileDataModel> {
-                IsSuccess = true,
+                ResponseResult = Enums.ResponseResult.Success,
                 Data = _mapper.Map<FileDataModel>(fileData)
             };
         }
 
-        //public async Task<(bool IsSuccess, ShortFileDataModel? Data, string? ErrorMessage)> GetShortFileDataAsync(string link)
+        
         public async Task<ServiceResponse<ShortFileDataModel>> GetShortFileDataAsync(string link)
         {
             var fileData = await _unitOfWork.ShortLinkRepository.GetFileDataByLinkAsync(link);
-            if(fileData == null)
+            if (fileData == null)
             {
-                //return (false, null, INVALID_LINK);
                 return new ServiceResponse<ShortFileDataModel>
                 {
+                    ResponseResult = Enums.ResponseResult.NotFound,
                     ErrorMessage = INVALID_LINK,
                 };
             }
-            //return (true, _mapper.Map<ShortFileDataModel>(fileData), null);
+
+            if (!fileData.IsPublic)
+            {
+                return new ServiceResponse<ShortFileDataModel>
+                {
+                    ResponseResult = Enums.ResponseResult.AccessDenied,
+                    ErrorMessage = INVALID_LINK,
+                };
+            }
+            
             return new ServiceResponse<ShortFileDataModel> {
-                IsSuccess = true,
+                ResponseResult = Enums.ResponseResult.Success,
                 Data = _mapper.Map<ShortFileDataModel>(fileData)
             };
         }
 
-        //public async Task<(bool IsSuccess, FileDataModel? Data, string? ErrorMessage)> GenerateForFileById(Guid fileId)
         public async Task<ServiceResponse<FileDataModel>> GenerateForFileByIdAsync(Guid fileId)
         {
             
             if(!(await _unitOfWork.ShortLinkRepository.CanGenerate(fileId)))
             {
-                //return (false, null, "File with this [Id] already has ShortLink");
-                return new ServiceResponse<FileDataModel> { 
+                return new ServiceResponse<FileDataModel> {
+                    ResponseResult = Enums.ResponseResult.Error,
                     ErrorMessage = "File with this [Id] already has ShortLink"
                 };
             }
@@ -110,18 +137,18 @@ namespace BuisnessLogicLayer.Services
             
             if(fileData == null)
             {
-                //return (false, null, "There are no file with this [Id]");
                 return new ServiceResponse<FileDataModel>
                 {
+                    ResponseResult = Enums.ResponseResult.NotFound,
                     ErrorMessage = "There are no file with this [Id]"
                 };
             }
 
             if (!fileData.IsPublic)
             {
-                //return (false, null, "If you want share this file via short link change it accessible level to \"public\"");
                 return new ServiceResponse<FileDataModel>
                 {
+                    ResponseResult = Enums.ResponseResult.AccessDenied,
                     ErrorMessage = "If you want share this file via short link change it accessible level to \"public\""
                 };
             }
@@ -149,9 +176,8 @@ namespace BuisnessLogicLayer.Services
 
             await _unitOfWork.SaveAsync();
 
-            //return (true, _mapper.Map<FileDataModel>(fileData), String.Empty);
             return new ServiceResponse<FileDataModel> { 
-                IsSuccess = true,
+                ResponseResult = ResponseResult.Success,
                 Data = _mapper.Map<FileDataModel>(fileData),
             };
         }

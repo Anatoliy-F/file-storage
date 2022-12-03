@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BuisnessLogicLayer.Enums;
 
 namespace BuisnessLogicLayer.Models
 {
     public class ServiceResponse<T>
     {
-        public bool IsSuccess { get; set; } = false;
+        public ResponseResult ResponseResult { get; set; } = ResponseResult.Error;
         
         public T? Data { get; set; } = default(T?);
         
