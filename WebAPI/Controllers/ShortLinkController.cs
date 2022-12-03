@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
                 return File(result.Data.AppFileNav.Content, contentType ?? "text/plain", result.Data.UntrustedName);
             }
 
-            if(result.ResponseResult == ResponseResult.NotFound)
+            /*if(result.ResponseResult == ResponseResult.NotFound)
             {
                 return NotFound();
             }
@@ -49,11 +49,12 @@ namespace WebAPI.Controllers
                 return Forbid();
             }
 
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(result.ErrorMessage);*/
+            return MapResponseFromBLL(result);
         }
 
         //TODO: file preview by short link
-        [Authorize(Roles = "RegisteredUser")]
+        //[Authorize(Roles = "RegisteredUser")]
         [HttpGet("/preview/{link:length(6)}")]
         public async Task<IActionResult> GetFileData(string link)
         {
@@ -62,7 +63,7 @@ namespace WebAPI.Controllers
             {
                 return Ok(result.Data);
             }
-            if (result.ResponseResult == ResponseResult.NotFound)
+            /*if (result.ResponseResult == ResponseResult.NotFound)
             {
                 return NotFound();
             }
@@ -72,7 +73,20 @@ namespace WebAPI.Controllers
                 return Forbid();
             }
 
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(result.ErrorMessage);*/
+            return MapResponseFromBLL(result);
+        }
+
+        private IActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
+        {
+            return response.ResponseResult switch
+            {   
+                ResponseResult.Success => Ok(response.Data),
+                ResponseResult.NotFound => NotFound(),
+                ResponseResult.AccessDenied => Forbid(),
+                ResponseResult.Error => BadRequest(response.ErrorMessage),
+                _ => BadRequest()
+            };
         }
     }
 }
