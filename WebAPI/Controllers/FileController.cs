@@ -24,7 +24,8 @@ namespace WebAPI.Controllers
         private readonly IShortLinkService _shortLinkService;
         private readonly JwtHandler _jwtHandler;
 
-        public FileController(IFileService fileService, JwtHandler jwtHandler, IShortLinkService shortLinkService)
+        public FileController(IFileService fileService, 
+            JwtHandler jwtHandler, IShortLinkService shortLinkService)
         {
             _fileService = fileService;
             _jwtHandler = jwtHandler;
@@ -54,7 +55,9 @@ namespace WebAPI.Controllers
                 return new JsonResult(serResp.Data);
             }
 
-            if (serResp.ResponseResult == ResponseResult.NotFound)
+            return MapResponseFromBLL(serResp);
+
+            /*if (serResp.ResponseResult == ResponseResult.NotFound)
             {
                 return NotFound();
             }
@@ -64,7 +67,7 @@ namespace WebAPI.Controllers
                 return Forbid();
             }
 
-            return BadRequest(serResp.ErrorMessage);
+            return BadRequest(serResp.ErrorMessage);*/
             
         }
 
@@ -83,17 +86,19 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("download/{id}")]
-        public async Task<ActionResult> DownloadFile(Guid id)
+        public async Task<IActionResult> DownloadFile(Guid id)
         {
             var userId = _jwtHandler.GetUserId(this.User);
-            var fileData = await _fileService.GetFileByIdAsync(userId, id);
-            if (fileData == null || fileData.AppFileNav == null)
+            var respRes = await _fileService.GetFileByIdAsync(userId, id);
+
+            if(respRes.ResponseResult == ResponseResult.Success 
+                && respRes.Data != null && respRes.Data.AppFileNav != null)
             {
-                return NotFound();
+                new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.UntrustedName, out string? contentType);
+                return File(respRes.Data.AppFileNav.Content, contentType ?? "text/plain", respRes.Data.UntrustedName);
             }
 
-            new FileExtensionContentTypeProvider().TryGetContentType(fileData.UntrustedName, out string? contentType);
-            return File(fileData.AppFileNav.Content, contentType ?? "text/plain", fileData.UntrustedName);
+            return MapResponseFromBLL(respRes);
         }
 
         [HttpPut("{id}")]
@@ -162,12 +167,29 @@ namespace WebAPI.Controllers
             }*/
 
             var userId = _jwtHandler.GetUserId(this.User);
-            var fdm = await _fileService.ShareByEmailAsync(userId, email, model.Id);
-            if(fdm == null)
+            var servResp = await _fileService.ShareByEmailAsync(userId, email, model.Id);
+            
+            if(servResp.ResponseResult == ResponseResult.Success && servResp.Data != null)
             {
-                BadRequest();
+                return Ok(servResp.Data);
             }
-            return Ok(fdm);
+
+            return MapResponseFromBLL(servResp);
+        }
+
+
+
+        private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
+        {
+            //TODO: RESPONSE SUCCESS
+            return response.ResponseResult switch
+            {
+                ResponseResult.Success => Ok(response.Data),
+                ResponseResult.NotFound => NotFound(),
+                ResponseResult.AccessDenied => Forbid(),
+                ResponseResult.Error => BadRequest(response.ErrorMessage),
+                _ => BadRequest()
+            };
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BuisnessLogicLayer.Enums;
+using DataAccessLayer.Exceptions;
 //using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BuisnessLogicLayer.Services
@@ -18,6 +19,9 @@ namespace BuisnessLogicLayer.Services
     {
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IMapper _mapper;
+
+        private const string DEFAULT_ERROR = "Something go wrong";
+
         public FileService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -34,7 +38,6 @@ namespace BuisnessLogicLayer.Services
             return null;
         }
 
-        //public async Task<FileDataModel?> GetOwnByIdAsync(Guid userId, Guid id)
         public async Task<ServiceResponse<FileDataModel>> GetOwnByIdAsync(Guid userId, Guid id)
         {
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(id);
@@ -57,7 +60,6 @@ namespace BuisnessLogicLayer.Services
                 };
             }
 
-            //return _mapper.Map<FileDataModel>(fileData);
             return new ServiceResponse<FileDataModel>
             {
                 ResponseResult = ResponseResult.Success,
@@ -78,34 +80,44 @@ namespace BuisnessLogicLayer.Services
             
         }
 
-        public async Task<AppFileData?> GetFileByIdAsync(Guid userId, Guid fileId)
+        public async Task<ServiceResponse<AppFileData>> GetFileByIdAsync(Guid userId, Guid fileId)
         {
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
-            if (fileData != null && fileData.OwnerId == userId)
+            
+            if(fileData == null)
             {
-                return fileData;
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = ResponseResult.NotFound,
+                    ErrorMessage = $"No file with this id: {fileId}"
+                };
             }
-            return null;
+
+            if (fileData.OwnerId != userId)
+            {
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = ResponseResult.AccessDenied,
+                    ErrorMessage = $"You do not own the file with: {fileId}"
+                };
+            }
+
+            return new ServiceResponse<AppFileData>
+            { 
+                ResponseResult = ResponseResult.Success,
+                Data = fileData
+            };
         }
 
         public async Task<PaginationResultModel<FileDataModel>> GetUserFilesDataNoTrackingAsync(Guid userId, QueryModel query) 
         {
             int count = await _unitOfWork.AppFileDataRepository.GetUserFilesCountAsync(userId);
             var source = _unitOfWork.AppFileDataRepository.GetAllNoTraking().Where(fd => fd.OwnerId == userId);
-            //var list = await this.TakePageFilteredAndOrderedAsync<AppFileData>(source, query);
-
 
             var result = await GetFilteredOrderedPaginatedAsync(source, query);
             result.TotalCount = count;
 
             return result;
-            /*return new PaginationResultModel<FileDataModel>
-            {
-                TotalCount = count,
-                PageIndex = query.PageIndex,
-                PageSize = query.PageSize,
-                Data = _mapper.Map<ICollection<FileDataModel>>(list)
-            };*/
         }
 
         //method for admins only
@@ -113,19 +125,7 @@ namespace BuisnessLogicLayer.Services
         {
             int count = await _unitOfWork.AppFileDataRepository.GetFilesCountAsync();
             var source = _unitOfWork.AppFileDataRepository.GetAllNoTraking();
-            /*if (query.SortColumn == "name") { 
-                query.SortColumn = "UntrustedName";
-            }
-            var list = await this.TakePageFilteredAndOrderedAsync<AppFileData>(source, query);
-
-            return new PaginationResultModel<FileDataModel>
-            {
-                TotalCount = count,
-                PageIndex = query.PageIndex,
-                PageSize = query.PageSize,
-                Data = _mapper.Map<ICollection<FileDataModel>>(list)
-            };*/
-
+            
             var result = await GetFilteredOrderedPaginatedAsync(source, query);
             result.TotalCount = count;
 
@@ -158,15 +158,6 @@ namespace BuisnessLogicLayer.Services
             }
 
             var source = (IQueryable<AppFileData>) user.ReadOnlyFiles;
-            /*var list = await this.TakePageFilteredAndOrderedAsync<AppFileData>(source, query);
-
-            return new PaginationResultModel<FileDataModel>
-            {
-                TotalCount = user.ReadOnlyFiles.Count,
-                PageIndex = query.PageIndex,
-                PageSize = query.PageSize,
-                Data = _mapper.Map<ICollection<FileDataModel>>(list)
-            };*/
 
             var result = await GetFilteredOrderedPaginatedAsync(source, query);
             result.TotalCount = user.ReadOnlyFiles.Count;
@@ -180,30 +171,79 @@ namespace BuisnessLogicLayer.Services
             _unitOfWork.AppFileDataRepository.Delete(fileData);
             await _unitOfWork.SaveAsync();
         }
+
+        //TODO: VALIDATE, RESULT
         public async Task DeleteOwnAsync(Guid userId, Guid fileId)
         {
-            //var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(fileId);
             if (fileData != null && fileData.OwnerId == userId)
             {
                 _unitOfWork.AppFileDataRepository.Delete(fileData);
                 await _unitOfWork.SaveAsync();
             }
-            //TODO: something with validation
+            
         }
 
-        public async Task<FileDataModel?> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId)
+        //public async Task<FileDataModel?> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId)
+        public async Task<ServiceResponse<FileDataModel>> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId)
         {
-            if (String.IsNullOrEmpty(userEmail)) return null;
-            var user = await _unitOfWork.AppUserRepository.GetByEmailAsync(userEmail);
-            if (user == null) return null;
-            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(fileDataId);
-            if(fileData == null) return null;
-            if(fileData.OwnerId != ownerId) return null;
+            //TODO: VALIDATE email
+            try
+            {
+                var user = await _unitOfWork.AppUserRepository.GetByEmailAsync(userEmail);
+                if (user == null)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No user with email {userEmail}"
+                    };
+                }
 
-            fileData?.FileViewers?.Add(user);
-            await _unitOfWork.SaveAsync();  
-            return _mapper.Map<FileDataModel?>(fileData);
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(fileDataId);
+                if (fileData == null) 
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with id: {fileDataId}"
+                    };
+                }
+
+                if (fileData.OwnerId != ownerId)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.AccessDenied,
+                        ErrorMessage = $"You do not own the file with: {fileDataId}"
+                    };
+                }
+
+                fileData?.FileViewers?.Add(user);
+                await _unitOfWork.SaveAsync();
+
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = _mapper.Map<FileDataModel?>(fileData)
+                };
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }    
         }
 
 

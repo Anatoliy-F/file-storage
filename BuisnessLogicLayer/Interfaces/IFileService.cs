@@ -74,7 +74,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <returns>Void</returns>
         public Task DeleteOwnAsync(Guid userId, Guid fileId);
 
-        public Task<AppFileData?> GetFileByIdAsync(Guid userId, Guid fileId);
+        public Task<ServiceResponse<AppFileData>> GetFileByIdAsync(Guid userId, Guid fileId);
 
         /// <summary>
         /// Update AppFileData with ownership validation
@@ -91,6 +91,6 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userEmail">User id</param>
         /// <param name="fileDataId">FileData id</param>
         /// <returns></returns>
-        public Task<FileDataModel?> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId);
+        public Task<ServiceResponse<FileDataModel>> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId);
     }
 }
