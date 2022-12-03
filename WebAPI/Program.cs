@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Http.Features;
 using BuisnessLogicLayer;
+using WebAPI.Filters;
 using AutoMapper;
 using Serilog;
 using Serilog.Events;
@@ -33,7 +34,7 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(config => config.Filters.Add(new AppExceptionFilterAttribute(builder.Environment)));
 
 //setup EF 
 var connectionString = builder.Configuration.GetConnectionString("FileStorage");

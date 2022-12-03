@@ -30,6 +30,8 @@ namespace WebAPI.Controllers
         [HttpGet("/{link:length(6)}")]
         public async Task<IActionResult> DownloadFile(string link)
         {
+            throw new ArgumentOutOfRangeException("Cause I CAN");
+
             var result = await _shortLinkService.GetFileByShortLinkAsync(link);
 
             if (result.ResponseResult == ResponseResult.Success
