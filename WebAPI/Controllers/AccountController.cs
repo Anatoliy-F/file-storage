@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
             return NotFound();
         }
 
-        //[Authorize(Roles = "RegisteredUser")]
+        [Authorize(Roles = "RegisteredUser")]
         [HttpGet("byEmail/{email}")]
         public async Task<IActionResult> GetByEmail(string email)
         {

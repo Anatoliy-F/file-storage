@@ -142,10 +142,11 @@ namespace WebAPI.Controllers
         [HttpPut("share/{email}")]
         public async Task<ActionResult> Share(string email, [FromBody] FileDataModel model)
         {
-            if(!model.Viewers.Any(fv => fv == email))
+            //TODO: uncomment validation
+            /*if(!model.Viewers.Any(fv => fv.Email == email))
             {
                 return BadRequest();
-            }
+            }*/
 
             var userId = _jwtHandler.GetUserId(this.User);
             var fdm = await _fileService.ShareByEmailAsync(userId, email, model.Id);

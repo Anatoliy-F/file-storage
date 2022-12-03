@@ -21,7 +21,12 @@ namespace BuisnessLogicLayer
                 .ForMember(dm => dm.ShortLink, d => d.MapFrom(e => e.ShortLinkNav == null ? string.Empty : e.ShortLinkNav.Link))
                 .ForMember(dm => dm.Viewers, d => d.MapFrom(e => e.FileViewers != null && e.FileViewers.Any()
                     //? e.FileViewers.Select(fv => new { fv.Id, Name = fv.UserName, fv.Email }) : null))
-                    ? e.FileViewers.Select(fv => fv.Email) : null))
+                    ? e.FileViewers.Select(fv => new UserModel { 
+                        Name = fv.UserName,
+                        Email = fv.Email,
+                        Id = fv.Id,
+                        Concurrency = fv.ConcurrencyStamp
+                    }) : null))
                 .ReverseMap();
 
             CreateMap<AppFileData, ShortFileDataModel>()

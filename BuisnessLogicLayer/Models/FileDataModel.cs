@@ -30,7 +30,7 @@ namespace BuisnessLogicLayer.Models
         public string ShortLink { get; set; } = string.Empty;
 
         //Viewers email
-        public ICollection<string> Viewers { get; set; } = new List<string>();
+        public ICollection<UserModel> Viewers { get; set; } = new List<UserModel>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
