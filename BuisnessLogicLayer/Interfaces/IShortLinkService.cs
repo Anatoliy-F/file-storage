@@ -10,12 +10,12 @@ namespace BuisnessLogicLayer.Interfaces
 {
     public interface IShortLinkService
     {
-        public Task<(bool IsSuccess, FileDataModel? Data, string? ErrorMessage)> GenerateForFileById(Guid fileId);
+        public Task<ServiceResponse<FileDataModel>> GenerateForFileByIdAsync(Guid fileId);
 
-        public Task<(bool IsSuccess, AppFileData? Data, string? ErrorMessage)> GetFileByShortLinkAsync(string link);
+        public Task<ServiceResponse<AppFileData>> GetFileByShortLinkAsync(string link);
 
-        public Task<(bool IsSuccess, FileDataModel? Data, string? ErrorMessage)> DeleteLinkAsync(string link);
+        public Task<ServiceResponse<FileDataModel>> DeleteLinkAsync(string link);
 
-        public Task<(bool IsSuccess, ShortFileDataModel? Data, string? ErrorMessage)> GetShortFileDataAsync(string link);
+        public Task<ServiceResponse<ShortFileDataModel>> GetShortFileDataAsync(string link);
     }
 }

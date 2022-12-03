@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
         }
 
         //TODO: file preview by short link
-        [Authorize(Roles = "RegisteredUser")]
+        //[Authorize(Roles = "RegisteredUser")]
         [HttpGet("/preview/{link:length(6)}")]
         public async Task<IActionResult> GetFileData(string link)
         {

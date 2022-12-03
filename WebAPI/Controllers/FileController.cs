@@ -126,7 +126,7 @@ namespace WebAPI.Controllers
                 return BadRequest();
             }
 
-            var result = await _shortLinkService.GenerateForFileById(id);
+            var result = await _shortLinkService.GenerateForFileByIdAsync(id);
 
             if (result.IsSuccess)
             {
