@@ -46,13 +46,14 @@ namespace WebAPI.Controllers
         {
             //TODO: wrap in try-catch
             var userId = _jwtHandler.GetUserId(this.User);
-            var fileData = await _fileService.GetOwnByIdAsync(userId, id);
+            var serResp = await _fileService.GetOwnByIdAsync(userId, id);
 
-            if (fileData == null)
+            if (serResp.IsSuccess && serResp.Data != null)
             {
-                return NotFound();
+                return new JsonResult(serResp.Data);
             }
-            return new JsonResult(fileData);
+            return BadRequest(serResp.ErrorMessage);
+            
         }
 
         [HttpDelete("{id}")]

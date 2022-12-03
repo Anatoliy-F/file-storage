@@ -64,7 +64,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userId">OwnerId</param>
         /// <param name="id">FileId</param>
         /// <returns>FileDataModel</returns>
-        public Task<FileDataModel?> GetOwnByIdAsync(Guid userId, Guid id);
+        public Task<ServiceResponse<FileDataModel>> GetOwnByIdAsync(Guid userId, Guid id);
 
         /// <summary>
         /// Delete FileDataModel object by FileId and OwnerId

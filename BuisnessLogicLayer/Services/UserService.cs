@@ -2,6 +2,7 @@
 using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Models;
 using DataAccessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,8 @@ namespace BuisnessLogicLayer.Services
 
         public async Task<bool> IsExistByEmailAsync(string userEmail)
         {
+            //TODO: validate email input
+
             if (string.IsNullOrEmpty(userEmail))
             {
                 return false;
@@ -32,6 +35,7 @@ namespace BuisnessLogicLayer.Services
 
         public async Task<UserModel?> GetByEmailAsync(string userEmail)
         {
+            //TODO: validate email input
             var user = await _unitOfWork.AppUserRepository.GetByEmailAsync(userEmail);
             if(user == null)
             {

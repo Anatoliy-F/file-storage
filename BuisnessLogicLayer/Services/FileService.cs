@@ -33,14 +33,33 @@ namespace BuisnessLogicLayer.Services
             return null;
         }
 
-        public async Task<FileDataModel?> GetOwnByIdAsync(Guid userId, Guid id)
+        //public async Task<FileDataModel?> GetOwnByIdAsync(Guid userId, Guid id)
+        public async Task<ServiceResponse<FileDataModel>> GetOwnByIdAsync(Guid userId, Guid id)
         {
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(id);
-            if(fileData != null && fileData.OwnerId == userId)
+            
+            if(fileData == null)
             {
-                return _mapper.Map<FileDataModel>(fileData);
+                return new ServiceResponse<FileDataModel>
+                {
+                    ErrorMessage = $"No file with this id: {id}"
+                };
             }
-            return null;
+
+            if(fileData.OwnerId != userId)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ErrorMessage = $"You do not own the file with: {id}"
+                };
+            }
+
+            //return _mapper.Map<FileDataModel>(fileData);
+            return new ServiceResponse<FileDataModel>
+            {
+                IsSuccess = true,
+                Data = _mapper.Map<FileDataModel>(fileData)
+            };
         }
 
         //TODO: test it
