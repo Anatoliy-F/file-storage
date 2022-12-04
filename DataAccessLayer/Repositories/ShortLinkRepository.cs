@@ -30,7 +30,7 @@ namespace DataAccessLayer.Repositories
             return !(await Table.AnyAsync(sl => sl.AppFileDataId == fileId));
         }
 
-        public async Task<AppFileData?> GetFileContetntByLinkAsync(string link)
+        public async Task<AppFileData?> GetFileContentByLinkAsync(string link)
         {
             var linkObj = await Table.Include(sl => sl.AppFileDataNav).ThenInclude(afd => afd.AppFileNav).FirstOrDefaultAsync(sl => sl.Link == link);
             return linkObj?.AppFileDataNav ?? null;

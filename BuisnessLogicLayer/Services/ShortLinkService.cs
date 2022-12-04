@@ -34,7 +34,7 @@ namespace BuisnessLogicLayer.Services
         {
             try
             {
-                var fileData = await _unitOfWork.ShortLinkRepository.GetFileContetntByLinkAsync(link);
+                var fileData = await _unitOfWork.ShortLinkRepository.GetFileContentByLinkAsync(link);
 
                 if (fileData == null)
                 {

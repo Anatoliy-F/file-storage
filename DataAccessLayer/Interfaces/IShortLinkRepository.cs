@@ -13,7 +13,7 @@ namespace DataAccessLayer.Interfaces
 
         public Task<bool> CanGenerate(Guid fileId);
 
-        public Task<AppFileData?> GetFileContetntByLinkAsync(string link);
+        public Task<AppFileData?> GetFileContentByLinkAsync(string link);
 
         public Task<ShortLink?> GetShortLinkAsync(string link);
 

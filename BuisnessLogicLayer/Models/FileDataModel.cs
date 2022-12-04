@@ -33,7 +33,7 @@ namespace BuisnessLogicLayer.Models
 
         public ICollection<UserModel> Viewers { get; set; } = new List<UserModel>();
 
-
+        //TODO: VALIDATE IsPublic and Viewers and IsPublic ShortLink
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             List<ValidationResult> result = new List<ValidationResult>();
