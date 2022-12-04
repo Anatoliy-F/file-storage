@@ -177,7 +177,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpGet("/admin")]
+        [HttpGet("admin")]
         public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
             GetAllFileData([FromQuery] QueryModel query)
         {
@@ -191,6 +191,7 @@ namespace WebAPI.Controllers
             return MapResponseFromBLL(respRes);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpGet("admin/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -206,7 +207,62 @@ namespace WebAPI.Controllers
             return MapResponseFromBLL(serResp);
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("admin/{id}")]
+        public async Task<ActionResult> DeleteAnyoneById(Guid id, [FromBody] FileDataModel fileDataModel)
+        {
+            if (id != fileDataModel.Id)
+            {
+                return BadRequest();
+            }
 
+            var servResp = await _fileService.DeleteFileByIdAsync(fileDataModel);
+
+            if (servResp.ResponseResult == ResponseResult.Success)
+            {
+                return Ok();
+            }
+            else
+            {
+                return MapResponseFromBLL(servResp);
+            }
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("admin/download/{id}")]
+        public async Task<IActionResult> DownloadAnyoneFile(Guid id)
+        {
+            var respRes = await _fileService.GetAnyOneFileByIdAsync(id);
+
+            if (respRes.ResponseResult == ResponseResult.Success
+                && respRes.Data != null && respRes.Data.AppFileNav != null)
+            {
+                new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.UntrustedName, out string? contentType);
+                return File(respRes.Data.AppFileNav.Content, contentType ?? "text/plain", respRes.Data.UntrustedName);
+            }
+
+            return MapResponseFromBLL(respRes);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("admin/{id}")]
+        public async Task<ActionResult> AdminUpdate(Guid Id, [FromBody] FileDataModel model)
+        {
+            if (Id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            var respRes = await _fileService.UpdateAsync(model);
+
+            if (respRes.ResponseResult == ResponseResult.Success)
+            {
+                return Ok();
+            }
+
+            return MapResponseFromBLL(respRes);
+
+        }
 
         private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
         {

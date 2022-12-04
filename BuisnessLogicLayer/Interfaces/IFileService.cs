@@ -1,5 +1,7 @@
-﻿using BuisnessLogicLayer.Models;
+﻿using BuisnessLogicLayer.Enums;
+using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
+using DataAccessLayer.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,5 +102,25 @@ namespace BuisnessLogicLayer.Interfaces
         /// <returns></returns>
         public Task<ServiceResponse<FileDataModel>> GetByIdAsync(Guid id);
 
+        /// <summary>
+        /// Method for ADMINS
+        /// </summary>
+        /// <param name="fileDataModel"></param>
+        /// <returns></returns>
+        public Task<ServiceResponse<bool>> DeleteFileByIdAsync(FileDataModel fileDataModel);
+
+        /// <summary>
+        /// Method for ADMINS
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
+        public Task<ServiceResponse<AppFileData>> GetAnyOneFileByIdAsync(Guid fileId);
+
+        /// <summary>
+        /// Method for ADMINS
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
+        public Task<ServiceResponse<bool>> UpdateAsync(FileDataModel model);
     }
 }

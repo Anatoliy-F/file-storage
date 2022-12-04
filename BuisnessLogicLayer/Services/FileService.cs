@@ -177,6 +177,41 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        public async Task<ServiceResponse<bool>> UpdateAsync(FileDataModel model)
+        {
+            try
+            {
+                //TODO: Validate
+                //TODO: Validate
+                //TODO: Validate
+                var fileData = _mapper.Map<AppFileData>(model);
+                _unitOfWork.AppFileDataRepository.Update(fileData);
+                await _unitOfWork.SaveAsync();
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = true
+                };
+
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
+        }
+
         public async Task<ServiceResponse<AppFileData>> GetFileByIdAsync(Guid userId, Guid fileId)
         {
             try
@@ -201,6 +236,45 @@ namespace BuisnessLogicLayer.Services
                     };
                 }
 
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = fileData
+                };
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<AppFileData>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
+        }
+
+        //ADMIN DOWNLOAD
+        public async Task<ServiceResponse<AppFileData>> GetAnyOneFileByIdAsync(Guid fileId)
+        {
+            try
+            {
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithContentAsync(fileId);
+
+                if (fileData == null)
+                {
+                    return new ServiceResponse<AppFileData>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with this id: {fileId}"
+                    };
+                }
                 return new ServiceResponse<AppFileData>
                 {
                     ResponseResult = ResponseResult.Success,
@@ -347,14 +421,40 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        public async Task DeleteFileByIdAsync(FileDataModel fileDataModel)
+        //ADMIN
+        public async Task<ServiceResponse<bool>> DeleteFileByIdAsync(FileDataModel fileDataModel)
         {
-            var fileData = this._mapper.Map<AppFileData>(fileDataModel);
-            _unitOfWork.AppFileDataRepository.Delete(fileData);
-            await _unitOfWork.SaveAsync();
+            try
+            {
+                var fileData = this._mapper.Map<AppFileData>(fileDataModel);
+                _unitOfWork.AppFileDataRepository.Delete(fileData);
+                await _unitOfWork.SaveAsync();
+
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = true
+                };
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
         }
 
-        //TODO: HOW DELETE WITH OWNING CHECK IN ONE REQUEST?
+        //BECAUSE OF OWNING CHECK NEED RETRIVE FILEDATA FIRST
         public async Task<ServiceResponse<bool>> DeleteOwnAsync(Guid userId, Guid fileId)
         {
             try
