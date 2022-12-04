@@ -156,43 +156,6 @@ namespace WebAPI.Controllers
             }
         }
 
-        //TODO: REPLACE TO SHORTLINKCONTROLLER
-        [HttpDelete("short/{link:length(6)}")]
-        public async Task<ActionResult> DeleteShortLink(string link, [FromBody] FileDataModel model)
-        {
-            var result = await _shortLinkService.DeleteLinkAsync(link);
-            if (result.ResponseResult == ResponseResult.Success)
-            {
-                return Ok(result.Data);
-            }
-            else
-            {
-                return BadRequest(result.ErrorMessage);
-            }
-        }
-
-        //TODO: REPLACE TO SHORTLINKCONTROLLER
-        [HttpPut("short/{id}")]
-        public async Task<ActionResult> CreateShortlink(Guid id, [FromBody] FileDataModel model)
-        {
-            if(id != model.Id)
-            {
-                return BadRequest();
-            }
-
-            var result = await _shortLinkService.GenerateForFileByIdAsync(id);
-
-            if (result.ResponseResult == ResponseResult.Success)
-            {
-                return Ok(result.Data);
-            }
-            else
-            {
-                return MapResponseFromBLL(result);
-            }
-
-        }
-
         [HttpPut("share/{email}")]
         public async Task<ActionResult> Share(string email, [FromBody] FileDataModel model)
         {
