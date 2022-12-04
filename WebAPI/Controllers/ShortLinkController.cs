@@ -33,10 +33,10 @@ namespace WebAPI.Controllers
             var result = await _shortLinkService.GetFileByShortLinkAsync(link);
 
             if (result.ResponseResult == ResponseResult.Success
-                && result.Data != null && result.Data.AppFileNav != null)
+                && result.Data != null && result.Data.Content != null)
             {
-                new FileExtensionContentTypeProvider().TryGetContentType(result.Data.UntrustedName, out string? contentType);
-                return File(result.Data.AppFileNav.Content, contentType ?? "text/plain", result.Data.UntrustedName);
+                new FileExtensionContentTypeProvider().TryGetContentType(result.Data.Name, out string? contentType);
+                return File(result.Data.Content, contentType ?? "text/plain", result.Data.Name);
             }
 
             return MapResponseFromBLL(result);

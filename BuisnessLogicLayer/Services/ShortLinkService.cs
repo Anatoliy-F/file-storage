@@ -30,7 +30,7 @@ namespace BuisnessLogicLayer.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<AppFileData>> GetFileByShortLinkAsync(string link)
+        public async Task<ServiceResponse<FileDataModel>> GetFileByShortLinkAsync(string link)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace BuisnessLogicLayer.Services
 
                 if (fileData == null)
                 {
-                    return new ServiceResponse<AppFileData>
+                    return new ServiceResponse<FileDataModel>
                     {
                         ResponseResult = ResponseResult.NotFound,
                         ErrorMessage = INVALID_LINK,
@@ -47,7 +47,7 @@ namespace BuisnessLogicLayer.Services
 
                 if (!fileData.IsPublic)
                 {
-                    return new ServiceResponse<AppFileData>
+                    return new ServiceResponse<FileDataModel>
                     {
                         ResponseResult = ResponseResult.AccessDenied,
                         ErrorMessage = INVALID_LINK,
@@ -56,22 +56,22 @@ namespace BuisnessLogicLayer.Services
 
                 if (fileData.AppFileNav == null || fileData.AppFileNav.Content.Length == 0)
                 {
-                    return new ServiceResponse<AppFileData>
+                    return new ServiceResponse<FileDataModel>
                     {
                         ResponseResult = ResponseResult.Error,
                         ErrorMessage = "No file content",
                     };
                 }
 
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Success,
-                    Data = fileData
+                    Data = _mapper.Map<FileDataModel>(fileData),
                 };
             }
             catch (CustomException ex)
             {
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = ex.Message
@@ -79,7 +79,7 @@ namespace BuisnessLogicLayer.Services
             }
             catch (Exception)
             {
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = DEFAULT_ERROR
