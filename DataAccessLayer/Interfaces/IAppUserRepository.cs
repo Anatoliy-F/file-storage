@@ -33,5 +33,9 @@ namespace DataAccessLayer.Interfaces
         /// <param name="userEmail"></param>
         /// <returns></returns>
         public Task<AppUser?> GetByEmailAsync(string userEmail);
+
+        public Task<int> GetUsersCountAsync();
+
+        public IQueryable<AppUser> GetAllNoTracking();
     }
 }

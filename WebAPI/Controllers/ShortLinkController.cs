@@ -27,6 +27,7 @@ namespace WebAPI.Controllers
             _shortLinkService = shortLinkService;
         }
 
+        [AllowAnonymous]
         [HttpGet("/{link:length(6)}")]
         public async Task<IActionResult> DownloadFile(string link)
         {
@@ -55,7 +56,6 @@ namespace WebAPI.Controllers
             return MapResponseFromBLL(result);
         }
 
-        //TODO: return shortLinkModel response
         [Authorize(Roles = "RegisteredUser")]
         [HttpPost("{id}")]
         public async Task<ActionResult> CreateShortlink(Guid id, [FromBody] FileDataModel model)

@@ -35,6 +35,8 @@ namespace DataAccessLayer.Repositories
             return user?.ReadOnlyFiles?.Count ?? 0;
         }
 
+        public async Task<int> GetUsersCountAsync() => await Table.CountAsync();
+
         public async Task<bool> IsExistByEmailAsync(string userEmail)
         {
             return await Table.Where(e => e.NormalizedEmail == userEmail.ToUpper()).AnyAsync();
@@ -44,5 +46,7 @@ namespace DataAccessLayer.Repositories
         {
             return await Table.FirstOrDefaultAsync(u => u.NormalizedEmail == userEmail.ToUpper());
         }
+
+        public IQueryable<AppUser> GetAllNoTracking() => Table.AsNoTracking();
     }
 }

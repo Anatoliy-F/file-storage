@@ -183,8 +183,6 @@ namespace BuisnessLogicLayer.Services
             try
             {
                 //TODO: Validate
-                //TODO: Validate
-                //TODO: Validate
                 var fileData = _mapper.Map<AppFileData>(model);
                 _unitOfWork.AppFileDataRepository.Update(fileData);
                 await _unitOfWork.SaveAsync();
