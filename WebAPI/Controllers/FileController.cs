@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet]
         public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
-            GetFileData([FromQuery] QueryModel query)
+            GetOwn([FromQuery] QueryModel query)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FileDataModel>> GetById(Guid id)
+        public async Task<ActionResult<FileDataModel>> GetOWnById(Guid id)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteById(Guid id, [FromBody] FileDataModel fileDataModel)
+        public async Task<ActionResult> DeleteOwnById(Guid id, [FromBody] FileDataModel fileDataModel)
         {
             if (id != fileDataModel.Id)
             {
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("download/{id}")]
-        public async Task<IActionResult> DownloadFile(Guid id)
+        public async Task<IActionResult> DownloadOwn(Guid id)
         {
             try
             {
@@ -131,7 +131,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(Guid Id, [FromBody] FileDataModel model)
+        public async Task<ActionResult> UpdateOwn(Guid Id, [FromBody] FileDataModel model)
         {
             if (Id != model.Id)
             {
@@ -159,6 +159,7 @@ namespace WebAPI.Controllers
         [HttpPut("share/{email}")]
         public async Task<ActionResult> Share(string email, [FromBody] FileDataModel model)
         {
+            //TODO: DELETE THIS
             //TODO: uncomment validation
             /*if(!model.Viewers.Any(fv => fv.Email == email))
             {
@@ -179,7 +180,7 @@ namespace WebAPI.Controllers
         [Authorize(Roles = "Administrator")]
         [HttpGet("admin")]
         public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
-            GetAllFileData([FromQuery] QueryModel query)
+            Get([FromQuery] QueryModel query)
         {
             var respRes = await _fileService.GetAllFilesDataAsync(query);
 
@@ -195,7 +196,7 @@ namespace WebAPI.Controllers
         [HttpGet("admin/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FileDataModel>> GetAnyoneById(Guid id)
+        public async Task<ActionResult<FileDataModel>> GetById(Guid id)
         {
             var serResp = await _fileService.GetByIdAsync(id);
 
@@ -209,7 +210,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpDelete("admin/{id}")]
-        public async Task<ActionResult> DeleteAnyoneById(Guid id, [FromBody] FileDataModel fileDataModel)
+        public async Task<ActionResult> Delete(Guid id, [FromBody] FileDataModel fileDataModel)
         {
             if (id != fileDataModel.Id)
             {
@@ -230,7 +231,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpGet("admin/download/{id}")]
-        public async Task<IActionResult> DownloadAnyoneFile(Guid id)
+        public async Task<IActionResult> Download(Guid id)
         {
             var respRes = await _fileService.GetAnyOneFileByIdAsync(id);
 
@@ -246,7 +247,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpPut("admin/{id}")]
-        public async Task<ActionResult> AdminUpdate(Guid Id, [FromBody] FileDataModel model)
+        public async Task<ActionResult> Update(Guid Id, [FromBody] FileDataModel model)
         {
             if (Id != model.Id)
             {
