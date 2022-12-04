@@ -23,14 +23,23 @@ namespace BuisnessLogicLayer
                 .ForMember(dm => dm.ShortLink, d => d.MapFrom(e => e.ShortLinkNav == null ? string.Empty : e.ShortLinkNav.Link))
                 .ForMember(dm => dm.Viewers, d => d.MapFrom(e => e.FileViewers != null && e.FileViewers.Any()
                     //? e.FileViewers.Select(fv => new { fv.Id, Name = fv.UserName, fv.Email }) : null))
-                    ? e.FileViewers.Select(fv => new UserModel { 
+                    ? e.FileViewers.Select(fv => new UserModel
+                    {
                         Name = fv.UserName,
                         Email = fv.Email,
                         Id = fv.Id,
                         Concurrency = fv.ConcurrencyStamp
                     }) : null))
-                .ForMember(dm => dm.Content, d => d.MapFrom(e => e.AppFileNav == null ? null : e.AppFileNav.Content))
-                .ReverseMap();
+                .ForMember(dm => dm.Content, d => d.MapFrom(e => e.AppFileNav == null ? null : e.AppFileNav.Content));
+            //.ReverseMap();
+
+            CreateMap<FileDataModel, AppFileData>()
+                .ForMember(fd => fd.UntrustedName, dm => dm.MapFrom(e => e.Name))
+                .ForMember(fd => fd.FileViewers, dm => dm.MapFrom(e => e.Viewers.Count > 0 ? e.Viewers.Select(fv => new AppUser { 
+                    Id = fv.Id,
+                    ConcurrencyStamp = fv.Concurrency
+                }) : null))
+                ;
 
             CreateMap<AppFileData, ShortFileDataModel>()
                 .ForMember(dm => dm.Name, d => d.MapFrom(e => e.UntrustedName))
