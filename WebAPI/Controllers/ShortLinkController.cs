@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace WebAPI.Controllers
 {
-    [Route("")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ShortLinkController : ControllerBase
     {
@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = "RegisteredUser")]
-        [HttpGet("api/[controller]/preview/{link:length(6)}")]
+        [HttpGet("preview/{link:length(6)}")]
         public async Task<IActionResult> GetFileData(string link)
         {
             var result = await _shortLinkService.GetShortFileDataAsync(link);
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
 
         //TODO: return shortLinkModel response
         [Authorize(Roles = "RegisteredUser")]
-        [HttpPost("api/[controller]/{id}")]
+        [HttpPost("{id}")]
         public async Task<ActionResult> CreateShortlink(Guid id, [FromBody] FileDataModel model)
         {
             if (id != model.Id)
@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
 
         //TODO: dont return anything else 
         [Authorize(Roles = "RegisteredUser")]
-        [HttpDelete("api/[controller]/{link:length(6)}")]
+        [HttpDelete("{link:length(6)}")]
         public async Task<ActionResult> DeleteShortLink(string link, [FromBody] FileDataModel model)
         {
             var result = await _shortLinkService.DeleteLinkAsync(link);
