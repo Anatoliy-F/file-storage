@@ -27,7 +27,7 @@ namespace BuisnessLogicLayer.Services
             _mapper = mapper;
         }
 
-        //TODO: I really use it?
+        /*//TODO: I really use it?
         public async Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId)
         {
             var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileId);
@@ -36,16 +36,16 @@ namespace BuisnessLogicLayer.Services
                 return _mapper.Map<ShortFileDataModel>(fileData);
             }
             return null;
-        }
+        }*/
 
-        //TODO: should i use it?
+        /*//TODO: should i use it?
         public async Task<ICollection<FileDataModel>> GetAllFilesSharedWithUserAsync(Guid userId)
         {
             var user = await _unitOfWork.AppUserRepository.GetByIdWithRelatedAsync(userId);
             var list = user?.ReadOnlyFiles ?? new List<AppFileData>();
 
             return _mapper.Map<ICollection<FileDataModel>>(list);
-        }
+        }*/
 
         public async Task<ServiceResponse<FileDataModel>> GetOwnByIdAsync(Guid userId, Guid id)
         {
@@ -93,7 +93,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //ADMIN
+        //FOR ADMIN
         public async Task<ServiceResponse<FileDataModel>> GetByIdAsync(Guid id)
         {
             try
@@ -132,7 +132,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        public async Task<ServiceResponse<bool>> UpdateByUserAsync(Guid userId, FileDataModel model)
+        public async Task<ServiceResponse<bool>> UpdateOwnAsync(Guid userId, FileDataModel model)
         {
             try
             {
@@ -177,6 +177,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        //FOR ADMIN
         public async Task<ServiceResponse<bool>> UpdateAsync(FileDataModel model)
         {
             try
@@ -212,7 +213,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        public async Task<ServiceResponse<AppFileData>> GetFileByIdAsync(Guid userId, Guid fileId)
+        public async Task<ServiceResponse<AppFileData>> GetOwnContentAsync(Guid userId, Guid fileId)
         {
             try
             {
@@ -260,8 +261,8 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //ADMIN DOWNLOAD
-        public async Task<ServiceResponse<AppFileData>> GetAnyOneFileByIdAsync(Guid fileId)
+        //FOR ADMIN
+        public async Task<ServiceResponse<AppFileData>> GetContentAsync(Guid fileId)
         {
             try
             {
@@ -299,7 +300,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetUserFilesDataNoTrackingAsync(Guid userId, QueryModel query)
+        public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllOwnAsync(Guid userId, QueryModel query)
         {
             try
             {
@@ -333,8 +334,8 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //method for admins only
-        public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllFilesDataAsync(QueryModel query)
+        //FOR ADMIN
+        public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllAsync(QueryModel query)
         {
             try
             {
@@ -369,7 +370,7 @@ namespace BuisnessLogicLayer.Services
         }
 
         public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>>
-            GetSharedWithUserFilesDataAsync(Guid userId, QueryModel query)
+            GetSharedAsync(Guid userId, QueryModel query)
         {
             try
             {
@@ -421,8 +422,8 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //ADMIN
-        public async Task<ServiceResponse<bool>> DeleteFileByIdAsync(FileDataModel fileDataModel)
+        //FOR ADMIN
+        public async Task<ServiceResponse<bool>> DeleteAsync(FileDataModel fileDataModel)
         {
             try
             {

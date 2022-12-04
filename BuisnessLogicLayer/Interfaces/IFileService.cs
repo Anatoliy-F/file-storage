@@ -12,14 +12,14 @@ namespace BuisnessLogicLayer.Interfaces
 {
     public interface IFileService
     {
-        /// <summary>
+        /*/// <summary>
         /// Return ShortFileDataObject, with properties
         /// Id, Name, Note, Size, UploadDateTime
         /// using for responses via short link for public accessed files
         /// </summary>
         /// <param name="fileId">File Id</param>
         /// <returns>ShortFileDataObject</returns>
-        public Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId);
+        public Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId);*/
 
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userId">Files owner Id</param>
         /// <param name="query">QueryModel (Pagination, sort, filter info)</param>
         /// <returns>PaginationResultModel<FileDataModel></returns>
-        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetUserFilesDataNoTrackingAsync(Guid userId, QueryModel query);
+        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllOwnAsync(Guid userId, QueryModel query);
 
         /// <summary>
         /// Returns PaginationResultModel (properties for pagination on client side)
@@ -39,14 +39,14 @@ namespace BuisnessLogicLayer.Interfaces
         /// </summary>
         /// <param name="query">QueryModel (Pagination, sort, filter info)</param>
         /// <returns>PaginationResultModel<FileDataModel></returns>
-        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllFilesDataAsync(QueryModel query);
+        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllAsync(QueryModel query);
 
-        /// <summary>
+        /*/// <summary>
         /// Return all user's read-only FileDataModel objects (not owned) 
         /// </summary>
         /// <param name="userId">User Id</param>
         /// <returns>Read-only FileData collection</returns>
-        public Task<ICollection<FileDataModel>> GetAllFilesSharedWithUserAsync(Guid userId);
+        public Task<ICollection<FileDataModel>> GetAllFilesSharedWithUserAsync(Guid userId);*/
 
         /// <summary>
         /// Return paginated user's read-only FileDataModel objects (not owned)
@@ -55,10 +55,10 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="query">QueryModel (Pagination, sort, filter info)</param>
         /// <returns>PaginationResultModel<FileDataModel></returns>
         public Task<ServiceResponse<PaginationResultModel<FileDataModel>>>
-           GetSharedWithUserFilesDataAsync(Guid userId, QueryModel query);
+           GetSharedAsync(Guid userId, QueryModel query);
 
         //TODO: make deccision about delete by id
-        /*public Task DeleteFileByIdAsync(Guid fileId);*/
+        /*public Task DeleteAsync(Guid fileId);*/
 
         /// <summary>
         /// Return FileDataModel object by FileId and OwnerId
@@ -76,7 +76,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <returns>Void</returns>
         public Task<ServiceResponse<bool>> DeleteOwnAsync(Guid userId, Guid fileId);
 
-        public Task<ServiceResponse<AppFileData>> GetFileByIdAsync(Guid userId, Guid fileId);
+        public Task<ServiceResponse<AppFileData>> GetOwnContentAsync(Guid userId, Guid fileId);
 
         /// <summary>
         /// Update AppFileData with ownership validation
@@ -84,7 +84,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="userId">user Id</param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public Task<ServiceResponse<bool>> UpdateByUserAsync(Guid userId, FileDataModel model);
+        public Task<ServiceResponse<bool>> UpdateOwnAsync(Guid userId, FileDataModel model);
 
         /// <summary>
         /// Share file with user by email
@@ -107,14 +107,14 @@ namespace BuisnessLogicLayer.Interfaces
         /// </summary>
         /// <param name="fileDataModel"></param>
         /// <returns></returns>
-        public Task<ServiceResponse<bool>> DeleteFileByIdAsync(FileDataModel fileDataModel);
+        public Task<ServiceResponse<bool>> DeleteAsync(FileDataModel fileDataModel);
 
         /// <summary>
         /// Method for ADMINS
         /// </summary>
         /// <param name="fileId"></param>
         /// <returns></returns>
-        public Task<ServiceResponse<AppFileData>> GetAnyOneFileByIdAsync(Guid fileId);
+        public Task<ServiceResponse<AppFileData>> GetContentAsync(Guid fileId);
 
         /// <summary>
         /// Method for ADMINS

@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
             try
             {
                 var userId = _jwtHandler.GetUserId(this.User);
-                var respRes = await _fileService.GetUserFilesDataNoTrackingAsync(userId, query);
+                var respRes = await _fileService.GetAllOwnAsync(userId, query);
 
                 if (respRes.ResponseResult == ResponseResult.Success)
                 {
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
             try
             {
                 var userId = _jwtHandler.GetUserId(this.User);
-                var respRes = await _fileService.GetFileByIdAsync(userId, id);
+                var respRes = await _fileService.GetOwnContentAsync(userId, id);
 
                 if (respRes.ResponseResult == ResponseResult.Success
                     && respRes.Data != null && respRes.Data.AppFileNav != null)
@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
             try
             {
                 var userId = _jwtHandler.GetUserId(this.User);
-                var respRes = await _fileService.UpdateByUserAsync(userId, model);
+                var respRes = await _fileService.UpdateOwnAsync(userId, model);
 
                 if (respRes.ResponseResult == ResponseResult.Success)
                 {
@@ -182,7 +182,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
             Get([FromQuery] QueryModel query)
         {
-            var respRes = await _fileService.GetAllFilesDataAsync(query);
+            var respRes = await _fileService.GetAllAsync(query);
 
             if (respRes.ResponseResult == ResponseResult.Success)
             {
@@ -217,7 +217,7 @@ namespace WebAPI.Controllers
                 return BadRequest();
             }
 
-            var servResp = await _fileService.DeleteFileByIdAsync(fileDataModel);
+            var servResp = await _fileService.DeleteAsync(fileDataModel);
 
             if (servResp.ResponseResult == ResponseResult.Success)
             {
@@ -233,7 +233,7 @@ namespace WebAPI.Controllers
         [HttpGet("admin/download/{id}")]
         public async Task<IActionResult> Download(Guid id)
         {
-            var respRes = await _fileService.GetAnyOneFileByIdAsync(id);
+            var respRes = await _fileService.GetContentAsync(id);
 
             if (respRes.ResponseResult == ResponseResult.Success
                 && respRes.Data != null && respRes.Data.AppFileNav != null)
@@ -262,7 +262,6 @@ namespace WebAPI.Controllers
             }
 
             return MapResponseFromBLL(respRes);
-
         }
 
         private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
