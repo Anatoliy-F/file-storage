@@ -213,7 +213,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        public async Task<ServiceResponse<AppFileData>> GetOwnContentAsync(Guid userId, Guid fileId)
+        public async Task<ServiceResponse<FileDataModel>> GetOwnContentAsync(Guid userId, Guid fileId)
         {
             try
             {
@@ -221,7 +221,7 @@ namespace BuisnessLogicLayer.Services
 
                 if (fileData == null)
                 {
-                    return new ServiceResponse<AppFileData>
+                    return new ServiceResponse<FileDataModel>
                     {
                         ResponseResult = ResponseResult.NotFound,
                         ErrorMessage = $"No file with this id: {fileId}"
@@ -230,22 +230,22 @@ namespace BuisnessLogicLayer.Services
 
                 if (fileData.OwnerId != userId)
                 {
-                    return new ServiceResponse<AppFileData>
+                    return new ServiceResponse<FileDataModel>
                     {
                         ResponseResult = ResponseResult.AccessDenied,
                         ErrorMessage = $"You do not own the file with: {fileId}"
                     };
                 }
 
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Success,
-                    Data = fileData
+                    Data = _mapper.Map<FileDataModel>(fileData)
                 };
             }
             catch (CustomException ex)
             {
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = ex.Message
@@ -253,7 +253,7 @@ namespace BuisnessLogicLayer.Services
             }
             catch (Exception)
             {
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = DEFAULT_ERROR
@@ -262,7 +262,7 @@ namespace BuisnessLogicLayer.Services
         }
 
         //FOR ADMIN
-        public async Task<ServiceResponse<AppFileData>> GetContentAsync(Guid fileId)
+        public async Task<ServiceResponse<FileDataModel>> GetContentAsync(Guid fileId)
         {
             try
             {
@@ -270,21 +270,21 @@ namespace BuisnessLogicLayer.Services
 
                 if (fileData == null)
                 {
-                    return new ServiceResponse<AppFileData>
+                    return new ServiceResponse<FileDataModel>
                     {
                         ResponseResult = ResponseResult.NotFound,
                         ErrorMessage = $"No file with this id: {fileId}"
                     };
                 }
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Success,
-                    Data = fileData
+                    Data = _mapper.Map<FileDataModel>(fileData)
                 };
             }
             catch (CustomException ex)
             {
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = ex.Message
@@ -292,7 +292,7 @@ namespace BuisnessLogicLayer.Services
             }
             catch (Exception)
             {
-                return new ServiceResponse<AppFileData>
+                return new ServiceResponse<FileDataModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = DEFAULT_ERROR

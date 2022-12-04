@@ -116,10 +116,10 @@ namespace WebAPI.Controllers
                 var respRes = await _fileService.GetOwnContentAsync(userId, id);
 
                 if (respRes.ResponseResult == ResponseResult.Success
-                    && respRes.Data != null && respRes.Data.AppFileNav != null)
+                    && respRes.Data != null && respRes.Data.Content != null)
                 {
-                    new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.UntrustedName, out string? contentType);
-                    return File(respRes.Data.AppFileNav.Content, contentType ?? "text/plain", respRes.Data.UntrustedName);
+                    new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.Name, out string? contentType);
+                    return File(respRes.Data.Content, contentType ?? "text/plain", respRes.Data.Name);
                 }
 
                 return MapResponseFromBLL(respRes);
@@ -236,10 +236,10 @@ namespace WebAPI.Controllers
             var respRes = await _fileService.GetContentAsync(id);
 
             if (respRes.ResponseResult == ResponseResult.Success
-                && respRes.Data != null && respRes.Data.AppFileNav != null)
+                && respRes.Data != null && respRes.Data.Content != null)
             {
-                new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.UntrustedName, out string? contentType);
-                return File(respRes.Data.AppFileNav.Content, contentType ?? "text/plain", respRes.Data.UntrustedName);
+                new FileExtensionContentTypeProvider().TryGetContentType(respRes.Data.Name, out string? contentType);
+                return File(respRes.Data.Content, contentType ?? "text/plain", respRes.Data.Name);
             }
 
             return MapResponseFromBLL(respRes);

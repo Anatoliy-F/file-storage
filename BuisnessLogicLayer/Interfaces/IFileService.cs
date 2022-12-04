@@ -76,7 +76,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <returns>Void</returns>
         public Task<ServiceResponse<bool>> DeleteOwnAsync(Guid userId, Guid fileId);
 
-        public Task<ServiceResponse<AppFileData>> GetOwnContentAsync(Guid userId, Guid fileId);
+        public Task<ServiceResponse<FileDataModel>> GetOwnContentAsync(Guid userId, Guid fileId);
 
         /// <summary>
         /// Update AppFileData with ownership validation
@@ -114,7 +114,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// </summary>
         /// <param name="fileId"></param>
         /// <returns></returns>
-        public Task<ServiceResponse<AppFileData>> GetContentAsync(Guid fileId);
+        public Task<ServiceResponse<FileDataModel>> GetContentAsync(Guid fileId);
 
         /// <summary>
         /// Method for ADMINS

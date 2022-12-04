@@ -13,6 +13,8 @@ namespace BuisnessLogicLayer.Models
 
         public byte[]? TimeStamp { get; set; }
 
+        public byte[]? Content { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
         public string Note { get; set; } = string.Empty;
@@ -29,8 +31,8 @@ namespace BuisnessLogicLayer.Models
 
         public string ShortLink { get; set; } = string.Empty;
 
-        //Viewers email
         public ICollection<UserModel> Viewers { get; set; } = new List<UserModel>();
+
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

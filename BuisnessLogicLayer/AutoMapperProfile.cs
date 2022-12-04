@@ -29,6 +29,7 @@ namespace BuisnessLogicLayer
                         Id = fv.Id,
                         Concurrency = fv.ConcurrencyStamp
                     }) : null))
+                .ForMember(dm => dm.Content, d => d.MapFrom(e => e.AppFileNav == null ? null : e.AppFileNav.Content))
                 .ReverseMap();
 
             CreateMap<AppFileData, ShortFileDataModel>()
