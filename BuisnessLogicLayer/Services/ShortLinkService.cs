@@ -87,7 +87,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        public async Task<ServiceResponse<FileDataModel>> DeleteLinkAsync(string link)
+        public async Task<ServiceResponse<bool>> DeleteLinkAsync(string link)
         {
             try
             {
@@ -96,26 +96,25 @@ namespace BuisnessLogicLayer.Services
 
                 if (linkObj == null)
                 {
-                    return new ServiceResponse<FileDataModel>
+                    return new ServiceResponse<bool>
                     {
                         ResponseResult = ResponseResult.NotFound,
                         ErrorMessage = INVALID_LINK,
                     };
                 }
 
-                var fileData = linkObj.AppFileDataNav;
                 _unitOfWork.ShortLinkRepository.Delete(linkObj);
                 await _unitOfWork.SaveAsync();
 
-                return new ServiceResponse<FileDataModel>
+                return new ServiceResponse<bool>
                 {
                     ResponseResult = Enums.ResponseResult.Success,
-                    Data = _mapper.Map<FileDataModel>(fileData)
+                    Data = true
                 };
             }
             catch (CustomException ex)
             {
-                return new ServiceResponse<FileDataModel>
+                return new ServiceResponse<bool>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = ex.Message
@@ -123,7 +122,7 @@ namespace BuisnessLogicLayer.Services
             }
             catch (Exception)
             {
-                return new ServiceResponse<FileDataModel>
+                return new ServiceResponse<bool>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = DEFAULT_ERROR
