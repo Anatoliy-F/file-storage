@@ -277,7 +277,7 @@ namespace BuisnessLogicLayer.Services
             }
             try
             {
-                var addr = new System.Net.Mail.MailAddress(email);
+                var addr = new MailAddress(email);
                 return addr.Address == trimmedEmail;
             }
             catch

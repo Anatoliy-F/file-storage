@@ -43,13 +43,13 @@ namespace WebAPI.Controllers
                 Email = userForRegistration.Email,
             };
 
-            if(await _roleManager.FindByNameAsync("RegisteredUser") == null)
+            if (await _roleManager.FindByNameAsync("RegisteredUser") == null)
             {
                 await _roleManager.CreateAsync(new IdentityRole<Guid>("RegisteredUser"));
             }
 
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
-            
+
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description);
@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         {
             var user = await _userManager.FindByEmailAsync(loginRequest.Email);
 
-            if(user == null || !await _userManager.CheckPasswordAsync(user, loginRequest.Password))
+            if (user == null || !await _userManager.CheckPasswordAsync(user, loginRequest.Password))
             {
                 return Unauthorized(new LoginResponseModel()
                 {
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
 
             var secToken = await _jwtHandler.GetTokenAsync(user);
             var jwt = new JwtSecurityTokenHandler().WriteToken(secToken);
-            
+
             return Ok(new LoginResponseModel()
             {
                 Success = true,
@@ -111,11 +111,81 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetByEmail(string email)
         {
             var servRes = await _userService.GetByEmailAsync(email);
-            if(servRes.ResponseResult == ResponseResult.Success)
+            if (servRes.ResponseResult == ResponseResult.Success)
             {
                 return Ok(servRes.Data);
             }
             return MapResponseFromBLL(servRes);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetById(Guid id)
+        {
+            var servRes = await _userService.GetByIdAsync(id);
+
+            if (servRes.ResponseResult == ResponseResult.Success && servRes.Data != null)
+            {
+                return new JsonResult(servRes.Data);
+            }
+
+            return MapResponseFromBLL(servRes);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public async Task<ActionResult<PaginationResultModel<UserModel>>> Get([FromQuery] QueryModel query)
+        {
+            var servRes = await _userService.GetAllAsync(query);
+
+            if (servRes.ResponseResult == ResponseResult.Success && servRes.Data != null)
+            {
+                return new JsonResult(servRes.Data);
+            }
+
+            return MapResponseFromBLL(servRes);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(Guid id, [FromBody] UserModel userModel)
+        {
+            if(id != userModel.Id)
+            {
+                return BadRequest();
+            }
+
+            var servResp = await _userService.DeleteAsync(userModel);
+
+            if (servResp.ResponseResult == ResponseResult.Success)
+            {
+                return Ok();
+            }
+            else
+            {
+                return MapResponseFromBLL(servResp);
+            }
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update(Guid id, [FromBody] UserModel model)
+        {
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            var servResp = await _userService.UpdateAsync(model);
+
+            if (servResp.ResponseResult == ResponseResult.Success)
+            {
+                return Ok();
+            }
+            else
+            {
+                return MapResponseFromBLL(servResp);
+            }
         }
 
         private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)

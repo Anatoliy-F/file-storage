@@ -247,9 +247,9 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = "Administrator")]
         [HttpPut("admin/{id}")]
-        public async Task<ActionResult> Update(Guid Id, [FromBody] FileDataModel model)
+        public async Task<ActionResult> Update(Guid id, [FromBody] FileDataModel model)
         {
-            if (Id != model.Id)
+            if (id != model.Id)
             {
                 return BadRequest();
             }
