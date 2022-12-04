@@ -91,7 +91,6 @@ namespace BuisnessLogicLayer.Services
         {
             try
             {
-                //TODO: DELETE LINK WORK WRONG, JUST DELETE NO SIDE EFFECTS
                 var linkObj = await _unitOfWork.ShortLinkRepository.GetShortLinkWithRelatedAsync(link);
 
                 if (linkObj == null)
@@ -178,35 +177,35 @@ namespace BuisnessLogicLayer.Services
             } 
         }
 
-        public async Task<ServiceResponse<FileDataModel>> GenerateForFileByIdAsync(Guid fileId)
+        public async Task<ServiceResponse<ShortLinkModel>> GenerateForFileByIdAsync(Guid fileId)
         {
             try
             {
-                if (!(await _unitOfWork.ShortLinkRepository.CanGenerate(fileId)))
-                {
-                    return new ServiceResponse<FileDataModel>
-                    {
-                        ResponseResult = Enums.ResponseResult.Error,
-                        ErrorMessage = "File with this [Id] already has ShortLink"
-                    };
-                }
-
-                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileId);
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(fileId);
 
                 if (fileData == null)
                 {
-                    return new ServiceResponse<FileDataModel>
+                    return new ServiceResponse<ShortLinkModel>
                     {
-                        ResponseResult = Enums.ResponseResult.NotFound,
+                        ResponseResult = ResponseResult.NotFound,
                         ErrorMessage = "There are no file with this [Id]"
+                    };
+                }
+
+                if (fileData.ShortLinkNav != null)
+                {
+                    return new ServiceResponse<ShortLinkModel>
+                    {
+                        ResponseResult = ResponseResult.Error,
+                        ErrorMessage = "File with this [Id] already has ShortLink"
                     };
                 }
 
                 if (!fileData.IsPublic)
                 {
-                    return new ServiceResponse<FileDataModel>
+                    return new ServiceResponse<ShortLinkModel>
                     {
-                        ResponseResult = Enums.ResponseResult.AccessDenied,
+                        ResponseResult = ResponseResult.AccessDenied,
                         ErrorMessage = "If you want share this file via short link change it accessible level to \"public\""
                     };
                 }
@@ -218,7 +217,7 @@ namespace BuisnessLogicLayer.Services
                     var byteArr = fileId.ToByteArray().Skip(i).Take(4).ToArray();
                     shortUrl = WebEncoders.Base64UrlEncode(byteArr);
 
-                    if (!(await _unitOfWork.ShortLinkRepository.IsExist(shortUrl)))
+                    if (!(await _unitOfWork.ShortLinkRepository.IsCollision(shortUrl)))
                     {
                         break;
                     }
@@ -234,15 +233,15 @@ namespace BuisnessLogicLayer.Services
 
                 await _unitOfWork.SaveAsync();
 
-                return new ServiceResponse<FileDataModel>
+                return new ServiceResponse<ShortLinkModel>
                 {
                     ResponseResult = ResponseResult.Success,
-                    Data = _mapper.Map<FileDataModel>(fileData),
+                    Data = _mapper.Map<ShortLinkModel>(link),
                 };
             }
             catch (CustomException ex)
             {
-                return new ServiceResponse<FileDataModel>
+                return new ServiceResponse<ShortLinkModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = ex.Message
@@ -250,7 +249,7 @@ namespace BuisnessLogicLayer.Services
             }
             catch (Exception)
             {
-                return new ServiceResponse<FileDataModel>
+                return new ServiceResponse<ShortLinkModel>
                 {
                     ResponseResult = ResponseResult.Error,
                     ErrorMessage = DEFAULT_ERROR

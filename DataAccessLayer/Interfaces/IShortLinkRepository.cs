@@ -9,9 +9,9 @@ namespace DataAccessLayer.Interfaces
 {
     public interface IShortLinkRepository : IRepository<ShortLink>
     {
-        public Task<bool> IsExist(string link);
+        public Task<bool> IsCollision(string link);
 
-        public Task<bool> CanGenerate(Guid fileId);
+        public Task<bool> IsExist(Guid fileId);
 
         public Task<AppFileData?> GetFileContentByLinkAsync(string link);
 

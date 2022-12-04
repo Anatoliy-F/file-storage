@@ -10,7 +10,7 @@ namespace BuisnessLogicLayer.Interfaces
 {
     public interface IShortLinkService
     {
-        public Task<ServiceResponse<FileDataModel>> GenerateForFileByIdAsync(Guid fileId);
+        public Task<ServiceResponse<ShortLinkModel>> GenerateForFileByIdAsync(Guid fileId);
 
         public Task<ServiceResponse<FileDataModel>> GetFileByShortLinkAsync(string link);
 

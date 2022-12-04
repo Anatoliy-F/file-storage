@@ -77,7 +77,6 @@ namespace WebAPI.Controllers
             }
         }
 
-        //TODO: dont return anything else 
         [Authorize(Roles = "RegisteredUser")]
         [HttpDelete("{link:length(6)}")]
         public async Task<ActionResult> DeleteShortLink(string link, [FromBody] FileDataModel model)

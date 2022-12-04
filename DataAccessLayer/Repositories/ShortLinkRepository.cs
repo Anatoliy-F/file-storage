@@ -20,14 +20,14 @@ namespace DataAccessLayer.Repositories
         {
         }
 
-        public async Task<bool> IsExist(string link)
+        public async Task<bool> IsCollision(string link)
         {
             return await Table.AnyAsync(sl => sl.Link == link);
         }
 
-        public async Task<bool> CanGenerate(Guid fileId)
+        public async Task<bool> IsExist(Guid fileId)
         {
-            return !(await Table.AnyAsync(sl => sl.AppFileDataId == fileId));
+            return await Table.AnyAsync(sl => sl.AppFileDataId == fileId);
         }
 
         public async Task<AppFileData?> GetFileContentByLinkAsync(string link)

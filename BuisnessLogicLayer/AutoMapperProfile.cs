@@ -50,6 +50,9 @@ namespace BuisnessLogicLayer
                 .ForMember(um => um.Name, au => au.MapFrom(e => e.UserName))
                 .ForMember(um => um.Email, au => au.MapFrom(e => e.Email));
 
+            CreateMap<ShortLink, ShortLinkModel>()
+                .ForMember(slm => slm.FileId, sl => sl.MapFrom(e => e.AppFileDataId));
+
             
 
         }
