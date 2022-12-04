@@ -93,6 +93,45 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        //ADMIN
+        public async Task<ServiceResponse<FileDataModel>> GetByIdAsync(Guid id)
+        {
+            try
+            {
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(id);
+
+                if (fileData == null)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with this id: {id}"
+                    };
+                }
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = _mapper.Map<FileDataModel>(fileData)
+                };
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
+        }
+
         public async Task<ServiceResponse<bool>> UpdateByUserAsync(Guid userId, FileDataModel model)
         {
             try
@@ -221,7 +260,7 @@ namespace BuisnessLogicLayer.Services
         }
 
         //method for admins only
-        public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetFilesDataAsync(QueryModel query)
+        public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllFilesDataAsync(QueryModel query)
         {
             try
             {

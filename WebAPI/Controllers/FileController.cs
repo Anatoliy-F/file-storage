@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         private readonly IShortLinkService _shortLinkService;
         private readonly JwtHandler _jwtHandler;
 
-        public FileController(IFileService fileService, 
+        public FileController(IFileService fileService,
             JwtHandler jwtHandler, IShortLinkService shortLinkService)
         {
             _fileService = fileService;
@@ -40,9 +40,9 @@ namespace WebAPI.Controllers
             try
             {
                 var userId = _jwtHandler.GetUserId(this.User);
-                var respRes =  await _fileService.GetUserFilesDataNoTrackingAsync(userId, query);
+                var respRes = await _fileService.GetUserFilesDataNoTrackingAsync(userId, query);
 
-                if(respRes.ResponseResult == ResponseResult.Success)
+                if (respRes.ResponseResult == ResponseResult.Success)
                 {
                     return Ok(respRes.Data);
                 }
@@ -90,8 +90,8 @@ namespace WebAPI.Controllers
             {
                 var userId = _jwtHandler.GetUserId(this.User);
                 var servResp = await _fileService.DeleteOwnAsync(userId, id);
-                
-                if(servResp.ResponseResult == ResponseResult.Success)
+
+                if (servResp.ResponseResult == ResponseResult.Success)
                 {
                     return Ok();
                 }
@@ -99,12 +99,12 @@ namespace WebAPI.Controllers
                 {
                     return MapResponseFromBLL(servResp);
                 }
-               
+
             }
             catch (UnauthorizedAccessException ex)
             {
                 return BadRequest(ex.Message);
-            }  
+            }
         }
 
         [HttpGet("download/{id}")]
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(Guid Id, [FromBody] FileDataModel model)
         {
-            if(Id != model.Id)
+            if (Id != model.Id)
             {
                 return BadRequest();
             }
@@ -142,8 +142,8 @@ namespace WebAPI.Controllers
             {
                 var userId = _jwtHandler.GetUserId(this.User);
                 var respRes = await _fileService.UpdateByUserAsync(userId, model);
-                
-                if(respRes.ResponseResult == ResponseResult.Success)
+
+                if (respRes.ResponseResult == ResponseResult.Success)
                 {
                     return Ok();
                 }
@@ -167,14 +167,46 @@ namespace WebAPI.Controllers
 
             var userId = _jwtHandler.GetUserId(this.User);
             var servResp = await _fileService.ShareByEmailAsync(userId, email, model.Id);
-            
-            if(servResp.ResponseResult == ResponseResult.Success && servResp.Data != null)
+
+            if (servResp.ResponseResult == ResponseResult.Success && servResp.Data != null)
             {
                 return Ok(servResp.Data);
             }
 
             return MapResponseFromBLL(servResp);
         }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("/admin")]
+        public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
+            GetAllFileData([FromQuery] QueryModel query)
+        {
+            var respRes = await _fileService.GetAllFilesDataAsync(query);
+
+            if (respRes.ResponseResult == ResponseResult.Success)
+            {
+                return Ok(respRes.Data);
+            }
+
+            return MapResponseFromBLL(respRes);
+        }
+
+        [HttpGet("admin/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FileDataModel>> GetAnyoneById(Guid id)
+        {
+            var serResp = await _fileService.GetByIdAsync(id);
+
+            if (serResp.ResponseResult == ResponseResult.Success && serResp.Data != null)
+            {
+                return new JsonResult(serResp.Data);
+            }
+
+            return MapResponseFromBLL(serResp);
+        }
+
+
 
         private ActionResult MapResponseFromBLL<T>(ServiceResponse<T> response)
         {

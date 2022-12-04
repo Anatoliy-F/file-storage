@@ -37,7 +37,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// </summary>
         /// <param name="query">QueryModel (Pagination, sort, filter info)</param>
         /// <returns>PaginationResultModel<FileDataModel></returns>
-        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetFilesDataAsync(QueryModel query);
+        public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllFilesDataAsync(QueryModel query);
 
         /// <summary>
         /// Return all user's read-only FileDataModel objects (not owned) 
@@ -92,6 +92,13 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="fileDataId">FileData id</param>
         /// <returns></returns>
         public Task<ServiceResponse<FileDataModel>> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId);
+
+        /// <summary>
+        /// Method for ADMINS
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<ServiceResponse<FileDataModel>> GetByIdAsync(Guid id);
 
     }
 }
