@@ -93,6 +93,53 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        public async Task<ServiceResponse<FileDataModel>> GetSharedByIdAsync(Guid userId, Guid id)
+        {
+            try
+            {
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(id);
+
+                if (fileData == null)
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with this id: {id}"
+                    };
+                }
+                if (!fileData.IsPublic || fileData.FileViewers == null 
+                    || !fileData.FileViewers.Any(fv => fv.Id == userId))
+                {
+                    return new ServiceResponse<FileDataModel>
+                    {
+                        ResponseResult = ResponseResult.AccessDenied,
+                        ErrorMessage = $"You do not own the file with: {id}"
+                    };
+                }
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = _mapper.Map<FileDataModel>(fileData)
+                };
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
+        }
+
         //FOR ADMIN
         public async Task<ServiceResponse<FileDataModel>> GetByIdAsync(Guid id)
         {

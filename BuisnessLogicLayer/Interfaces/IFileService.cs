@@ -122,5 +122,7 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="fileId"></param>
         /// <returns></returns>
         public Task<ServiceResponse<bool>> UpdateAsync(FileDataModel model);
+
+        public Task<ServiceResponse<FileDataModel>> GetSharedByIdAsync(Guid userId, Guid id);
     }
 }
