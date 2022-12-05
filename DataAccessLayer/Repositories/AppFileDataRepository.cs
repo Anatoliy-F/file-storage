@@ -34,6 +34,9 @@ namespace DataAccessLayer.Repositories
 
         public IQueryable<AppFileData> GetAllNoTraking() => Table.AsNoTracking();
 
+        public IQueryable<AppFileData> GetShared(Guid userId) => Table
+            .Where(f => f.FileViewers.Any(u => u.Id == userId));
+
         public override void Delete(AppFileData fileData)
         {
             Context.AppFilesData.Remove(fileData);

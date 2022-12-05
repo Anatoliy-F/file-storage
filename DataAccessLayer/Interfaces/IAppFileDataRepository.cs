@@ -47,5 +47,7 @@ namespace DataAccessLayer.Interfaces
         /// <param name="OwnerId">User Id</param>
         /// <returns>TRUE if owning, FALSE otherwise</returns>
         public Task<bool> IsOwner(Guid fileId, Guid OwnerId);
+
+        public IQueryable<AppFileData> GetShared(Guid userId);
     }
 }

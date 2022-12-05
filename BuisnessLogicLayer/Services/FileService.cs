@@ -372,7 +372,16 @@ namespace BuisnessLogicLayer.Services
         {
             try
             {
-                var user = await _unitOfWork.AppUserRepository.GetByIdWithRelatedAsync(userId) ?? new AppUser();
+                var user = await _unitOfWork.AppUserRepository.GetByIdWithRelatedAsync(userId);
+
+                if(user == null)
+                {
+                    return new ServiceResponse<PaginationResultModel<FileDataModel>>
+                    {
+                        ResponseResult = ResponseResult.Error,
+                        ErrorMessage = $"user with id {userId} doesn't exists"
+                    };
+                }
 
                 if (user.ReadOnlyFiles.Count == 0)
                 {
@@ -391,7 +400,7 @@ namespace BuisnessLogicLayer.Services
                     };
                 }
 
-                var source = (IQueryable<AppFileData>)user.ReadOnlyFiles;
+                var source = _unitOfWork.AppFileDataRepository.GetShared(userId);
 
                 var result = await GetFilteredOrderedPaginatedAsync(source, query);
                 result.TotalCount = user.ReadOnlyFiles.Count;
@@ -410,7 +419,7 @@ namespace BuisnessLogicLayer.Services
                     ErrorMessage = ex.Message
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new ServiceResponse<PaginationResultModel<FileDataModel>>
                 {
@@ -607,6 +616,9 @@ namespace BuisnessLogicLayer.Services
                     "uploaddatetime" => query.SortOrder == "ASC" ?
                         source.OrderBy(e => e.UploadDT) :
                         source.OrderByDescending(e => e.UploadDT),
+                    "ispublic" => query.SortOrder == "ASC" ?
+                        source.OrderBy(e => e.IsPublic) :
+                        source.OrderByDescending(e => e.IsPublic),
                     _ => source
                 };
             }

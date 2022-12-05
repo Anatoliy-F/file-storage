@@ -159,7 +159,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("shared")]
-        public async Task<ActionResult<PaginationResultModel<ShortFileDataModel>>> GetShared(QueryModel query)
+        public async Task<ActionResult<PaginationResultModel<ShortFileDataModel>>> GetShared([FromQuery] QueryModel query)
         {
             try
             {
