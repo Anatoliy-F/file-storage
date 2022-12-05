@@ -20,13 +20,17 @@ namespace DataAccessLayer.Data
         private IAppUserRepository? _userRepository;
         private IAppFileDataRepository? _fileDataRepository;
         private IShortLinkRepository? _shortLinkRepository;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
 
         public ILogger<UnitOfWork> Logger { get; set; }
 
-        public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
+        public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger, UserManager<AppUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
         {
             _context = context;
             Logger = logger;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public IAppFileDataRepository AppFileDataRepository => _fileDataRepository ??= new AppFileDataRepository(_context);
@@ -34,6 +38,10 @@ namespace DataAccessLayer.Data
         public IAppUserRepository AppUserRepository => _userRepository ??= new AppUserRepository(_context);
 
         public IShortLinkRepository ShortLinkRepository => _shortLinkRepository ??= new ShortLinkRepository(_context);
+
+        public UserManager<AppUser> UserManager => _userManager;
+
+        public RoleManager<IdentityRole<Guid>> RoleManager => _roleManager;
 
         public async Task SaveAsync()
         {

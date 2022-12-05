@@ -238,9 +238,14 @@ namespace BuisnessLogicLayer.Services
         {
             try
             {
-                //TODO:VALIDATE
-                var user = _mapper.Map<AppUser>(userModel);
-                _unitOfWork.AppUserRepository.Update(user);
+                //Validation going on in UserManager
+                var user = await _unitOfWork.UserManager.FindByIdAsync(userModel.Id.ToString());
+
+                user.UserName = userModel.Name;
+                user.Email = userModel.Email;
+                
+
+                await _unitOfWork.UserManager.UpdateAsync(user);
                 await _unitOfWork.SaveAsync();
 
                 return new ServiceResponse<bool>

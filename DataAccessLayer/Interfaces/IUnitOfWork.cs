@@ -1,4 +1,7 @@
-﻿namespace DataAccessLayer.Interfaces
+﻿using DataAccessLayer.Entities;
+using Microsoft.AspNetCore.Identity;
+
+namespace DataAccessLayer.Interfaces
 {
     public interface IUnitOfWork
     {
@@ -7,6 +10,9 @@
         IAppUserRepository AppUserRepository { get; }
         
         IShortLinkRepository ShortLinkRepository { get; }
+        public UserManager<AppUser> UserManager { get; }
+
+        public RoleManager<IdentityRole<Guid>> RoleManager { get; }
 
         Task SaveAsync();
     }
