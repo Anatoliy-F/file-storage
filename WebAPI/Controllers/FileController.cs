@@ -13,6 +13,7 @@ using BuisnessLogicLayer.Interfaces;
 using WebAPI.Utilities;
 using Microsoft.AspNetCore.StaticFiles;
 using BuisnessLogicLayer.Enums;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -157,8 +158,12 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("share/{email}")]
-        public async Task<ActionResult> Share(string email, [FromBody] FileDataModel model)
+        public async Task<ActionResult> Share([FromRoute] EmailRequestModel email, [FromBody] FileDataModel model)
         {
+            if(email == null || !ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             //TODO: DELETE THIS
             //TODO: uncomment validation
             /*if(!model.Viewers.Any(fv => fv.Email == email))
@@ -167,7 +172,7 @@ namespace WebAPI.Controllers
             }*/
 
             var userId = _jwtHandler.GetUserId(this.User);
-            var servResp = await _fileService.ShareByEmailAsync(userId, email, model.Id);
+            var servResp = await _fileService.ShareByEmailAsync(userId, email.Address, model.Id);
 
             if (servResp.ResponseResult == ResponseResult.Success && servResp.Data != null)
             {
