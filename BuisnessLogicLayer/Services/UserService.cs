@@ -13,6 +13,7 @@ using BuisnessLogicLayer.Enums;
 using DataAccessLayer.Exceptions;
 using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace BuisnessLogicLayer.Services
 {
@@ -207,6 +208,14 @@ namespace BuisnessLogicLayer.Services
             try
             {
                 var user = _mapper.Map<AppUser>(userModel);
+                if(await _unitOfWork.UserManager.IsInRoleAsync(user, "Administrator"))
+                {
+                    return new ServiceResponse<bool>
+                    {
+                        ResponseResult = ResponseResult.AccessDenied,
+                        ErrorMessage = "You can't delete aministrator"
+                    };
+                }
                 _unitOfWork.AppUserRepository.Delete(user);
                 await _unitOfWork.SaveAsync();
 
