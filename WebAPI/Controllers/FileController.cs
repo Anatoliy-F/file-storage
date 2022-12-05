@@ -157,6 +157,28 @@ namespace WebAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "RegisteredUser")]
+        [HttpGet("shared")]
+        public async Task<ActionResult<PaginationResultModel<ShortFileDataModel>>> GetShared(QueryModel query)
+        {
+            try
+            {
+                var userId = _jwtHandler.GetUserId(this.User);
+                var respRes = await _fileService.GetSharedAsync(userId, query);
+
+                if (respRes.ResponseResult == ResponseResult.Success)
+                {
+                    return Ok(respRes.Data);
+                }
+
+                return MapResponseFromBLL(respRes);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPut("share/{email}")]
         public async Task<ActionResult> Share([FromRoute] EmailRequestModel email, [FromBody] FileDataModel model)
         {
