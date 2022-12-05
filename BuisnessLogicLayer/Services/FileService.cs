@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BuisnessLogicLayer.Enums;
 using DataAccessLayer.Exceptions;
+using System.Diagnostics;
 
 namespace BuisnessLogicLayer.Services
 {
@@ -535,6 +536,57 @@ namespace BuisnessLogicLayer.Services
                 }
 
                 _unitOfWork.AppFileDataRepository.Delete(fileData);
+                await _unitOfWork.SaveAsync();
+
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = true
+                };
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
+        }
+
+        public async Task<ServiceResponse<bool>> RefuseSharedAsync(Guid userId, Guid fileId)
+        {
+            try
+            {
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(fileId);
+
+                if (fileData == null)
+                {
+                    return new ServiceResponse<bool>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with this id: {fileId}"
+                    };
+                }
+
+                if (fileData.FileViewers == null || !fileData.FileViewers.Any(fv => fv.Id == userId))
+                {
+                    return new ServiceResponse<bool>
+                    {
+                        ResponseResult = ResponseResult.AccessDenied,
+                        ErrorMessage = $"You do not own the file with: {fileId}"
+                    };
+                }
+
+                fileData.FileViewers = fileData.FileViewers.Where(fv => fv.Id != userId).ToList();
                 await _unitOfWork.SaveAsync();
 
                 return new ServiceResponse<bool>

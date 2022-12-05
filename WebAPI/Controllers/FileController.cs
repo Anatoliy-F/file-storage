@@ -201,10 +201,40 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpPut("share/{email}")]
-        public async Task<ActionResult> Share([FromRoute] EmailRequestModel email, [FromBody] FileDataModel model)
+        [Authorize(Roles = "RegisteredUser")]
+        [HttpDelete("shared/{id}")]
+        public async Task<ActionResult> RefuseSharedById([FromRoute]Guid id, [FromBody] FileDataModel model)
         {
-            if(email == null || !ModelState.IsValid)
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var userId = _jwtHandler.GetUserId(this.User);
+                var servResp = await _fileService.RefuseSharedAsync(userId, id);
+
+                if (servResp.ResponseResult == ResponseResult.Success)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return MapResponseFromBLL(servResp);
+                }
+
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("share/{email}")]
+        public async Task<ActionResult> Share(string email, [FromBody] FileDataModel model)
+        {
+            if(email == null)
             {
                 return BadRequest(ModelState);
             }
@@ -216,7 +246,7 @@ namespace WebAPI.Controllers
             }*/
 
             var userId = _jwtHandler.GetUserId(this.User);
-            var servResp = await _fileService.ShareByEmailAsync(userId, email.Address, model.Id);
+            var servResp = await _fileService.ShareByEmailAsync(userId, email, model.Id);
 
             if (servResp.ResponseResult == ResponseResult.Success && servResp.Data != null)
             {

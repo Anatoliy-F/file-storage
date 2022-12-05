@@ -95,14 +95,14 @@ namespace WebAPI.Controllers
         //TODO: Is I need this endpoint?
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("isExist/{email}")]
-        public async Task<IActionResult> IsUserExist(EmailRequestModel email)
+        public async Task<IActionResult> IsUserExist(string email)
         {
-            if(email == null || !ModelState.IsValid)
+            if(email == null)
             {
                 return BadRequest(ModelState);
             }
 
-            var servRes = await _userService.IsExistByEmailAsync(email.Address);
+            var servRes = await _userService.IsExistByEmailAsync(email);
             if (servRes.ResponseResult == ResponseResult.Success)
             {
                 return Ok(new { isSuccess = true });
@@ -113,14 +113,14 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("byEmail/{email}")]
-        public async Task<IActionResult> GetByEmail(EmailRequestModel email)
+        public async Task<IActionResult> GetByEmail(string email)
         {
-            if(email == null || !ModelState.IsValid)
+            if(email == null)
             {
                 return BadRequest(ModelState);
             }
 
-            var servRes = await _userService.GetByEmailAsync(email.Address);
+            var servRes = await _userService.GetByEmailAsync(email);
             if (servRes.ResponseResult == ResponseResult.Success)
             {
                 return Ok(servRes.Data);
