@@ -1,7 +1,5 @@
 ﻿using BuisnessLogicLayer.Enums;
 using BuisnessLogicLayer.Interfaces;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +22,7 @@ namespace WebAPI.Controllers
     public class UploadController : ControllerBase
     {
         private readonly long _filesizeLimit;
-        //TODO: read extensions from appsetting
-        private readonly string[] _permittedExtensions = { ".txt", ".png" };
+        private readonly string[] _permittedExtensions;
         private static readonly FormOptions _defaultFormoptions = new();
         private readonly JwtHandler _jwtHandler;
         private readonly IFileService _fileService;
@@ -43,6 +40,7 @@ namespace WebAPI.Controllers
             JwtHandler jwtHandler, ILogger<UploadController> logger, IFileService fileService)
         {
             _filesizeLimit = config.GetValue<long>("FileSizeLimit");
+            _permittedExtensions = config.GetSection("PermittedExtensions").Get<string[]>();
             _jwtHandler = jwtHandler;
             Logger = logger;
             _fileService = fileService;

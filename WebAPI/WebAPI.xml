@@ -268,12 +268,12 @@
             Implement file uploading with streaming
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.UploadController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,DataAccessLayer.Interfaces.IUnitOfWork,WebAPI.Utilities.JwtHandler,Microsoft.Extensions.Logging.ILogger{WebAPI.Controllers.UploadController},BuisnessLogicLayer.Interfaces.IFileService)">
+        <member name="M:WebAPI.Controllers.UploadController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,WebAPI.Utilities.JwtHandler,Microsoft.Extensions.Logging.ILogger{WebAPI.Controllers.UploadController},BuisnessLogicLayer.Interfaces.IFileService)">
             <summary>
             Initialize new instance of FileController
             </summary>
             <param name="config">IConfiguration instanse, for access to application configuration</param>
-            <param name="unitOfWork">UnitOfWork instanse, for access to repositories</param>
+            <param name="fileService">FileService instanse, for persist file</param>
             <param name="jwtHandler">JwtHandler instanse. Generate JWT. Retrive userId from JWT</param>
             <param name="logger">ILogger object to performing error logging</param>
         </member>
@@ -281,7 +281,7 @@
             <summary>
             Upload file by stream without FormValue model binding disabled
             </summary>
-            <returns></returns>
+            <returns>Added file metadata</returns>
         </member>
         <member name="T:WebAPI.Filters.AppExceptionFilterAttribute">
             <summary>
