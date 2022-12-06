@@ -108,7 +108,7 @@ namespace BuisnessLogicLayer.Services
                         ErrorMessage = $"No file with this id: {id}"
                     };
                 }
-                if (!fileData.IsPublic || fileData.FileViewers == null 
+                if (!fileData.IsPublic || fileData.FileViewers == null
                     || !fileData.FileViewers.Any(fv => fv.Id == userId))
                 {
                     return new ServiceResponse<FileDataModel>
@@ -184,21 +184,16 @@ namespace BuisnessLogicLayer.Services
         {
             try
             {
-                if (await _unitOfWork.AppFileDataRepository.IsOwner(model.Id, userId))
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(model.Id);
+                if (fileData == null)
                 {
-                    //TODO: Validate
-                    //TODO: Validate
-                    //TODO: Validate
-                    var fileData = _mapper.Map<AppFileData>(model);
-                    _unitOfWork.AppFileDataRepository.Update(fileData);
-                    await _unitOfWork.SaveAsync();
                     return new ServiceResponse<bool>
                     {
-                        ResponseResult = ResponseResult.Success,
-                        Data = true
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with this id: {model.Id}"
                     };
                 }
-                else
+                if (fileData.OwnerId != userId)
                 {
                     return new ServiceResponse<bool>
                     {
@@ -206,6 +201,35 @@ namespace BuisnessLogicLayer.Services
                         ErrorMessage = $"You do not own the file with: {model.Id}"
                     };
                 }
+
+                //TODO: Validate
+
+                fileData.UntrustedName = model.Name;
+                fileData.Note = model.Note;
+                fileData.IsPublic = model.IsPublic;
+
+                if(model.Viewers.Count != 0)
+                {
+                    var viewers = new List<AppUser>();
+                    foreach (var viewer in model.Viewers)
+                    {
+                        var user = await _unitOfWork.UserManager.FindByIdAsync(viewer.Id.ToString());
+                        viewers.Add(user);
+                    }
+                    fileData.FileViewers = viewers;
+                } else
+                {
+                    fileData.FileViewers = new List<AppUser>();
+                }
+
+                await _unitOfWork.SaveAsync();
+                return new ServiceResponse<bool>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = true
+                };
+
+
             }
             catch (CustomException ex)
             {
@@ -230,9 +254,36 @@ namespace BuisnessLogicLayer.Services
         {
             try
             {
+                var fileData = await _unitOfWork.AppFileDataRepository.GetByIdWithRelatedAsync(model.Id);
+                if (fileData == null)
+                {
+                    return new ServiceResponse<bool>
+                    {
+                        ResponseResult = ResponseResult.NotFound,
+                        ErrorMessage = $"No file with this id: {model.Id}"
+                    };
+                }
                 //TODO: Validate
-                var fileData = _mapper.Map<AppFileData>(model);
-                _unitOfWork.AppFileDataRepository.Update(fileData);
+
+                fileData.UntrustedName = model.Name;
+                fileData.Note = model.Note;
+                fileData.IsPublic = model.IsPublic;
+
+                if (model.Viewers.Count != 0)
+                {
+                    var viewers = new List<AppUser>();
+                    foreach (var viewer in model.Viewers)
+                    {
+                        var user = await _unitOfWork.UserManager.FindByIdAsync(viewer.Id.ToString());
+                        viewers.Add(user);
+                    }
+                    fileData.FileViewers = viewers;
+                }
+                else
+                {
+                    fileData.FileViewers = new List<AppUser>();
+                }
+
                 await _unitOfWork.SaveAsync();
                 return new ServiceResponse<bool>
                 {
@@ -422,7 +473,7 @@ namespace BuisnessLogicLayer.Services
             {
                 var user = await _unitOfWork.AppUserRepository.GetByIdWithRelatedAsync(userId);
 
-                if(user == null)
+                if (user == null)
                 {
                     return new ServiceResponse<PaginationResultModel<FileDataModel>>
                     {

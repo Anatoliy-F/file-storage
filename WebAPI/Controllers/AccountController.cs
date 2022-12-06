@@ -93,6 +93,7 @@ namespace WebAPI.Controllers
         }
 
         //TODO: Is I need this endpoint?
+        //TODO: delete
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("isExist/{email}")]
         public async Task<IActionResult> IsUserExist(string email)
