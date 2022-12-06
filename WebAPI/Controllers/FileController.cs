@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DataAccessLayer.Entities;
-using BuisnessLogicLayer.Models;
-using DataAccessLayer.Interfaces;
+﻿using BuisnessLogicLayer.Enums;
 using BuisnessLogicLayer.Interfaces;
-using WebAPI.Utilities;
+using BuisnessLogicLayer.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using BuisnessLogicLayer.Enums;
-using WebAPI.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using WebAPI.Utilities;
 
 namespace WebAPI.Controllers
-{   
+{
     /// <summary>
     /// Define endpoints to perform operations with files
     /// and files metadata
@@ -127,7 +118,7 @@ namespace WebAPI.Controllers
         [SwaggerResponse(404, "Not found file with this Id")]
         [SwaggerResponse(403, "Access denied, user does not own this file")]
         [SwaggerResponse(400, "The request was invalid")]
-        public async Task<ActionResult> DeleteOwnById(Guid id, [FromBody] FileDataModel fileDataModel)
+        public async Task<ActionResult> DeleteOwn(Guid id, [FromBody] FileDataModel fileDataModel)
         {
             if (id != fileDataModel.Id)
             {
@@ -162,7 +153,6 @@ namespace WebAPI.Controllers
         /// <returns>FileContentResult</returns>
         [HttpGet("download/{id}")]
         [Authorize(Roles = "RegisteredUser")]
-
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -193,7 +183,22 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates metadata about a file owned by the user
+        /// </summary>
+        /// <param name="Id">File Id</param>
+        /// <param name="model">File metadata object</param>
+        /// <returns>Status 200 Ok, if file update successfuly, error code otherwise</returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "RegisteredUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(403, "Access denied, user does not own this file")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult> UpdateOwn(Guid Id, [FromBody] FileDataModel model)
         {
             if (Id != model.Id)
@@ -219,6 +224,11 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Deprecated. 
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("shared")]
         public async Task<ActionResult<PaginationResultModel<ShortFileDataModel>>> GetShared([FromQuery] QueryModel query)
@@ -241,8 +251,23 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns an object describing the file to which the user is granted access 
+        /// (the file does not belong to the user)
+        /// </summary>
+        /// <param name="id">File Id</param>
+        /// <returns>File metadata</returns>
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet("shared/{id}")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(403, "Access denied, no permission to view")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult<FileDataModel>> GetSharedById(Guid id)
         {
             try
@@ -263,8 +288,22 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// The user is relinquishing the rights to view the file
+        /// </summary>
+        /// <param name="id">File Id</param>
+        /// <param name="model">File metadata object</param>
+        /// <returns>Status 200 if action successful, error code otherwise</returns>
         [Authorize(Roles = "RegisteredUser")]
         [HttpDelete("shared/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(403, "Access denied, no permission to view")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult> RefuseSharedById([FromRoute]Guid id, [FromBody] FileDataModel model)
         {
             if (id != model.Id)
@@ -293,8 +332,20 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns a page of sorted and filtered objects describing all files
+        /// Page size, query for filtering, property for sorting and sorting order are defined by QueryModel object
+        /// For execution needs "Administrator" permissions
+        /// </summary>
+        /// <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering</param>
+        /// <returns>Returns filtered, sorted page of file metadata</returns>
         [Authorize(Roles = "Administrator")]
         [HttpGet("admin")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
             Get([FromQuery] QueryModel query)
         {
@@ -308,10 +359,21 @@ namespace WebAPI.Controllers
             return MapResponseFromBLL(respRes);
         }
 
+        /// <summary>
+        /// Returns an object describing file
+        /// For execution needs "Administrator" permissions
+        /// </summary>
+        /// <param name="id">File Id</param>
+        /// <returns>File metadata</returns>
         [Authorize(Roles = "Administrator")]
         [HttpGet("admin/{id}")]
+        [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult<FileDataModel>> GetById(Guid id)
         {
             var serResp = await _fileService.GetByIdAsync(id);
@@ -324,8 +386,20 @@ namespace WebAPI.Controllers
             return MapResponseFromBLL(serResp);
         }
 
+        /// <summary>
+        /// Delete file. For execution needs "Administrator" permissions
+        /// </summary>
+        /// <param name="id">File id</param>
+        /// <param name="fileDataModel">File metadata object</param>
+        /// <returns>Status 200 Ok, if file delete successfuly, error code otherwise</returns>
         [Authorize(Roles = "Administrator")]
         [HttpDelete("admin/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult> Delete(Guid id, [FromBody] FileDataModel fileDataModel)
         {
             if (id != fileDataModel.Id)
@@ -345,8 +419,19 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Download file. For execution needs "Administrator" permissions
+        /// </summary>
+        /// <param name="id">File id</param>
+        /// <returns>FileContentResult</returns>
         [Authorize(Roles = "Administrator")]
         [HttpGet("admin/download/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<IActionResult> Download(Guid id)
         {
             var respRes = await _fileService.GetContentAsync(id);
@@ -361,8 +446,20 @@ namespace WebAPI.Controllers
             return MapResponseFromBLL(respRes);
         }
 
+        /// <summary>
+        /// Updates metadata about file. For execution needs "Administrator" permissions
+        /// </summary>
+        /// <param name="id">File Id</param>
+        /// <param name="model">File metadata object</param>
+        /// <returns>Status 200 Ok, if file update successfuly, error code otherwise</returns>
         [Authorize(Roles = "Administrator")]
         [HttpPut("admin/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult> Update(Guid id, [FromBody] FileDataModel model)
         {
             if (id != model.Id)

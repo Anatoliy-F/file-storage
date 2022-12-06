@@ -25,6 +25,99 @@
             <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering</param>
             <returns>Returns filtered, sorted page of file metadata</returns>
         </member>
+        <member name="M:WebAPI.Controllers.FileController.GetOwnById(System.Guid)">
+            <summary>
+            Returns an object describing the file owned by the user
+            </summary>
+            <param name="id">File Id</param>
+            <returns>File metadata</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.DeleteOwn(System.Guid,BuisnessLogicLayer.Models.FileDataModel)">
+            <summary>
+            Deletes a file owned by the user
+            </summary>
+            <param name="id">File id</param>
+            <param name="fileDataModel">File metadata object</param>
+            <returns>Status 200 Ok, if file delete successfuly, error code otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.DownloadOwn(System.Guid)">
+            <summary>
+            Download a file owned by the user
+            </summary>
+            <param name="id">File id</param>
+            <returns>FileContentResult</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.UpdateOwn(System.Guid,BuisnessLogicLayer.Models.FileDataModel)">
+            <summary>
+            Updates metadata about a file owned by the user
+            </summary>
+            <param name="Id">File Id</param>
+            <param name="model">File metadata object</param>
+            <returns>Status 200 Ok, if file update successfuly, error code otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.GetShared(BuisnessLogicLayer.Models.QueryModel)">
+            <summary>
+            Deprecated. 
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.GetSharedById(System.Guid)">
+            <summary>
+            Returns an object describing the file to which the user is granted access 
+            (the file does not belong to the user)
+            </summary>
+            <param name="id">File Id</param>
+            <returns>File metadata</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.RefuseSharedById(System.Guid,BuisnessLogicLayer.Models.FileDataModel)">
+            <summary>
+            The user is relinquishing the rights to view the file
+            </summary>
+            <param name="id">File Id</param>
+            <param name="model">File metadata object</param>
+            <returns>Status 200 if action successful, error code otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.Get(BuisnessLogicLayer.Models.QueryModel)">
+            <summary>
+            Returns a page of sorted and filtered objects describing all files
+            Page size, query for filtering, property for sorting and sorting order are defined by QueryModel object
+            For execution needs "Administrator" permissions
+            </summary>
+            <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering</param>
+            <returns>Returns filtered, sorted page of file metadata</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.GetById(System.Guid)">
+            <summary>
+            Returns an object describing file
+            For execution needs "Administrator" permissions
+            </summary>
+            <param name="id">File Id</param>
+            <returns>File metadata</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.Delete(System.Guid,BuisnessLogicLayer.Models.FileDataModel)">
+            <summary>
+            Delete file. For execution needs "Administrator" permissions
+            </summary>
+            <param name="id">File id</param>
+            <param name="fileDataModel">File metadata object</param>
+            <returns>Status 200 Ok, if file delete successfuly, error code otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.Download(System.Guid)">
+            <summary>
+            Download file. For execution needs "Administrator" permissions
+            </summary>
+            <param name="id">File id</param>
+            <returns>FileContentResult</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.Update(System.Guid,BuisnessLogicLayer.Models.FileDataModel)">
+            <summary>
+            Updates metadata about file. For execution needs "Administrator" permissions
+            </summary>
+            <param name="id">File Id</param>
+            <param name="model">File metadata object</param>
+            <returns>Status 200 Ok, if file update successfuly, error code otherwise</returns>
+        </member>
         <member name="T:WebAPI.Models.FormData">
             <summary>
             Using to bind Note to File object
