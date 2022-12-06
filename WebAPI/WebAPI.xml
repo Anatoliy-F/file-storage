@@ -118,6 +118,47 @@
             <param name="model">File metadata object</param>
             <returns>Status 200 Ok, if file update successfuly, error code otherwise</returns>
         </member>
+        <member name="T:WebAPI.Controllers.ShortLinkController">
+            <summary>
+            Define endpoints to perform operations with short links
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.ShortLinkController.#ctor(BuisnessLogicLayer.Interfaces.IShortLinkService)">
+            <summary>
+            Initialize new instance of ShortLinkController
+            </summary>
+            <param name="shortLinkService">ShortLinkService instanse</param>
+        </member>
+        <member name="M:WebAPI.Controllers.ShortLinkController.DownloadFile(System.String)">
+            <summary>
+            Download a file via short link
+            </summary>
+            <param name="link">Short link</param>
+            <returns>FileContentResult</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ShortLinkController.GetFileData(System.String)">
+            <summary>
+             Returns an object describing the file
+            </summary>
+            <param name="link">Short link</param>
+            <returns>File metadata</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ShortLinkController.CreateShortlink(System.Guid,BuisnessLogicLayer.Models.FileDataModel)">
+            <summary>
+            Create short link for file by id
+            </summary>
+            <param name="id">File id</param>
+            <param name="model">File metadata object</param>
+            <returns>Short link object</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ShortLinkController.DeleteShortLink(System.String,BuisnessLogicLayer.Models.FileDataModel)">
+            <summary>
+            Delete short link
+            </summary>
+            <param name="link">Short link</param>
+            <param name="model">File metadata object</param>
+            <returns>Status 200 Ok, if link delete successfuly, error code otherwise</returns>
+        </member>
         <member name="T:WebAPI.Models.FormData">
             <summary>
             Using to bind Note to File object

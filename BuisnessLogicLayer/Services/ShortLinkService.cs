@@ -142,7 +142,7 @@ namespace BuisnessLogicLayer.Services
                 {
                     return new ServiceResponse<ShortFileDataModel>
                     {
-                        ResponseResult = Enums.ResponseResult.NotFound,
+                        ResponseResult = ResponseResult.NotFound,
                         ErrorMessage = INVALID_LINK,
                     };
                 }
@@ -151,14 +151,14 @@ namespace BuisnessLogicLayer.Services
                 {
                     return new ServiceResponse<ShortFileDataModel>
                     {
-                        ResponseResult = Enums.ResponseResult.AccessDenied,
+                        ResponseResult = ResponseResult.AccessDenied,
                         ErrorMessage = INVALID_LINK,
                     };
                 }
 
                 return new ServiceResponse<ShortFileDataModel>
                 {
-                    ResponseResult = Enums.ResponseResult.Success,
+                    ResponseResult = ResponseResult.Success,
                     Data = _mapper.Map<ShortFileDataModel>(fileData)
                 };
             }
