@@ -1,9 +1,19 @@
 ﻿namespace BuisnessLogicLayer.Models
 {
+    /// <summary>
+    /// Represents a request response object with pagination, sorting, and filtering
+    /// </summary>
+    /// <typeparam name="T">Represent reference value</typeparam>
     public class PaginationResultModel<T> where T : class
     {
+        /// <summary>
+        /// Collection of return values
+        /// </summary>
         public ICollection<T> Data { get; set; } = new List<T>();
 
+        /// <summary>
+        /// Return TRUE if Data properties empty collection
+        /// </summary>
         public bool IsDataEmpty {
             get
             {
@@ -11,18 +21,33 @@
             }
         }
 
+        /// <summary>
+        /// Current page number
+        /// </summary>
         public int PageIndex { get; set; }
 
+        /// <summary>
+        /// Number of items per page
+        /// </summary>
         public int PageSize { get; set; }
 
+        /// <summary>
+        /// Total number of available objects
+        /// </summary>
         public int TotalCount { get; set; }
 
+        /// <summary>
+        /// Total pages available
+        /// </summary>
         public int TotalPages {
             get {
                 return (int)Math.Ceiling(TotalCount / (double)PageSize);
             } 
         }
 
+        /// <summary>
+        /// Return TRUE if current page isn't first
+        /// </summary>
         public bool HasPreviousPage
         {
             get
@@ -31,6 +56,9 @@
             }
         }
 
+        /// <summary>
+        /// Return TRUE if current page isn't last
+        /// </summary>
         public bool HasNextPage
         {
             get
@@ -39,8 +67,6 @@
             }
         }
 
-
-        //TODO: should i use it
         /// <summary>
         /// Sorting Column name (or null if none set)
         /// </summary>
