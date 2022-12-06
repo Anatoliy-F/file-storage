@@ -23,11 +23,6 @@ namespace DataAccessLayer.Repositories
             _disposeContext = true;
         }
 
-        /*public virtual async Task<IEnumerable<T>> GetPageAsync(int pageSize, int pageIndex)
-        {
-            return await Table.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
-        }*/
-
         public IQueryable<T> GetAll() => Table;
 
         public virtual async Task<T?> GetByIdAsync(Guid id) => await Table.FindAsync(id);
@@ -35,18 +30,6 @@ namespace DataAccessLayer.Repositories
         public async Task AddAsync(T entity) => await Table.AddAsync(entity);
 
         public virtual void Delete(T entity) => Table.Remove(entity);
-
-        /*public virtual void DeleteById(Guid id)
-        {
-            if (Table.Local.Any(e => e.Id == id))
-            {
-                Table.Remove(Table.Local.First(e => e.Id == id));
-            }
-            else
-            {
-                Context.Entry(new T { Id = id }).State = EntityState.Deleted;
-            }
-        }*/
 
         public virtual void Update(T entity) => Table.Update(entity);
 

@@ -1,5 +1,9 @@
 ﻿namespace DataAccessLayer.Interfaces
 {
+    /// <summary>
+    /// Represents common operations
+    /// </summary>
+    /// <typeparam name="TEntity">Entitis with Guid primary key</typeparam>
     public interface IRepository<TEntity> where TEntity : IEntity, new()
     {
         /// <summary>
@@ -29,13 +33,6 @@
         /// </summary>
         /// <param name="entity">Entity instance</param>
         void Delete(TEntity entity);
-
-       /* /// <summary>
-        /// Delete entity from storage by Guid id, witout retrieving entity from storage
-        /// </summary>
-        /// <param name="id">Entity id</param>
-        /// <returns></returns>
-        void DeleteById(Guid id);*/
 
         /// <summary>
         /// Update entity in storage

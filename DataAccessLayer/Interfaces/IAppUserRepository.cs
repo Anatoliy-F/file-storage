@@ -2,6 +2,9 @@
 
 namespace DataAccessLayer.Interfaces
 {
+    /// <summary>
+    /// Describe operations with AppUser objects
+    /// </summary>
     public interface IAppUserRepository : IRepository<AppUser>
     {
         /// <summary>
@@ -34,8 +37,17 @@ namespace DataAccessLayer.Interfaces
         /// <returns></returns>
         public Task<AppUser?> GetByEmailAsync(string userEmail);
 
+        /// <summary>
+        /// Get total registered users count
+        /// </summary>
+        /// <returns>int number</returns>
         public Task<int> GetUsersCountAsync();
 
+        /// <summary>
+        /// Return all users as no tracking collection
+        /// (for perform filtering and\or pagination)
+        /// </summary>
+        /// <returns></returns>
         public IQueryable<AppUser> GetAllNoTracking();
     }
 }

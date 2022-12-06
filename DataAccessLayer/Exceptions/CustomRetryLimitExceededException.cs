@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Exceptions
 {
-
+	/// <summary>
+	/// Wrapped RetryLimitException
+	/// </summary>
 	[Serializable]
 	public class CustomRetryLimitExceededException : CustomException
 	{

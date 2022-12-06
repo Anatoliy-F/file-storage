@@ -2,6 +2,9 @@
 
 namespace DataAccessLayer.Interfaces
 {
+    /// <summary>
+    /// Describe operations with AppFileData objects (contains file metadata)
+    /// </summary>
     public interface IAppFileDataRepository : IRepository<AppFileData>
     {
         /// <summary>
@@ -42,12 +45,19 @@ namespace DataAccessLayer.Interfaces
 
         /// <summary>
         /// Check, is this User owning this file
+        /// TRUE if owning, FALSE otherwise
         /// </summary>
         /// <param name="fileId">File Id</param>
         /// <param name="OwnerId">User Id</param>
         /// <returns>TRUE if owning, FALSE otherwise</returns>
         public Task<bool> IsOwner(Guid fileId, Guid OwnerId);
 
+        /// <summary>
+        /// Return collection of AppFileData object shared with user
+        /// without related data
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Collection of AppFileData object shared with user</returns>
         public IQueryable<AppFileData> GetShared(Guid userId);
     }
 }

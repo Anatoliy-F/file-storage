@@ -1,7 +1,9 @@
 ﻿namespace DataAccessLayer.Exceptions
 {
-
-	[Serializable]
+    /// <summary>
+    /// Wrapped DbUpdateException
+    /// </summary>
+    [Serializable]
 	public class CustomDbUpdateException : CustomException
 	{
 		public CustomDbUpdateException() { }

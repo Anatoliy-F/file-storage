@@ -1,7 +1,9 @@
 ﻿namespace DataAccessLayer.Exceptions
 {
-
-	[Serializable]
+    /// <summary>
+	/// Wrapped ConcurrencyException
+	/// </summary>
+    [Serializable]
 	public class CustomConcurrencyException : CustomException
 	{
 		public CustomConcurrencyException() { }

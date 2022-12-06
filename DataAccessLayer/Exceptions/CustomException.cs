@@ -1,5 +1,8 @@
 ﻿namespace DataAccessLayer.Exceptions
 {
+    /// <summary>
+    /// Base class of application specific exception
+    /// </summary>
     [Serializable]
     public class CustomException : Exception
     {
