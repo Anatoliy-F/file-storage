@@ -15,6 +15,9 @@ using System.Diagnostics;
 
 namespace BuisnessLogicLayer.Services
 {
+    /// <summary>
+    /// Provides operations with file objects
+    /// </summary>
     public class FileService : IFileService
     {
         protected readonly IUnitOfWork _unitOfWork;
@@ -22,32 +25,18 @@ namespace BuisnessLogicLayer.Services
 
         private const string DEFAULT_ERROR = "Something go wrong";
 
+        /// <summary>
+        /// Initialize new instance of FileService
+        /// </summary>
+        /// <param name="unitOfWork">UnitOfWork instanse, for access to repositories</param>
+        /// <param name="mapper">mapper instanse for creating DTO's</param>
         public FileService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        /*//TODO: I really use it?
-        public async Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId)
-        {
-            var fileData = await _unitOfWork.AppFileDataRepository.GetByIdAsync(fileId);
-            if (fileData != null && fileData.IsPublic)
-            {
-                return _mapper.Map<ShortFileDataModel>(fileData);
-            }
-            return null;
-        }*/
-
-        /*//TODO: should i use it?
-        public async Task<ICollection<FileDataModel>> GetAllFilesSharedWithUserAsync(Guid userId)
-        {
-            var user = await _unitOfWork.AppUserRepository.GetByIdWithRelatedAsync(userId);
-            var list = user?.ReadOnlyFiles ?? new List<AppFileData>();
-
-            return _mapper.Map<ICollection<FileDataModel>>(list);
-        }*/
-
+        /// <inheritdoc />
         public async Task<ServiceResponse<FileDataModel>> GetOwnByIdAsync(Guid userId, Guid id)
         {
             try
@@ -94,6 +83,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<FileDataModel>> GetSharedByIdAsync(Guid userId, Guid id)
         {
             try
@@ -141,7 +131,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //FOR ADMIN
+        /// <inheritdoc />
         public async Task<ServiceResponse<FileDataModel>> GetByIdAsync(Guid id)
         {
             try
@@ -180,6 +170,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> UpdateOwnAsync(Guid userId, FileDataModel model)
         {
             try
@@ -249,7 +240,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //FOR ADMIN
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> UpdateAsync(FileDataModel model)
         {
             try
@@ -310,6 +301,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<FileDataModel>> GetOwnContentAsync(Guid userId, Guid fileId)
         {
             try
@@ -358,7 +350,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //FOR ADMIN
+        /// <inheritdoc />
         public async Task<ServiceResponse<FileDataModel>> GetContentAsync(Guid fileId)
         {
             try
@@ -397,6 +389,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllOwnAsync(Guid userId, QueryModel query)
         {
             try
@@ -431,7 +424,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //FOR ADMIN
+        /// <inheritdoc />
         public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllAsync(QueryModel query)
         {
             try
@@ -466,6 +459,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<PaginationResultModel<FileDataModel>>>
             GetSharedAsync(Guid userId, QueryModel query)
         {
@@ -528,7 +522,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //FOR ADMIN
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> DeleteAsync(FileDataModel fileDataModel)
         {
             try
@@ -561,7 +555,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        //BECAUSE OF OWNING CHECK NEED RETRIVE FILEDATA FIRST
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> DeleteOwnAsync(Guid userId, Guid fileId)
         {
             try
@@ -613,6 +607,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> RefuseSharedAsync(Guid userId, Guid fileId)
         {
             try
@@ -664,6 +659,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<FileDataModel>> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId)
         {
             if (!IsValidEmail(userEmail))
@@ -733,6 +729,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         private async Task<PaginationResultModel<FileDataModel>> GetFilteredOrderedPaginatedAsync
             (IQueryable<AppFileData> source, QueryModel query)
         {

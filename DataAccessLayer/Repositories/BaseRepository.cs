@@ -37,19 +37,19 @@ namespace DataAccessLayer.Repositories
             _disposeContext = true;
         }
 
-        // <inheritdoc />
+        /// <inheritdoc />
         public IQueryable<T> GetAll() => Table;
 
-        // <inheritdoc />
+        /// <inheritdoc />
         public virtual async Task<T?> GetByIdAsync(Guid id) => await Table.FindAsync(id);
 
-        // <inheritdoc />
+        /// <inheritdoc />
         public async Task AddAsync(T entity) => await Table.AddAsync(entity);
 
-        // <inheritdoc />
+        /// <inheritdoc />
         public virtual void Delete(T entity) => Table.Remove(entity);
 
-        // <inheritdoc />
+        /// <inheritdoc />
         public virtual void Update(T entity) => Table.Update(entity);
 
         public void Dispose()

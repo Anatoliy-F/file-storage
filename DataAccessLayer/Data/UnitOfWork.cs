@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Data
 {
-    // <inheritdoc />
+    /// <inheritdoc />
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
         private readonly AppDbContext _context;

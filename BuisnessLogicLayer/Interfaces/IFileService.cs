@@ -10,18 +10,11 @@ using System.Threading.Tasks;
 
 namespace BuisnessLogicLayer.Interfaces
 {
+    /// <summary>
+    /// Provides operations with file objects
+    /// </summary>
     public interface IFileService
     {
-        /*/// <summary>
-        /// Return ShortFileDataObject, with properties
-        /// Id, Name, Note, Size, UploadDateTime
-        /// using for responses via short link for public accessed files
-        /// </summary>
-        /// <param name="fileId">File Id</param>
-        /// <returns>ShortFileDataObject</returns>
-        public Task<ShortFileDataModel?> GetShortFileDataAsync(Guid fileId);*/
-
-
         /// <summary>
         /// Returns PaginationResultModel (properties for pagination on client side)
         /// with FileDataModel collections by owner
@@ -41,13 +34,6 @@ namespace BuisnessLogicLayer.Interfaces
         /// <returns>PaginationResultModel<FileDataModel></returns>
         public Task<ServiceResponse<PaginationResultModel<FileDataModel>>> GetAllAsync(QueryModel query);
 
-        /*/// <summary>
-        /// Return all user's read-only FileDataModel objects (not owned) 
-        /// </summary>
-        /// <param name="userId">User Id</param>
-        /// <returns>Read-only FileData collection</returns>
-        public Task<ICollection<FileDataModel>> GetAllFilesSharedWithUserAsync(Guid userId);*/
-
         /// <summary>
         /// Return paginated user's read-only FileDataModel objects (not owned)
         /// </summary>
@@ -56,9 +42,6 @@ namespace BuisnessLogicLayer.Interfaces
         /// <returns>PaginationResultModel<FileDataModel></returns>
         public Task<ServiceResponse<PaginationResultModel<FileDataModel>>>
            GetSharedAsync(Guid userId, QueryModel query);
-
-        //TODO: make deccision about delete by id
-        /*public Task DeleteAsync(Guid fileId);*/
 
         /// <summary>
         /// Return FileDataModel object by FileId and OwnerId
@@ -76,6 +59,12 @@ namespace BuisnessLogicLayer.Interfaces
         /// <returns>Void</returns>
         public Task<ServiceResponse<bool>> DeleteOwnAsync(Guid userId, Guid fileId);
 
+        /// <summary>
+        /// Return FileDataModel with file content using owning check
+        /// </summary>
+        /// <param name="userId">Owner Id</param>
+        /// <param name="fileId">FileData id</param>
+        /// <returns></returns>
         public Task<ServiceResponse<FileDataModel>> GetOwnContentAsync(Guid userId, Guid fileId);
 
         /// <summary>
@@ -96,35 +85,52 @@ namespace BuisnessLogicLayer.Interfaces
         public Task<ServiceResponse<FileDataModel>> ShareByEmailAsync(Guid ownerId, string userEmail, Guid fileDataId);
 
         /// <summary>
-        /// Method for ADMINS
+        /// Return file metadata with related information without owning check
+        /// For administrators only!
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">File id</param>
+        /// <returns>FileDataModel object with owner and viewers collection</returns>
         public Task<ServiceResponse<FileDataModel>> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Method for ADMINS
+        /// Delete file without owning check
+        /// For administrators only!
         /// </summary>
-        /// <param name="fileDataModel"></param>
+        /// <param name="fileDataModel">FileDataModel instanse</param>
         /// <returns></returns>
         public Task<ServiceResponse<bool>> DeleteAsync(FileDataModel fileDataModel);
 
         /// <summary>
-        /// Method for ADMINS
+        /// Return filedata with content without owning check
+        /// For administrators only!
         /// </summary>
-        /// <param name="fileId"></param>
-        /// <returns></returns>
+        /// <param name="fileId">FileData id</param>
+        /// <returns>FileDataModel instanse with content</returns>
         public Task<ServiceResponse<FileDataModel>> GetContentAsync(Guid fileId);
 
         /// <summary>
-        /// Method for ADMINS
+        /// Update file metadata without owning check
+        /// For administrators only!
         /// </summary>
-        /// <param name="fileId"></param>
-        /// <returns></returns>
+        /// <param name="model"></param>
+        /// <returns>FileDataModel instanse</returns>
         public Task<ServiceResponse<bool>> UpdateAsync(FileDataModel model);
 
+
+        /// <summary>
+        /// Return fileData shared with user by file Id with view access check
+        /// </summary>
+        /// <param name="userId">Id of the user who has access to the file</param>
+        /// <param name="id">File id</param>
+        /// <returns>FielDataModel instanse with related data, without content</returns>
         public Task<ServiceResponse<FileDataModel>> GetSharedByIdAsync(Guid userId, Guid id);
 
+        /// <summary>
+        /// Denies granted access to a file
+        /// </summary>
+        /// <param name="userId">Id of the user who has access to the file</param>
+        /// <param name="fileId">File id</param>
+        /// <returns>TRUE access denied, FALSE otherwise</returns>
         public Task<ServiceResponse<bool>> RefuseSharedAsync(Guid userId, Guid fileId);
     }
 }
