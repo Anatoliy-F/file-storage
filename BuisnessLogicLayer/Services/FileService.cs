@@ -1,19 +1,13 @@
 ﻿using AutoMapper;
+using BuisnessLogicLayer.Enums;
 using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
+using DataAccessLayer.Exceptions;
 using DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BuisnessLogicLayer.Enums;
-using DataAccessLayer.Exceptions;
-using System.Diagnostics;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection;
+using System.Text;
 
 namespace BuisnessLogicLayer.Services
 {
@@ -515,7 +509,7 @@ namespace BuisnessLogicLayer.Services
                     ErrorMessage = ex.Message
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new ServiceResponse<PaginationResultModel<FileDataModel>>
                 {

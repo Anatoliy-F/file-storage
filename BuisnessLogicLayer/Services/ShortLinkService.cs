@@ -6,16 +6,12 @@ using DataAccessLayer.Entities;
 using DataAccessLayer.Exceptions;
 using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BuisnessLogicLayer.Services
 {
+    /// <summary>
+    /// Provides operations with ShortLink objects
+    /// </summary>
     public class ShortLinkService : IShortLinkService
     {
         protected readonly IUnitOfWork _unitOfWork;
@@ -24,12 +20,18 @@ namespace BuisnessLogicLayer.Services
         private const string INVALID_LINK = "Invalid link";
         private const string DEFAULT_ERROR = "Something go wrong";
 
+        /// <summary>
+        /// Initialize new instance of ShortLinkService
+        /// </summary>
+        /// <param name="unitOfWork">UnitOfWork instanse, for access to repositories</param>
+        /// <param name="mapper">mapper instanse for creating DTO's</param>
         public ShortLinkService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<FileDataModel>> GetFileByShortLinkAsync(string link)
         {
             try
@@ -87,6 +89,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> DeleteLinkAsync(string link)
         {
             try
@@ -129,7 +132,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-
+        /// <inheritdoc />
         public async Task<ServiceResponse<ShortFileDataModel>> GetShortFileDataAsync(string link)
         {
             try
@@ -177,6 +180,7 @@ namespace BuisnessLogicLayer.Services
             } 
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<ShortLinkModel>> GenerateForFileByIdAsync(Guid fileId)
         {
             try

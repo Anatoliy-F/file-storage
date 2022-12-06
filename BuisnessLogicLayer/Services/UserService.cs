@@ -1,22 +1,16 @@
 ﻿using AutoMapper;
+using BuisnessLogicLayer.Enums;
 using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Models;
-using DataAccessLayer.Interfaces;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Mail;
-using BuisnessLogicLayer.Enums;
-using DataAccessLayer.Exceptions;
 using DataAccessLayer.Entities;
+using DataAccessLayer.Exceptions;
+using DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+using System.Net.Mail;
 
 namespace BuisnessLogicLayer.Services
 {
+    /// <inheritdoc />
     public class UserService : IUserService
     {
         protected readonly IUnitOfWork _unitOfWork;
@@ -24,12 +18,18 @@ namespace BuisnessLogicLayer.Services
 
         private const string DEFAULT_ERROR = "Something go wrong";
 
+        /// <summary>
+        /// Initialize new instance of UserService
+        /// </summary>
+        /// <param name="unitOfWork">UnitOfWork instanse, for access to repositories</param>
+        /// <param name="mapper">mapper instanse for creating DTO's</param>
         public UserService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> IsExistByEmailAsync(string userEmail)
         {
             if (IsValidEmail(userEmail))
@@ -79,6 +79,7 @@ namespace BuisnessLogicLayer.Services
             };
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<UserModel>> GetByEmailAsync(string userEmail)
         {
             if (IsValidEmail(userEmail))
@@ -128,6 +129,7 @@ namespace BuisnessLogicLayer.Services
             };
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<PaginationResultModel<UserModel>>> GetAllAsync(QueryModel query)
         {
             try
@@ -162,6 +164,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<UserModel>> GetByIdAsync(Guid id)
         {
             try
@@ -203,6 +206,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> DeleteAsync(UserModel userModel)
         {
             try
@@ -243,6 +247,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<ServiceResponse<bool>> UpdateAsync(UserModel userModel)
         {
             try
@@ -281,7 +286,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        private bool IsValidEmail(string email)
+        private static bool IsValidEmail(string email)
         {
             var trimmedEmail = email.Trim();
 

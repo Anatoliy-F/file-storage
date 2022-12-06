@@ -44,7 +44,7 @@ namespace DataAccessLayer.Repositories
         /// <inheritdoc />
         public async Task<AppFileData?> GetFileContentByLinkAsync(string link)
         {
-            var linkObj = await Table.Include(sl => sl.AppFileDataNav).ThenInclude(afd => afd.AppFileNav).FirstOrDefaultAsync(sl => sl.Link == link);
+            var linkObj = await Table.Include(sl => sl.AppFileDataNav).ThenInclude(afd => afd!.AppFileNav).FirstOrDefaultAsync(sl => sl.Link == link);
             return linkObj?.AppFileDataNav ?? null;
         }
 
