@@ -1,21 +1,28 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting;
 
 namespace WebAPI.Filters
 {
+    /// <summary>
+    /// Exception filter to log errors.
+    /// </summary>
     public class AppExceptionFilterAttribute : ExceptionFilterAttribute
     {
         private readonly IWebHostEnvironment _hostEnvironment;
 
+        /// <summary>
+        /// Initialize new instance of AppExceptionFilterAttribute
+        /// </summary>
+        /// <param name="hostEnvironment">Provides information about web hosting</param>
         public AppExceptionFilterAttribute(IWebHostEnvironment hostEnvironment)
         {
             _hostEnvironment = hostEnvironment;
         }
 
+        /// <summary>
+        /// Exception handler
+        /// </summary>
+        /// <param name="context">Exception context <see cref="ExceptionContext"/></param>
         public override void OnException(ExceptionContext context)
         {
             var ex = context.Exception;

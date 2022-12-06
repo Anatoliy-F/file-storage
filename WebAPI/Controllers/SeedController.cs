@@ -187,7 +187,6 @@ namespace WebAPI.Controllers
                 addedUserList.Add(user_Admin);
             }
 
-
             for(int i = 0; i < 10; i++)
             {
                 var emailForUser = $"user1{i}@email.com";
