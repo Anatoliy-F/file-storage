@@ -1,13 +1,15 @@
-﻿using System.Security;
+﻿using DataAccessLayer.Data;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Data;
+using System.Security;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Seeding database, using only in Development environment!
+    /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize(Roles = "Administrator")]
@@ -18,6 +20,13 @@ namespace WebAPI.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IWebHostEnvironment _env;
 
+        /// <summary>
+        /// nitialize new instance of SeedController
+        /// </summary>
+        /// <param name="context">Persistence store</param>
+        /// <param name="roleManager">Managing user roles in a persistence store</param>
+        /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+        /// <param name="env">Provides information about web hosting</param>
         public SeedController(AppDbContext context, RoleManager<IdentityRole<Guid>> roleManager, 
             UserManager<AppUser> userManager, IWebHostEnvironment env)
         {
@@ -27,6 +36,11 @@ namespace WebAPI.Controllers
             _env = env;
         }
 
+        /// <summary>
+        /// Seeding database fith test files
+        /// </summary>
+        /// <returns>Inserted files objects</returns>
+        /// <exception cref="SecurityException">Throws if invoke in nin-development environment</exception>
         [HttpGet]
         public async Task<ActionResult> CreateFiles()
         {
@@ -117,6 +131,11 @@ namespace WebAPI.Controllers
             });
         }
 
+        /// <summary>
+        /// Seeding database fith test users
+        /// </summary>
+        /// <returns>Inserted user objects</returns>
+        /// <exception cref="SecurityException">Throws if invoke in nin-development environment</exception>
         [HttpGet]
         public async Task<ActionResult> CreateDefaultUsers()
         {

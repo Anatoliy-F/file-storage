@@ -337,7 +337,7 @@ namespace WebAPI.Controllers
         /// Page size, query for filtering, property for sorting and sorting order are defined by QueryModel object
         /// For execution needs "Administrator" permissions
         /// </summary>
-        /// <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering</param>
+        /// <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering <see cref="QueryModel"/></param>
         /// <returns>Returns filtered, sorted page of file metadata</returns>
         [Authorize(Roles = "Administrator")]
         [HttpGet("admin")]

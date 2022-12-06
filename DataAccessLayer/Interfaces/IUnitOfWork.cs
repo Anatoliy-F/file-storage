@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 namespace DataAccessLayer.Interfaces
 {
     /// <summary>
-    /// anage repositories life cycle
+    /// Manage repositories life cycle
     /// </summary>
     public interface IUnitOfWork
     {

@@ -1,22 +1,21 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using WebAPI.Filters;
-using WebAPI.Utilities;
-using Microsoft.Net.Http.Headers;
-using System.Net;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Globalization;
-using DataAccessLayer.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
+using System.Globalization;
+using WebAPI.Filters;
 using WebAPI.Models;
+using WebAPI.Utilities;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Implement file uploading with streaming
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class UploadController : ControllerBase
@@ -31,9 +30,17 @@ namespace WebAPI.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly JwtHandler _jwtHandler;
 
-        public ILogger<UploadController> Logger { get; set; }
+        private ILogger<UploadController> Logger { get; set; }
 
-        public UploadController(IConfiguration config, IUnitOfWork unitOfWork, JwtHandler jwtHandler, ILogger<UploadController> logger)
+        /// <summary>
+        /// Initialize new instance of FileController
+        /// </summary>
+        /// <param name="config">IConfiguration instanse, for access to application configuration</param>
+        /// <param name="unitOfWork">UnitOfWork instanse, for access to repositories</param>
+        /// <param name="jwtHandler">JwtHandler instanse. Generate JWT. Retrive userId from JWT</param>
+        /// <param name="logger">ILogger object to performing error logging</param>
+        public UploadController(IConfiguration config, IUnitOfWork unitOfWork, 
+            JwtHandler jwtHandler, ILogger<UploadController> logger)
         {
             _filesizeLimit = config.GetValue<long>("FileSizeLimit");
             _unitOfWork = unitOfWork;
@@ -41,9 +48,14 @@ namespace WebAPI.Controllers
             Logger = logger;
         }
 
+        /// <summary>
+        /// Upload file by stream without FormValue model binding disabled
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [DisableFormValueModelBinding]
         [Authorize(Roles = "RegisteredUser")]
+        //TODO: Implement response attributes
         public async Task<IActionResult> UploadDatabase()
         {
             if (Request.ContentType == null || !MultipartRequestHelper.IsMultipartContentType(Request.ContentType))

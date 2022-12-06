@@ -41,7 +41,7 @@ namespace BuisnessLogicLayer.Services
                     {
                         return new ServiceResponse<bool>
                         {
-                            ResponseResult = Enums.ResponseResult.Success,
+                            ResponseResult = ResponseResult.Success,
                             Data = true
                         };
                     }
@@ -49,7 +49,7 @@ namespace BuisnessLogicLayer.Services
                     {
                         return new ServiceResponse<bool>
                         {
-                            ResponseResult = Enums.ResponseResult.NotFound,
+                            ResponseResult = ResponseResult.NotFound,
                             ErrorMessage = $"user with email: {userEmail}, isn't exist"
                         };
                     }
