@@ -4,10 +4,20 @@ using System.Text;
 
 namespace WebAPI.Utilities
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class MultipartRequestHelper
     {
         // Content-Type: multipart/form-data; boundary="----WebKitFormBoundarymx2fSWqWSd0OxQqq"
         // The spec at https://tools.ietf.org/html/rfc2046#section-5.1 states that 70 characters is a reasonable limit.
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="contentType"></param>
+       /// <param name="lengthlimit"></param>
+       /// <returns></returns>
+       /// <exception cref="InvalidDataException"></exception>
         public static string GetBoundary(MediaTypeHeaderValue contentType, int lengthlimit)
         {
             var boundary = HeaderUtilities.RemoveQuotes(contentType.Boundary).Value;
@@ -23,12 +33,22 @@ namespace WebAPI.Utilities
             return boundary;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="contentType"></param>
+        /// <returns></returns>
         public static bool IsMultipartContentType(string contentType)
         {
             return !string.IsNullOrEmpty(contentType) && 
                 contentType.IndexOf("multipart/", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="contentDisposition"></param>
+        /// <returns></returns>
         public static bool HasFormDataContentDisposition(ContentDispositionHeaderValue contentDisposition)
         {
             return contentDisposition != null
@@ -37,6 +57,11 @@ namespace WebAPI.Utilities
                 && string.IsNullOrEmpty(contentDisposition.FileNameStar.Value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="contentDisposition"></param>
+        /// <returns></returns>
         public static bool HasFileContentDisposition(ContentDispositionHeaderValue contentDisposition)
         {
             // Content-Disposition: form-data; name="myfile1"; filename="Misc 002.jpg"
@@ -46,6 +71,11 @@ namespace WebAPI.Utilities
                     || !string.IsNullOrEmpty(contentDisposition.FileNameStar.Value));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="section"></param>
+        /// <returns></returns>
         public static Encoding GetEncoding(MultipartSection section)
         {
             var hasMediaTypeHeader = MediaTypeHeaderValue.TryParse(section.ContentType, out var mediaType);

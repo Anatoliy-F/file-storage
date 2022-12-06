@@ -7,20 +7,37 @@ namespace WebAPI.Models
     /// </summary>
     public class RegistrationRequestModel : IValidatableObject
     {
+        /// <summary>
+        /// User name
+        /// </summary>
         public string? UserName { get; set; }
 
+        /// <summary>
+        /// User email
+        /// </summary>
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress]
         public string? Email { get; set; }
 
+        /// <summary>
+        /// Password
+        /// </summary>
         [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
+        /// <summary>
+        /// Repeat of user password
+        /// </summary>
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         [DataType(DataType.Password)]
         public string? ConfirmPassword { get; set; }
 
+        /// <summary>
+        /// Implementation of IValidatableObject
+        /// </summary>
+        /// <param name="validationContext"><see cref="ValidationContext"/></param>
+        /// <returns>Collection of validation errors</returns>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             List<ValidationResult> result = new();

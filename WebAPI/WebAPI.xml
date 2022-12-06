@@ -4,6 +4,82 @@
         <name>WebAPI</name>
     </assembly>
     <members>
+        <member name="T:WebAPI.Controllers.AccountController">
+            <summary>
+            Manage SignIn/SignUp and operations with users
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.#ctor(Microsoft.AspNetCore.Identity.UserManager{DataAccessLayer.Entities.AppUser},WebAPI.Utilities.JwtHandler,Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole{System.Guid}},BuisnessLogicLayer.Interfaces.IUserService)">
+            <summary>
+            Initialize new instance of FileController
+            </summary>
+            <param name="userManager">Provides the APIs for managing user in a persistence store</param>
+            <param name="jwtHandler">JwtHandler instanse. Generate JWT. Retrive userId from JWT</param>
+            <param name="roleManager">Managing user roles in a persistence store</param>
+            <param name="userService">UserService instanse. Provides operations with users objects</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.RegisterUser(WebAPI.Models.RegistrationRequestModel)">
+            <summary>
+            Performs user registration (sign up) in the application
+            </summary>
+            <param name="userForRegistration">Represent data for sign up request <see cref="T:WebAPI.Models.RegistrationRequestModel"/></param>
+            <returns>Result of registration attempt <see cref="T:WebAPI.Models.RegistrationResponseModel"/></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.Login(WebAPI.Models.LoginRequestModel)">
+            <summary>
+            Performs user registration (sign in) in the application
+            </summary>
+            <param name="loginRequest">Represent data for sign in request <see cref="T:WebAPI.Models.LoginRequestModel"/></param>
+            <returns>Result of login attempt <see cref="T:WebAPI.Models.LoginResponseModel"/></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.IsUserExist(System.String)">
+            <summary>
+            Deprecated
+            </summary>
+            <param name="email"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.GetByEmail(System.String)">
+            <summary>
+            Return user model object by email
+            </summary>
+            <param name="email">Email address</param>
+            <returns>Objects represents user data <see cref="T:BuisnessLogicLayer.Models.UserModel"/></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.GetById(System.Guid)">
+            <summary>
+            Returns an object describing user
+            For execution needs "Administrator" permissions
+            </summary>
+            <param name="id">User id</param>
+            <returns>Objects represents user data <see cref="T:BuisnessLogicLayer.Models.UserModel"/></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.Get(BuisnessLogicLayer.Models.QueryModel)">
+            <summary>
+            Returns a page of sorted and filtered objects describing users
+            Page size, query for filtering, property for sorting and sorting order are defined by QueryModel object
+            For execution needs "Administrator" permissions
+            </summary>
+            <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering <see cref="T:BuisnessLogicLayer.Models.QueryModel"/></param>
+            <returns>Returns filtered, sorted page of users data</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.Delete(System.Guid,BuisnessLogicLayer.Models.UserModel)">
+            <summary>
+            Deleting user. For execution needs "Administrator" permissions
+            Can't delete user with "Administrator" rights
+            </summary>
+            <param name="id">User Id</param>
+            <param name="userModel">Objects represents user data <see cref="T:BuisnessLogicLayer.Models.UserModel"/></param>
+            <returns>Status 200 Ok, if file delete successfuly, error code otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AccountController.Update(System.Guid,BuisnessLogicLayer.Models.UserModel)">
+            <summary>
+            Update user object
+            </summary>
+            <param name="id">User Id</param>
+            <param name="model">Objects represents user data <see cref="T:BuisnessLogicLayer.Models.UserModel"/></param>
+            <returns>Status 200 Ok, if file update successfuly, error code otherwise</returns>
+        </member>
         <member name="T:WebAPI.Controllers.FileController">
             <summary>
             Define endpoints to perform operations with files
@@ -84,7 +160,7 @@
             Page size, query for filtering, property for sorting and sorting order are defined by QueryModel object
             For execution needs "Administrator" permissions
             </summary>
-            <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering</param>
+            <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering <see cref="T:BuisnessLogicLayer.Models.QueryModel"/></param>
             <returns>Returns filtered, sorted page of file metadata</returns>
         </member>
         <member name="M:WebAPI.Controllers.FileController.GetById(System.Guid)">
@@ -117,6 +193,34 @@
             <param name="id">File Id</param>
             <param name="model">File metadata object</param>
             <returns>Status 200 Ok, if file update successfuly, error code otherwise</returns>
+        </member>
+        <member name="T:WebAPI.Controllers.SeedController">
+            <summary>
+            Seeding database, using only in Development environment!
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.SeedController.#ctor(DataAccessLayer.Data.AppDbContext,Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole{System.Guid}},Microsoft.AspNetCore.Identity.UserManager{DataAccessLayer.Entities.AppUser},Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            nitialize new instance of SeedController
+            </summary>
+            <param name="context">Persistence store</param>
+            <param name="roleManager">Managing user roles in a persistence store</param>
+            <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+            <param name="env">Provides information about web hosting</param>
+        </member>
+        <member name="M:WebAPI.Controllers.SeedController.CreateFiles">
+            <summary>
+            Seeding database fith test files
+            </summary>
+            <returns>Inserted files objects</returns>
+            <exception cref="T:System.Security.SecurityException">Throws if invoke in nin-development environment</exception>
+        </member>
+        <member name="M:WebAPI.Controllers.SeedController.CreateDefaultUsers">
+            <summary>
+            Seeding database fith test users
+            </summary>
+            <returns>Inserted user objects</returns>
+            <exception cref="T:System.Security.SecurityException">Throws if invoke in nin-development environment</exception>
         </member>
         <member name="T:WebAPI.Controllers.ShortLinkController">
             <summary>
@@ -159,6 +263,26 @@
             <param name="model">File metadata object</param>
             <returns>Status 200 Ok, if link delete successfuly, error code otherwise</returns>
         </member>
+        <member name="T:WebAPI.Controllers.UploadController">
+            <summary>
+            Implement file uploading with streaming
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.UploadController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,DataAccessLayer.Interfaces.IUnitOfWork,WebAPI.Utilities.JwtHandler,Microsoft.Extensions.Logging.ILogger{WebAPI.Controllers.UploadController})">
+            <summary>
+            Initialize new instance of FileController
+            </summary>
+            <param name="config">IConfiguration instanse, for access to application configuration</param>
+            <param name="unitOfWork">UnitOfWork instanse, for access to repositories</param>
+            <param name="jwtHandler">JwtHandler instanse. Generate JWT. Retrive userId from JWT</param>
+            <param name="logger">ILogger object to performing error logging</param>
+        </member>
+        <member name="M:WebAPI.Controllers.UploadController.UploadDatabase">
+            <summary>
+            Upload file by stream without FormValue model binding disabled
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:WebAPI.Models.FormData">
             <summary>
             Using to bind Note to File object
@@ -175,9 +299,39 @@
             Represent data for sign in request
             </summary>
         </member>
+        <member name="P:WebAPI.Models.LoginRequestModel.Email">
+            <summary>
+            Email address
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.LoginRequestModel.Password">
+            <summary>
+            Password
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.LoginResponseModel">
             <summary>
             Represent data for sign in response
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.LoginResponseModel.Success">
+            <summary>
+            TRUE if login successful, FALSE otherwise
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.LoginResponseModel.Message">
+            <summary>
+            Describe result of login request
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.LoginResponseModel.IsAdmin">
+            <summary>
+            TRUE if user has role "Administrator"
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.LoginResponseModel.Token">
+            <summary>
+            JWT Bearer
             </summary>
         </member>
         <member name="T:WebAPI.Models.RegistrationRequestModel">
@@ -185,10 +339,134 @@
             Represent data for sign up request
             </summary>
         </member>
+        <member name="P:WebAPI.Models.RegistrationRequestModel.UserName">
+            <summary>
+            User name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.RegistrationRequestModel.Email">
+            <summary>
+            User email
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.RegistrationRequestModel.Password">
+            <summary>
+            Password
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.RegistrationRequestModel.ConfirmPassword">
+            <summary>
+            Repeat of user password
+            </summary>
+        </member>
+        <member name="M:WebAPI.Models.RegistrationRequestModel.Validate(System.ComponentModel.DataAnnotations.ValidationContext)">
+            <summary>
+            Implementation of IValidatableObject
+            </summary>
+            <param name="validationContext"><see cref="T:System.ComponentModel.DataAnnotations.ValidationContext"/></param>
+            <returns>Collection of validation errors</returns>
+        </member>
         <member name="T:WebAPI.Models.RegistrationResponseModel">
             <summary>
             Represent data for sign up response
             </summary>
+        </member>
+        <member name="T:WebAPI.Utilities.FileHelpers">
+            <summary>
+            Validate file
+            </summary>
+        </member>
+        <member name="M:WebAPI.Utilities.FileHelpers.ProcessFormFile``1(Microsoft.AspNetCore.Http.IFormFile,Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary,System.String[],System.Int64)">
+            <summary>
+            Not used in this implimentation((
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="formFile"></param>
+            <param name="modelState"></param>
+            <param name="permittedExtensions"></param>
+            <param name="sizeLimit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Utilities.FileHelpers.ProcessStreamedFile(Microsoft.AspNetCore.WebUtilities.MultipartSection,Microsoft.Net.Http.Headers.ContentDispositionHeaderValue,Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary,System.String[],System.Int64)">
+            <summary>
+            Validate streamed file
+            </summary>
+            <param name="section">A multipart section <see cref="T:Microsoft.AspNetCore.WebUtilities.MultipartSection"/></param>
+            <param name="contentDisposition">Value of content-diposition header <see cref="T:Microsoft.Net.Http.Headers.ContentDispositionHeaderValue"/></param>
+            <param name="modelState">Model state for validation errors <see cref="T:Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary"/></param>
+            <param name="permittedExtensions">Array of files extensions permitted by application</param>
+            <param name="sizeLimit">file size limit</param>
+            <returns>Files content by bytes array</returns>
+        </member>
+        <member name="T:WebAPI.Utilities.JwtHandler">
+            <summary>
+            Generate JWT
+            </summary>
+        </member>
+        <member name="M:WebAPI.Utilities.JwtHandler.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Identity.UserManager{DataAccessLayer.Entities.AppUser},Microsoft.Extensions.Logging.ILogger{WebAPI.Utilities.JwtHandler})">
+            <summary>
+            Initialize new instance of JwtHandler
+            </summary>
+            <param name="configuration">IConfiguration instanse, for access to application configuration</param>
+            <param name="userManager">Provides the APIs for managing user in a persistence store</param>
+            <param name="logger">ILogger object to performing error logging</param>
+        </member>
+        <member name="M:WebAPI.Utilities.JwtHandler.GetTokenAsync(DataAccessLayer.Entities.AppUser)">
+            <summary>
+            Generate JWT security token
+            </summary>
+            <param name="user">AppUser instanse <see cref="T:DataAccessLayer.Entities.AppUser"/></param>
+            <returns><see cref="T:System.IdentityModel.Tokens.Jwt.JwtSecurityToken"/></returns>
+        </member>
+        <member name="M:WebAPI.Utilities.JwtHandler.GetUserId(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Return user Id from JWT
+            </summary>
+            <param name="user"><see cref="T:System.Security.Claims.ClaimsPrincipal"/></param>
+            <returns>Guid user id</returns>
+            <exception cref="T:System.UnauthorizedAccessException">Throws if token doesn't contains user id</exception>
+        </member>
+        <member name="T:WebAPI.Utilities.MultipartRequestHelper">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:WebAPI.Utilities.MultipartRequestHelper.GetBoundary(Microsoft.Net.Http.Headers.MediaTypeHeaderValue,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="contentType"></param>
+            <param name="lengthlimit"></param>
+            <returns></returns>
+            <exception cref="T:System.IO.InvalidDataException"></exception>
+        </member>
+        <member name="M:WebAPI.Utilities.MultipartRequestHelper.IsMultipartContentType(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="contentType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Utilities.MultipartRequestHelper.HasFormDataContentDisposition(Microsoft.Net.Http.Headers.ContentDispositionHeaderValue)">
+            <summary>
+            
+            </summary>
+            <param name="contentDisposition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Utilities.MultipartRequestHelper.HasFileContentDisposition(Microsoft.Net.Http.Headers.ContentDispositionHeaderValue)">
+            <summary>
+            
+            </summary>
+            <param name="contentDisposition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Utilities.MultipartRequestHelper.GetEncoding(Microsoft.AspNetCore.WebUtilities.MultipartSection)">
+            <summary>
+            
+            </summary>
+            <param name="section"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

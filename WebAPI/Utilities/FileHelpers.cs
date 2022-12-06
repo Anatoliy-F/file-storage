@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Reflection;
 
 namespace WebAPI.Utilities
 {
+    /// <summary>
+    /// Validate file
+    /// </summary>
     public static class FileHelpers
     {
         // If you require a check on specific characters in the IsValidFileExtensionAndSignature
@@ -73,7 +70,15 @@ namespace WebAPI.Utilities
         // used on the file before making the file available to users or other
         // systems. For more information, see the topic that accompanies this sample
         // app.
-
+        /// <summary>
+        /// Not used in this implimentation((
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formFile"></param>
+        /// <param name="modelState"></param>
+        /// <param name="permittedExtensions"></param>
+        /// <param name="sizeLimit"></param>
+        /// <returns></returns>
         public static async Task<byte[]> ProcessFormFile<T>(IFormFile formFile,
             ModelStateDictionary modelState, string[] permittedExtensions, long sizeLimit)
         {
@@ -149,7 +154,15 @@ namespace WebAPI.Utilities
             return Array.Empty<byte>();
         }
 
-
+        /// <summary>
+        /// Validate streamed file
+        /// </summary>
+        /// <param name="section">A multipart section <see cref="MultipartSection"/></param>
+        /// <param name="contentDisposition">Value of content-diposition header <see cref="ContentDispositionHeaderValue"/></param>
+        /// <param name="modelState">Model state for validation errors <see cref="ModelStateDictionary"/></param>
+        /// <param name="permittedExtensions">Array of files extensions permitted by application</param>
+        /// <param name="sizeLimit">file size limit</param>
+        /// <returns>Files content by bytes array</returns>
         public static async Task<byte[]> ProcessStreamedFile(MultipartSection section, ContentDispositionHeaderValue contentDisposition,
             ModelStateDictionary modelState, string[] permittedExtensions, long sizeLimit)
         {
