@@ -35,11 +35,6 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<byte[]>("TimeStamp")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AppFileDataId")
@@ -170,9 +165,6 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
 
-                    b.Property<byte[]>("TimeStamp")
-                        .HasColumnType("varbinary(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Link")
@@ -181,7 +173,7 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex(new[] { "AppFileDataId" }, "IX_ShortLink_FileDataId")
                         .IsUnique();
 
-                    b.ToTable("ShortLink", (string)null);
+                    b.ToTable("ShortLink");
                 });
 
             modelBuilder.Entity("FileViewer", b =>
@@ -196,7 +188,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FileViewer", (string)null);
+                    b.ToTable("FileViewer");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>

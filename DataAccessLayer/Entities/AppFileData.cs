@@ -2,6 +2,8 @@
 {
     public class AppFileData : BaseEntity
     {
+        public byte[]? TimeStamp { get; set; }
+
         public string UntrustedName { get; set; } = "Empty name";
 
         public string Note { get; set; } = "Empty note";

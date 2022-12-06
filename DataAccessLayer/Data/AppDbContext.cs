@@ -58,7 +58,6 @@ namespace DataAccessLayer.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Link).IsRequired().HasMaxLength(16);
                 entity.HasIndex(e => e.Link).IsUnique();
-                entity.Property(e => e.TimeStamp);
             });
 
             builder.Entity<AppFile>(entity =>
@@ -66,7 +65,6 @@ namespace DataAccessLayer.Data
                 entity.ToTable("Files", "dbo");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Content).IsRequired();
-                entity.Property(e => e.TimeStamp).IsRowVersion().IsConcurrencyToken();
 
                 entity.HasIndex(e => e.AppFileDataId, "IX_Files_FileDataId");
 
