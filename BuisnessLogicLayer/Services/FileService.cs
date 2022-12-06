@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using BuisnessLogicLayer.Enums;
 using DataAccessLayer.Exceptions;
 using System.Diagnostics;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace BuisnessLogicLayer.Services
 {
@@ -193,7 +195,7 @@ namespace BuisnessLogicLayer.Services
                     };
                 }
 
-                //TODO: Validate
+                Validate(model);
 
                 fileData.UntrustedName = model.Name;
                 fileData.Note = model.Note;
@@ -254,7 +256,8 @@ namespace BuisnessLogicLayer.Services
                         ErrorMessage = $"No file with this id: {model.Id}"
                     };
                 }
-                //TODO: Validate
+
+                Validate(model);
 
                 fileData.UntrustedName = model.Name;
                 fileData.Note = model.Note;
@@ -803,5 +806,25 @@ namespace BuisnessLogicLayer.Services
                 return false;
             }
         }
+
+        private void Validate(IValidatableObject model)
+        {
+            if (model == null)
+            {
+                throw new CustomException("Object is null");
+            }
+            var results = new List<ValidationResult>();
+            var context = new ValidationContext(model);
+            if (!Validator.TryValidateObject(model, context, results, true))
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var result in results)
+                {
+                    sb.Append(result.ErrorMessage + "\n");
+                }
+                throw new CustomException(sb.ToString());
+            }
+        }
+
     }
 }
