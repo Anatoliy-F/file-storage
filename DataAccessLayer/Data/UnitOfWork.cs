@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Data
 {
+    // <inheritdoc />
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
         private readonly AppDbContext _context;
@@ -25,7 +26,15 @@ namespace DataAccessLayer.Data
 
         public ILogger<UnitOfWork> Logger { get; set; }
 
-        public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger, UserManager<AppUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
+        /// <summary>
+        /// Initialize new instance of UnitOfWork
+        /// </summary>
+        /// <param name="context">AppDbContext instanse</param>
+        /// <param name="logger">Logger instanse</param>
+        /// <param name="userManager">Identity UserManager instanse</param>
+        /// <param name="roleManager">Identity role manager instanse</param>
+        public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger, 
+            UserManager<AppUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
         {
             _context = context;
             Logger = logger;
@@ -33,16 +42,22 @@ namespace DataAccessLayer.Data
             _roleManager = roleManager;
         }
 
+        /// <inheritdoc />
         public IAppFileDataRepository AppFileDataRepository => _fileDataRepository ??= new AppFileDataRepository(_context);
 
+        /// <inheritdoc />
         public IAppUserRepository AppUserRepository => _userRepository ??= new AppUserRepository(_context);
 
+        /// <inheritdoc />
         public IShortLinkRepository ShortLinkRepository => _shortLinkRepository ??= new ShortLinkRepository(_context);
 
+        /// <inheritdoc />
         public UserManager<AppUser> UserManager => _userManager;
 
+        /// <inheritdoc />
         public RoleManager<IdentityRole<Guid>> RoleManager => _roleManager;
 
+        /// <inheritdoc />
         public async Task SaveAsync()
         {
             

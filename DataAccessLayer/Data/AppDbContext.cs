@@ -14,6 +14,9 @@ using Microsoft.Extensions.Logging;
 
 namespace DataAccessLayer.Data
 {
+    /// <summary>
+    /// Manage ORM operations
+    /// </summary>
     public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
