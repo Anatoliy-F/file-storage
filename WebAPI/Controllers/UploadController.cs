@@ -1,4 +1,6 @@
-﻿using DataAccessLayer.Entities;
+﻿using BuisnessLogicLayer.Enums;
+using BuisnessLogicLayer.Interfaces;
+using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Globalization;
 using WebAPI.Filters;
 using WebAPI.Models;
@@ -21,14 +24,11 @@ namespace WebAPI.Controllers
     public class UploadController : ControllerBase
     {
         private readonly long _filesizeLimit;
-        
         //TODO: read extensions from appsetting
         private readonly string[] _permittedExtensions = { ".txt", ".png" };
-
         private static readonly FormOptions _defaultFormoptions = new();
-
-        private readonly IUnitOfWork _unitOfWork;
         private readonly JwtHandler _jwtHandler;
+        private readonly IFileService _fileService;
 
         private ILogger<UploadController> Logger { get; set; }
 
@@ -36,26 +36,29 @@ namespace WebAPI.Controllers
         /// Initialize new instance of FileController
         /// </summary>
         /// <param name="config">IConfiguration instanse, for access to application configuration</param>
-        /// <param name="unitOfWork">UnitOfWork instanse, for access to repositories</param>
+        /// <param name="fileService">FileService instanse, for persist file</param>
         /// <param name="jwtHandler">JwtHandler instanse. Generate JWT. Retrive userId from JWT</param>
         /// <param name="logger">ILogger object to performing error logging</param>
-        public UploadController(IConfiguration config, IUnitOfWork unitOfWork, 
-            JwtHandler jwtHandler, ILogger<UploadController> logger)
+        public UploadController(IConfiguration config, 
+            JwtHandler jwtHandler, ILogger<UploadController> logger, IFileService fileService)
         {
             _filesizeLimit = config.GetValue<long>("FileSizeLimit");
-            _unitOfWork = unitOfWork;
             _jwtHandler = jwtHandler;
             Logger = logger;
+            _fileService = fileService;
         }
 
         /// <summary>
         /// Upload file by stream without FormValue model binding disabled
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Added file metadata</returns>
         [HttpPost]
         [DisableFormValueModelBinding]
         [Authorize(Roles = "RegisteredUser")]
-        //TODO: Implement response attributes
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(201, "The execution was successful")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<IActionResult> UploadDatabase()
         {
             if (Request.ContentType == null || !MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
@@ -109,29 +112,27 @@ namespace WebAPI.Controllers
                             return BadRequest(ModelState);
                         }
 
-                        using(var streamReader = new StreamReader(
+                        using var streamReader = new StreamReader(
                             section.Body, encoding,
                             detectEncodingFromByteOrderMarks: true,
                             bufferSize: 1024,
-                            leaveOpen: true))
+                            leaveOpen: true);
+                        // The value length limit is enforced by MultipartBodyLengthLimit
+                        var value = await streamReader.ReadToEndAsync();
+                        if (string.Equals(value, "undefined", StringComparison.OrdinalIgnoreCase))
                         {
-                            // The value length limit is enforced by MultipartBodyLengthLimit
-                            var value = await streamReader.ReadToEndAsync();
-                            if(string.Equals(value, "undefined", StringComparison.OrdinalIgnoreCase))
-                            {
-                                value = string.Empty;
-                            }
+                            value = string.Empty;
+                        }
 
-                            formAccumulator.Append(key, value);
+                        formAccumulator.Append(key, value);
 
-                            if(formAccumulator.ValueCount > _defaultFormoptions.ValueCountLimit)
-                            {
-                                //Form key count limit of _defaultFormOptions.ValueCountLimit
-                                // is exceeded.
-                                ModelState.AddModelError("File", $"The request couldn't be processed (Error 3).");
-                                Logger.LogError("Form key count limit of _defaultFormOptions.ValueCountLimit is exceeded.");
-                                return BadRequest(ModelState);
-                            }
+                        if (formAccumulator.ValueCount > _defaultFormoptions.ValueCountLimit)
+                        {
+                            //Form key count limit of _defaultFormOptions.ValueCountLimit
+                            // is exceeded.
+                            ModelState.AddModelError("File", $"The request couldn't be processed (Error 3).");
+                            Logger.LogError("Form key count limit of _defaultFormOptions.ValueCountLimit is exceeded.");
+                            return BadRequest(ModelState);
                         }
                     }
                 }
@@ -157,32 +158,25 @@ namespace WebAPI.Controllers
 
             try
             {
-                //TODO: Create method in service 
-
                 var ownerId = _jwtHandler.GetUserId(this.User);
 
-                var file = new AppFileData()
+                var respRes = await _fileService.AddFromScratch(untrustedFileNameForStorage,
+                    formData.Note, ownerId, streamedFileContent);
+
+                if(respRes.ResponseResult == ResponseResult.Success && respRes.Data != null)
                 {
-                    AppFileNav = new AppFile { Content = streamedFileContent },
-                    UntrustedName = untrustedFileNameForStorage,
-                    Note = formData.Note,
-                    Size = streamedFileContent.LongLength,
-                    UploadDT = DateTime.UtcNow,
-                    OwnerId = ownerId
-                };
-
-                await _unitOfWork.AppFileDataRepository.AddAsync(file);
-                await _unitOfWork.SaveAsync();
-
-                return Ok();
+                    return CreatedAtAction(nameof(FileController.GetOwnById), "File", 
+                        new { id = respRes.Data.Id }, respRes.Data);
+                }
+                else
+                {
+                    return BadRequest(respRes.ErrorMessage);
+                }
             }
             catch (UnauthorizedAccessException ex)
             {
                 return BadRequest(ex.Message);
             }
-
-            //TODO: implement createdAt
-            //return Created(nameof(StreamingController), null);
         }
     }
 }

@@ -5,6 +5,7 @@ using BuisnessLogicLayer.Models;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Exceptions;
 using DataAccessLayer.Interfaces;
+using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -59,6 +60,50 @@ namespace BuisnessLogicLayer.Services
                 {
                     ResponseResult = ResponseResult.Success,
                     Data = _mapper.Map<FileDataModel>(fileData)
+                };
+            }
+            catch (CustomException ex)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception)
+            {
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Error,
+                    ErrorMessage = DEFAULT_ERROR
+                };
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<ServiceResponse<FileDataModel>> AddFromScratch(string fileName, 
+            string note, Guid ownerId, byte[] content)
+        {
+            try
+            {
+                var file = new AppFileData()
+                {
+                    AppFileNav = new AppFile { Content = content },
+                    UntrustedName = fileName,
+                    Note = note,
+                    Size = content.LongLength,
+                    UploadDT = DateTime.UtcNow,
+                    OwnerId = ownerId
+                };
+                await _unitOfWork.AppFileDataRepository.AddAsync(file);
+                await _unitOfWork.SaveAsync();
+
+                file.AppFileNav = null;
+
+                return new ServiceResponse<FileDataModel>
+                {
+                    ResponseResult = ResponseResult.Success,
+                    Data = _mapper.Map<FileDataModel>(file)
                 };
             }
             catch (CustomException ex)
@@ -782,7 +827,7 @@ namespace BuisnessLogicLayer.Services
             };
         }
 
-        private bool IsValidEmail(string email)
+        private static bool IsValidEmail(string email)
         {
             var trimmedEmail = email.Trim();
 
@@ -801,7 +846,7 @@ namespace BuisnessLogicLayer.Services
             }
         }
 
-        private void Validate(IValidatableObject model)
+        private static void Validate(IValidatableObject model)
         {
             if (model == null)
             {
@@ -811,7 +856,7 @@ namespace BuisnessLogicLayer.Services
             var context = new ValidationContext(model);
             if (!Validator.TryValidateObject(model, context, results, true))
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 foreach (var result in results)
                 {
                     sb.Append(result.ErrorMessage + "\n");

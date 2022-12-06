@@ -5,19 +5,19 @@ using System.Text;
 namespace WebAPI.Utilities
 {
     /// <summary>
-    /// 
+    /// methods to process multipart request
     /// </summary>
     public static class MultipartRequestHelper
     {
         // Content-Type: multipart/form-data; boundary="----WebKitFormBoundarymx2fSWqWSd0OxQqq"
         // The spec at https://tools.ietf.org/html/rfc2046#section-5.1 states that 70 characters is a reasonable limit.
-       /// <summary>
-       /// 
-       /// </summary>
-       /// <param name="contentType"></param>
-       /// <param name="lengthlimit"></param>
-       /// <returns></returns>
-       /// <exception cref="InvalidDataException"></exception>
+        /// <summary>
+        /// Parsing boundary from header
+        /// </summary>
+        /// <param name="contentType"><see cref="MediaTypeHeaderValue"/></param>
+        /// <param name="lengthlimit">Length limits</param>
+        /// <returns>Boundary</returns>
+        /// <exception cref="InvalidDataException">Throws if boundary length hegher than length limit or boundary value empty</exception>
         public static string GetBoundary(MediaTypeHeaderValue contentType, int lengthlimit)
         {
             var boundary = HeaderUtilities.RemoveQuotes(contentType.Boundary).Value;
@@ -34,21 +34,21 @@ namespace WebAPI.Utilities
         }
 
         /// <summary>
-        /// 
+        /// Check is contentType "multipart/"
         /// </summary>
-        /// <param name="contentType"></param>
-        /// <returns></returns>
+        /// <param name="contentType">Content-type of request</param>
+        /// <returns>TRUE if contentType "multipart/", FALSE otherwise</returns>
         public static bool IsMultipartContentType(string contentType)
         {
             return !string.IsNullOrEmpty(contentType) && 
-                contentType.IndexOf("multipart/", StringComparison.OrdinalIgnoreCase) >= 0;
+                contentType.Contains("multipart/", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        /// 
+        /// Check content diposition
         /// </summary>
-        /// <param name="contentDisposition"></param>
-        /// <returns></returns>
+        /// <param name="contentDisposition"><see cref="ContentDispositionHeaderValue"/></param>
+        /// <returns>TRUE if </returns>
         public static bool HasFormDataContentDisposition(ContentDispositionHeaderValue contentDisposition)
         {
             return contentDisposition != null
@@ -58,7 +58,7 @@ namespace WebAPI.Utilities
         }
 
         /// <summary>
-        /// 
+        /// Check content diposition  for file data
         /// </summary>
         /// <param name="contentDisposition"></param>
         /// <returns></returns>
@@ -72,7 +72,7 @@ namespace WebAPI.Utilities
         }
 
         /// <summary>
-        /// 
+        /// Check mediaType encoding
         /// </summary>
         /// <param name="section"></param>
         /// <returns></returns>

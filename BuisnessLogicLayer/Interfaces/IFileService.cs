@@ -124,5 +124,16 @@ namespace BuisnessLogicLayer.Interfaces
         /// <param name="fileId">File id</param>
         /// <returns>TRUE access denied, FALSE otherwise</returns>
         public Task<ServiceResponse<bool>> RefuseSharedAsync(Guid userId, Guid fileId);
+
+        /// <summary>
+        /// Create and persist file with metadata
+        /// </summary>
+        /// <param name="fileName">File name (untrusted form upload)</param>
+        /// <param name="note">Comment to file</param>
+        /// <param name="ownerId">Id of user who upload file</param>
+        /// <param name="content">byte[] array with file content</param>
+        /// <returns>AppFileData model</returns>
+        public Task<ServiceResponse<FileDataModel>> AddFromScratch(string fileName,
+            string note, Guid ownerId, byte[] content);
     }
 }

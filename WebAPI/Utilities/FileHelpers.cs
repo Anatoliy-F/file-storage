@@ -12,10 +12,6 @@ namespace WebAPI.Utilities
     /// </summary>
     public static class FileHelpers
     {
-        // If you require a check on specific characters in the IsValidFileExtensionAndSignature
-        // method, supply the characters in the _allowedChars field.
-        private static readonly byte[] _allowedChars = Array.Empty<byte>();
-
         // For more file signatures, see the File Signatures Database (https://www.filesignatures.net/)
         // and the official specifications for the file types you wish to add.
         private static readonly Dictionary<string, List<byte[]>> _fileSignature = new()
@@ -54,12 +50,12 @@ namespace WebAPI.Utilities
                     new byte[]{ 0xFF, 0xFE, 0x00, 0x00 },
                     new byte[]{ 0x00, 0x00, 0xFE, 0xFF },
                     new byte[]{ 0x0E, 0xFE, 0xFF }
-                } 
+                }
             },
             { ".pdf", new List<byte[]>
                 {
                     new byte[]{ 0x25, 0x50, 0x44, 0x46, 0x2D}
-                } 
+                }
             }
         };
 
@@ -120,35 +116,33 @@ namespace WebAPI.Utilities
 
             try
             {
-                using (var memoryStream = new MemoryStream())
+                using var memoryStream = new MemoryStream();
+                await formFile.CopyToAsync(memoryStream);
+
+                // Check the content length in case the file's only
+                // content was a BOM and the content is actually
+                // empty after removing the BOM.
+                if (memoryStream.Length == 0)
                 {
-                    await formFile.CopyToAsync(memoryStream);
+                    modelState.AddModelError(formFile.Name, $"{fieldDisplayName}({trustedFileNameForDisplay}) is empty.");
+                }
 
-                    // Check the content length in case the file's only
-                    // content was a BOM and the content is actually
-                    // empty after removing the BOM.
-                    if (memoryStream.Length == 0)
-                    {
-                        modelState.AddModelError(formFile.Name, $"{fieldDisplayName}({trustedFileNameForDisplay}) is empty.");
-                    }
-
-                    if(!IsValidFileExtensionAndSignature(formFile.FileName, memoryStream, permittedExtensions))
-                    {
-                        modelState.AddModelError(formFile.Name, $"{fieldDisplayName}({trustedFileNameForDisplay}) file " +
-                             "type isn't permitted or the file's signature doesn't match the file's extension.");
-                    }
-                    else
-                    {
-                        return memoryStream.ToArray();
-                    }
+                if (!IsValidFileExtensionAndSignature(formFile.FileName, memoryStream, permittedExtensions))
+                {
+                    modelState.AddModelError(formFile.Name, $"{fieldDisplayName}({trustedFileNameForDisplay}) file " +
+                         "type isn't permitted or the file's signature doesn't match the file's extension.");
+                }
+                else
+                {
+                    return memoryStream.ToArray();
                 }
             }
             catch (Exception ex)
             {
-                modelState.AddModelError(formFile.Name,
-                    $"{fieldDisplayName}({trustedFileNameForDisplay}) upload failed. " +
-                    $"Please contact the Help Desk for support. Error: {ex.HResult}");
-                // Log the exception
+                var message = $"{fieldDisplayName}({trustedFileNameForDisplay}) upload failed. " +
+                    $"Please contact the Help Desk for support. Error: {ex.HResult}";
+                modelState.AddModelError(formFile.Name, message);
+                Serilog.Log.Error(ex, message);
             }
 
             return Array.Empty<byte>();
@@ -168,39 +162,37 @@ namespace WebAPI.Utilities
         {
             try
             {
-                using(var memoryStream = new MemoryStream())
-                {
-                    await section.Body.CopyToAsync(memoryStream);
+                using var memoryStream = new MemoryStream();
+                await section.Body.CopyToAsync(memoryStream);
 
-                    // Check if the file is empty or exceeds the size limit.
-                    if(memoryStream.Length == 0)
-                    {
-                        modelState.AddModelError("File", "The file is empty.");
-                    }
-                    else if (memoryStream.Length > sizeLimit)
-                    {
-                        var megabyteSizeLimit = sizeLimit / 1048576;
-                        modelState.AddModelError("File",
-                        $"The file exceeds {megabyteSizeLimit:N1} MB.");
-                    }
-                    else if(!IsValidFileExtensionAndSignature(
-                        contentDisposition.FileName.Value, memoryStream, permittedExtensions))
-                    {
-                        modelState.AddModelError("File",
-                            "The file type isn't permitted or the file's " +
-                            "signature doesn't match the file's extension.");
-                    }
-                    else
-                    {
-                        return memoryStream.ToArray();
-                    }
+                // Check if the file is empty or exceeds the size limit.
+                if (memoryStream.Length == 0)
+                {
+                    modelState.AddModelError("File", "The file is empty.");
+                }
+                else if (memoryStream.Length > sizeLimit)
+                {
+                    var megabyteSizeLimit = sizeLimit / 1048576;
+                    modelState.AddModelError("File",
+                    $"The file exceeds {megabyteSizeLimit:N1} MB.");
+                }
+                else if (!IsValidFileExtensionAndSignature(
+                    contentDisposition.FileName.Value, memoryStream, permittedExtensions))
+                {
+                    modelState.AddModelError("File",
+                        "The file type isn't permitted or the file's " +
+                        "signature doesn't match the file's extension.");
+                }
+                else
+                {
+                    return memoryStream.ToArray();
                 }
             }
             catch (Exception ex)
             {
-                modelState.AddModelError("File",
-                    $"The upload failed. Please contact the Help Desk for support. Error: {ex.HResult}");
-                // Log the exception
+                var message = $"The upload failed. Please contact the Help Desk for support. Error: {ex.HResult}";
+                modelState.AddModelError("File", message);
+                Serilog.Log.Error(ex, message);
             }
             return Array.Empty<byte>();
         }
@@ -222,60 +214,26 @@ namespace WebAPI.Utilities
 
             data.Position = 0;
 
-            using (var reader = new BinaryReader(data))
+            using var reader = new BinaryReader(data);
+            // Uncomment the following code block if you must permit
+            // files whose signature isn't provided in the _fileSignature
+            // dictionary. We recommend that you add file signatures
+            // for files (when possible) for all file types you intend
+            // to allow on the system and perform the file signature
+            // check.
+            if (!_fileSignature.ContainsKey(ext))
             {
-              //  if(ext.Equals(".txt") || ext.Equals(".csv") || ext.Equals(".prn"))
-               // {
-                    /*if(_allowedChars.Length == 0)
-                    {
-                        //Limits characters to ASCII encoding
-                        for (var i = 0; i < data.Length; i++)
-                        {
-                            if(reader.ReadByte() > sbyte.MaxValue)
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Limits characters to ASCII encoding and
-                        // values of the _allowedChars array.
-                        for(var i = 0; i < data.Length; i++)
-                        {
-                            var b = reader.ReadByte();
-                            if(b > sbyte.MaxValue || !_allowedChars.Contains(b))
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    return true;
-*/
-                    // Uncomment the following code block if you must permit
-                    // files whose signature isn't provided in the _fileSignature
-                    // dictionary. We recommend that you add file signatures
-                    // for files (when possible) for all file types you intend
-                    // to allow on the system and perform the file signature
-                    // check.
-                    /*
-                    if (!_fileSignature.ContainsKey(ext))
-                    {
-                        return true;
-                    }
-                    */
-
-                    // File signature check
-                    // --------------------
-                    // With the file signatures provided in the _fileSignature
-                    // dictionary, the following code tests the input content's
-                    // file signature.  
-               // }
-                var signatures = _fileSignature[ext];
-                var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
-
-                return signatures.Any(signature => headerBytes.Take(signature.Length).SequenceEqual(signature));
+                return true;
             }
+
+            // File signature check
+            // With the file signatures provided in the _fileSignature
+            // dictionary, the following code tests the input content's
+            // file signature.  
+            var signatures = _fileSignature[ext];
+            var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
+
+            return signatures.Any(signature => headerBytes.Take(signature.Length).SequenceEqual(signature));
         }
     }
 }

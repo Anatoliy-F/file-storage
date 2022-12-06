@@ -268,7 +268,7 @@
             Implement file uploading with streaming
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.UploadController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,DataAccessLayer.Interfaces.IUnitOfWork,WebAPI.Utilities.JwtHandler,Microsoft.Extensions.Logging.ILogger{WebAPI.Controllers.UploadController})">
+        <member name="M:WebAPI.Controllers.UploadController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,DataAccessLayer.Interfaces.IUnitOfWork,WebAPI.Utilities.JwtHandler,Microsoft.Extensions.Logging.ILogger{WebAPI.Controllers.UploadController},BuisnessLogicLayer.Interfaces.IFileService)">
             <summary>
             Initialize new instance of FileController
             </summary>
@@ -282,6 +282,40 @@
             Upload file by stream without FormValue model binding disabled
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:WebAPI.Filters.AppExceptionFilterAttribute">
+            <summary>
+            Exception filter to log errors.
+            </summary>
+        </member>
+        <member name="M:WebAPI.Filters.AppExceptionFilterAttribute.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Initialize new instance of AppExceptionFilterAttribute
+            </summary>
+            <param name="hostEnvironment">Provides information about web hosting</param>
+        </member>
+        <member name="M:WebAPI.Filters.AppExceptionFilterAttribute.OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext)">
+            <summary>
+            Exception handler
+            </summary>
+            <param name="context">Exception context <see cref="T:Microsoft.AspNetCore.Mvc.Filters.ExceptionContext"/></param>
+        </member>
+        <member name="T:WebAPI.Filters.DisableFormValueModelBindingAttribute">
+            <summary>
+            Disable model binding for upload file in stream
+            </summary>
+        </member>
+        <member name="M:WebAPI.Filters.DisableFormValueModelBindingAttribute.OnResourceExecuted(Microsoft.AspNetCore.Mvc.Filters.ResourceExecutedContext)">
+            <summary>
+            Empty method, because we preventing execution
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:WebAPI.Filters.DisableFormValueModelBindingAttribute.OnResourceExecuting(Microsoft.AspNetCore.Mvc.Filters.ResourceExecutingContext)">
+            <summary>
+            Remove  value providers factories
+            </summary>
+            <param name="context"></param>
         </member>
         <member name="T:WebAPI.Models.FormData">
             <summary>
@@ -371,6 +405,16 @@
             Represent data for sign up response
             </summary>
         </member>
+        <member name="P:WebAPI.Models.RegistrationResponseModel.Success">
+            <summary>
+            TRUE if registration successful, FALSE otherwise
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.RegistrationResponseModel.Errors">
+            <summary>
+            Errors
+            </summary>
+        </member>
         <member name="T:WebAPI.Utilities.FileHelpers">
             <summary>
             Validate file
@@ -428,42 +472,42 @@
         </member>
         <member name="T:WebAPI.Utilities.MultipartRequestHelper">
             <summary>
-            
+            methods to process multipart request
             </summary>
         </member>
         <member name="M:WebAPI.Utilities.MultipartRequestHelper.GetBoundary(Microsoft.Net.Http.Headers.MediaTypeHeaderValue,System.Int32)">
             <summary>
-            
+            Parsing boundary from header
             </summary>
-            <param name="contentType"></param>
-            <param name="lengthlimit"></param>
-            <returns></returns>
-            <exception cref="T:System.IO.InvalidDataException"></exception>
+            <param name="contentType"><see cref="T:Microsoft.Net.Http.Headers.MediaTypeHeaderValue"/></param>
+            <param name="lengthlimit">Length limits</param>
+            <returns>Boundary</returns>
+            <exception cref="T:System.IO.InvalidDataException">Throws if boundary length hegher than length limit or boundary value empty</exception>
         </member>
         <member name="M:WebAPI.Utilities.MultipartRequestHelper.IsMultipartContentType(System.String)">
             <summary>
-            
+            Check is contentType "multipart/"
             </summary>
-            <param name="contentType"></param>
-            <returns></returns>
+            <param name="contentType">Content-type of request</param>
+            <returns>TRUE if contentType "multipart/", FALSE otherwise</returns>
         </member>
         <member name="M:WebAPI.Utilities.MultipartRequestHelper.HasFormDataContentDisposition(Microsoft.Net.Http.Headers.ContentDispositionHeaderValue)">
             <summary>
-            
+            Check content diposition
             </summary>
-            <param name="contentDisposition"></param>
-            <returns></returns>
+            <param name="contentDisposition"><see cref="T:Microsoft.Net.Http.Headers.ContentDispositionHeaderValue"/></param>
+            <returns>TRUE if </returns>
         </member>
         <member name="M:WebAPI.Utilities.MultipartRequestHelper.HasFileContentDisposition(Microsoft.Net.Http.Headers.ContentDispositionHeaderValue)">
             <summary>
-            
+            Check content diposition  for file data
             </summary>
             <param name="contentDisposition"></param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Utilities.MultipartRequestHelper.GetEncoding(Microsoft.AspNetCore.WebUtilities.MultipartSection)">
             <summary>
-            
+            Check mediaType encoding
             </summary>
             <param name="section"></param>
             <returns></returns>
