@@ -16,7 +16,7 @@ using Serilog.Sinks.MSSqlServer;
 using BuisnessLogicLayer.Interfaces;
 using BuisnessLogicLayer.Services;
 using Microsoft.OpenApi.Models;
-
+using System.Reflection;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -115,7 +115,15 @@ builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "File Storage", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo { 
+        Title = "File Storage", 
+        Version = "v1",
+        Description = "Service to upload, download and sharing files"
+    });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    option.IncludeXmlComments(xmlPath);
+    option.EnableAnnotations();
     /*option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,

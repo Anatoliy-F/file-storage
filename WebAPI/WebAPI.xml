@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebAPI</name>
+    </assembly>
+    <members>
+        <member name="T:WebAPI.Controllers.FileController">
+            <summary>
+            Define endpoints to perform operations with files
+            and files metadata
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.#ctor(BuisnessLogicLayer.Interfaces.IFileService,WebAPI.Utilities.JwtHandler)">
+            <summary>
+            Initialize new instance of FileController
+            </summary>
+            <param name="fileService"> FileService instanse. Provides operations with file objects.</param>
+            <param name="jwtHandler"> JwtHandler instanse. Generate JWT. Retrive userId from JWT</param>
+        </member>
+        <member name="M:WebAPI.Controllers.FileController.GetOwn(BuisnessLogicLayer.Models.QueryModel)">
+            <summary>
+            Returns a page of sorted and filtered objects describing files uploaded by the user.
+            Page size, query for filtering, property for sorting and sorting order are defined by QueryModel object
+            </summary>
+            <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering</param>
+            <returns>Returns filtered, sorted page of file metadata</returns>
+        </member>
+        <member name="T:WebAPI.Models.FormData">
+            <summary>
+            Using to bind Note to File object
+            cause file read from stream model binding doesn't read the form
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.FormData.Note">
+            <summary>
+            Comment to file
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.LoginRequestModel">
+            <summary>
+            Represent data for sign in request
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.LoginResponseModel">
+            <summary>
+            Represent data for sign in response
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.RegistrationRequestModel">
+            <summary>
+            Represent data for sign up request
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.RegistrationResponseModel">
+            <summary>
+            Represent data for sign up response
+            </summary>
+        </member>
+    </members>
+</doc>

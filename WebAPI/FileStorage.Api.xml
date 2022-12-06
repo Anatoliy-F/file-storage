@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebAPI</name>
+    </assembly>
+    <members>
+        <member name="T:WebAPI.Models.FormData">
+            <summary>
+            Using to bind Note to File object
+            cause file read from stream model binding doesn't read the form
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.FormData.Note">
+            <summary>
+            Comment to file
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.LoginRequestModel">
+            <summary>
+            Represent data for sign in request
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.LoginResponseModel">
+            <summary>
+            Represent data for sign in response
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.RegistrationRequestModel">
+            <summary>
+            Represent data for sign up request
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.RegistrationResponseModel">
+            <summary>
+            Represent data for sign up response
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -42,7 +42,7 @@ namespace WebAPI.Utilities
 
         public Guid GetUserId(ClaimsPrincipal user)
         {
-            string? id = user?.Claims?.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            string? id = user?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if(id == null)
             {
                 Logger.LogError("User don't have claims in bearer token! We under attack");

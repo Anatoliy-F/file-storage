@@ -2,6 +2,9 @@
 
 namespace WebAPI.Models
 {
+    /// <summary>
+    /// Represent data for sign up request
+    /// </summary>
     public class RegistrationRequestModel : IValidatableObject
     {
         public string? UserName { get; set; }

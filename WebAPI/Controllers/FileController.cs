@@ -14,27 +14,46 @@ using WebAPI.Utilities;
 using Microsoft.AspNetCore.StaticFiles;
 using BuisnessLogicLayer.Enums;
 using WebAPI.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace WebAPI.Controllers
-{
+{   
+    /// <summary>
+    /// Define endpoints to perform operations with files
+    /// and files metadata
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class FileController : ControllerBase
     {
         private readonly IFileService _fileService;
-        private readonly IShortLinkService _shortLinkService;
         private readonly JwtHandler _jwtHandler;
 
+        /// <summary>
+        /// Initialize new instance of FileController
+        /// </summary>
+        /// <param name="fileService"> FileService instanse. Provides operations with file objects.</param>
+        /// <param name="jwtHandler"> JwtHandler instanse. Generate JWT. Retrive userId from JWT</param>
         public FileController(IFileService fileService,
-            JwtHandler jwtHandler, IShortLinkService shortLinkService)
+            JwtHandler jwtHandler)
         {
             _fileService = fileService;
             _jwtHandler = jwtHandler;
-            _shortLinkService = shortLinkService;
         }
 
+        /// <summary>
+        /// Returns a page of sorted and filtered objects describing files uploaded by the user.
+        /// Page size, query for filtering, property for sorting and sorting order are defined by QueryModel object
+        /// </summary>
+        /// <param name="query">QueryModel object, incapsulate query options for pagination, sorting, filtering</param>
+        /// <returns>Returns filtered, sorted page of file metadata</returns>
         [Authorize(Roles = "RegisteredUser")]
         [HttpGet]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult<PaginationResultModel<FileDataModel>>>
             GetOwn([FromQuery] QueryModel query)
         {
@@ -56,10 +75,23 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns an object describing the file owned by the user
+        /// </summary>
+        /// <param name="id">File Id</param>
+        /// <returns>File metadata</returns>
+        [Authorize(Roles = "RegisteredUser")]
         [HttpGet("{id}")]
+        [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FileDataModel>> GetOWnById(Guid id)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(403, "Access denied, user does not own this file")]
+        [SwaggerResponse(400, "The request was invalid")]
+        public async Task<ActionResult<FileDataModel>> GetOwnById(Guid id)
         {
             try
             {
@@ -79,7 +111,22 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a file owned by the user
+        /// </summary>
+        /// <param name="id">File id</param>
+        /// <param name="fileDataModel">File metadata object</param>
+        /// <returns>Status 200 Ok, if file delete successfuly, error code otherwise</returns>
+        [Authorize(Roles = "RegisteredUser")]
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(403, "Access denied, user does not own this file")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<ActionResult> DeleteOwnById(Guid id, [FromBody] FileDataModel fileDataModel)
         {
             if (id != fileDataModel.Id)
@@ -108,7 +155,22 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Download a file owned by the user
+        /// </summary>
+        /// <param name="id">File id</param>
+        /// <returns>FileContentResult</returns>
         [HttpGet("download/{id}")]
+        [Authorize(Roles = "RegisteredUser")]
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(200, "The execution was successful")]
+        [SwaggerResponse(404, "Not found file with this Id")]
+        [SwaggerResponse(403, "Access denied, user does not own this file")]
+        [SwaggerResponse(400, "The request was invalid")]
         public async Task<IActionResult> DownloadOwn(Guid id)
         {
             try
@@ -229,32 +291,6 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        //TODO: DELETE
-        [HttpPut("share/{email}")]
-        public async Task<ActionResult> Share(string email, [FromBody] FileDataModel model)
-        {
-            if(email == null)
-            {
-                return BadRequest(ModelState);
-            }
-            //TODO: DELETE THIS
-            //TODO: uncomment validation
-            /*if(!model.Viewers.Any(fv => fv.Email == email))
-            {
-                return BadRequest();
-            }*/
-
-            var userId = _jwtHandler.GetUserId(this.User);
-            var servResp = await _fileService.ShareByEmailAsync(userId, email, model.Id);
-
-            if (servResp.ResponseResult == ResponseResult.Success && servResp.Data != null)
-            {
-                return Ok(servResp.Data);
-            }
-
-            return MapResponseFromBLL(servResp);
         }
 
         [Authorize(Roles = "Administrator")]

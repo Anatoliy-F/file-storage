@@ -2,6 +2,9 @@
 
 namespace WebAPI.Models
 {
+    /// <summary>
+    /// Represent data for sign in request
+    /// </summary>
     public class LoginRequestModel
     {
         [Required(ErrorMessage = "Email is required.")]

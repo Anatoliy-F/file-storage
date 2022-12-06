@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         [Authorize(Roles = "RegisteredUser")]
         public async Task<IActionResult> UploadDatabase()
         {
-            if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
+            if (Request.ContentType == null || !MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
             {
                 ModelState.AddModelError("File", $"The request couldn't be processed (Error 1 : Wrong content type)");
                 Logger.LogError("The request couldn't be processed (Error 1 : Wrong content type)");
@@ -71,14 +71,13 @@ namespace WebAPI.Controllers
                 var hasContentDispositionHeader = ContentDispositionHeaderValue.TryParse(
                     section.ContentDisposition, out var contentDisposition);
 
-                if (hasContentDispositionHeader)
+                if (contentDisposition != null && hasContentDispositionHeader)
                 {
                     if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
                     {
                         untrustedFileNameForStorage = contentDisposition.FileName.Value;
-                        streamedFileContent = await FileHelpers.ProcessStreamedFile(
-                          
-                            section, contentDisposition, ModelState, _permittedExtensions, _filesizeLimit);
+                        streamedFileContent = await FileHelpers.ProcessStreamedFile(section, 
+                            contentDisposition, ModelState, _permittedExtensions, _filesizeLimit);
                         if (!ModelState.IsValid)
                         {
                             return BadRequest(ModelState);

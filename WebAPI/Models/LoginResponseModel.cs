@@ -1,5 +1,8 @@
 ﻿namespace WebAPI.Models
 {
+    /// <summary>
+    /// Represent data for sign in response
+    /// </summary>
     public class LoginResponseModel
     {
         public bool Success { get; set; }

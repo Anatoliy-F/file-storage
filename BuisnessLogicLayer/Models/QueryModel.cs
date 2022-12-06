@@ -1,5 +1,8 @@
 ﻿namespace BuisnessLogicLayer.Models
 {
+    /// <summary>
+    /// Incapsulate query options for pagination, sorting, filtering
+    /// </summary>
     public class QueryModel
     {
         /// <summary>
