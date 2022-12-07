@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataAccessLayer.Entities;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace FileStorage.Tests
 {
@@ -33,6 +34,7 @@ namespace FileStorage.Tests
             context.AppUsersData.AddRange(Users);
             context.AppFilesData.AddRange(FileDatas);
             context.AppFiles.AddRange(Files);
+            context.ShortLink.AddRange(ShortLinks);
             context.SaveChanges();
 
         }
@@ -58,13 +60,13 @@ namespace FileStorage.Tests
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File4.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 13:00:00"),
                 OwnerId = Users[1].Id, IsPublic = false},
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File5.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 14:00:00"),
-                OwnerId = Users[2].Id, IsPublic = false},
+                OwnerId = Users[2].Id, IsPublic = true},
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File6.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 15:00:00"),
                 OwnerId = Users[2].Id, IsPublic = false},
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File7.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 16:00:00"),
-                OwnerId = Users[3].Id, IsPublic = false, FileViewers = new[] { Users[0] } },
+                OwnerId = Users[3].Id, IsPublic = true, FileViewers = new[] { Users[0] } },
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File8.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 17:00:00"),
-                OwnerId = Users[3].Id, IsPublic = false, FileViewers = new[] { Users[0] } },
+                OwnerId = Users[3].Id, IsPublic = true, FileViewers = new[] { Users[0] } },
         };
 
         public static List<AppFile> Files = new()
@@ -73,6 +75,14 @@ namespace FileStorage.Tests
             new AppFile {Id = Guid.NewGuid(), Content = fileContent, AppFileDataId = FileDatas[1].Id},
             new AppFile {Id = Guid.NewGuid(), Content = fileContent, AppFileDataId = FileDatas[2].Id},
             new AppFile {Id = Guid.NewGuid(), Content = fileContent, AppFileDataId = FileDatas[3].Id},
+        };
+
+        public static List<ShortLink> ShortLinks = new()
+        {
+            new ShortLink { Id = Guid.NewGuid(), AppFileDataId = FileDatas[0].Id,  
+                Link = WebEncoders.Base64UrlEncode(FileDatas[0].Id.ToByteArray().Take(4).ToArray())},
+            new ShortLink { Id = Guid.NewGuid(), AppFileDataId = FileDatas[7].Id,
+                Link = WebEncoders.Base64UrlEncode(FileDatas[7].Id.ToByteArray().Take(4).ToArray())},
         };
     }
 }
