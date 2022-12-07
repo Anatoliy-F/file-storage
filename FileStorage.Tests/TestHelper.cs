@@ -7,6 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.WebUtilities;
+using AutoMapper;
+using BuisnessLogicLayer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace FileStorage.Tests
 {
@@ -25,12 +31,70 @@ namespace FileStorage.Tests
 
             return options;
         }
-            
+
+        public static IMapper CreateMapperProfile()
+        {
+            var myProfile = new AutoMapperProfile();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+
+            return new Mapper(configuration);
+        }
+
+        public static UserManager<AppUser> TestUserManager<AppUser>(IUserStore<AppUser> store = null!) where AppUser : class
+        {
+            store ??= new Mock<IUserStore<AppUser>>().Object;
+            var options = new Mock<IOptions<IdentityOptions>>();
+            var idOptions = new IdentityOptions();
+            idOptions.Lockout.AllowedForNewUsers = false;
+            options.Setup(o => o.Value).Returns(idOptions);
+            var userValidators = new List<IUserValidator<AppUser>>();
+            var validator = new Mock<IUserValidator<AppUser>>();
+            userValidators.Add(validator.Object);
+            var pwdValidators = new List<PasswordValidator<AppUser>>
+            {
+                new PasswordValidator<AppUser>()
+            };
+            var userManager = new UserManager<AppUser>(store, options.Object, new PasswordHasher<AppUser>(),
+                userValidators, pwdValidators, new UpperInvariantLookupNormalizer(),
+                new IdentityErrorDescriber(), null,
+                new Mock<ILogger<UserManager<AppUser>>>().Object);
+            validator.Setup(v => v.ValidateAsync(userManager, It.IsAny<AppUser>()))
+                .Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
+            return userManager;
+        }
+
+        public static Mock<RoleManager<TRole>> MockRoleManager<TRole>(IRoleStore<TRole> store = null!) where TRole : class
+        {
+            store ??= new Mock<IRoleStore<TRole>>().Object;
+            var roles = new List<IRoleValidator<TRole>>
+            {
+                new RoleValidator<TRole>()
+            };
+            return new Mock<RoleManager<TRole>>(store, roles, MockLookupNormalizer(),
+                new IdentityErrorDescriber(), null);
+        }
+
+        public static ILookupNormalizer MockLookupNormalizer()
+        {
+            var normalizerFunc = new Func<string, string>(i =>
+            {
+                if (i == null)
+                {
+                    return null!;
+                }
+                else
+                {
+                    return Convert.ToBase64String(Encoding.UTF8.GetBytes(i)).ToUpperInvariant();
+                }
+            });
+            var lookupNormalizer = new Mock<ILookupNormalizer>();
+            lookupNormalizer.Setup(i => i.NormalizeName(It.IsAny<string>())).Returns(normalizerFunc);
+            lookupNormalizer.Setup(i => i.NormalizeEmail(It.IsAny<string>())).Returns(normalizerFunc);
+            return lookupNormalizer.Object;
+        }
+
         public static void SeedData(AppDbContext context)
         {
-            string role_RegisteredUser = "RegisteredUser";
-            string role_Administrator = "Administrator";
-
             context.AppUsersData.AddRange(Users);
             context.AppFilesData.AddRange(FileDatas);
             context.AppFiles.AddRange(Files);
@@ -79,10 +143,13 @@ namespace FileStorage.Tests
 
         public static List<ShortLink> ShortLinks = new()
         {
-            new ShortLink { Id = Guid.NewGuid(), AppFileDataId = FileDatas[0].Id,  
+            new ShortLink { Id = Guid.NewGuid(), AppFileDataId = FileDatas[0].Id,
                 Link = WebEncoders.Base64UrlEncode(FileDatas[0].Id.ToByteArray().Take(4).ToArray())},
             new ShortLink { Id = Guid.NewGuid(), AppFileDataId = FileDatas[7].Id,
                 Link = WebEncoders.Base64UrlEncode(FileDatas[7].Id.ToByteArray().Take(4).ToArray())},
+            //Inconsistent! FileData isn't public
+            new ShortLink { Id = Guid.NewGuid(), AppFileDataId = FileDatas[3].Id,
+                Link = WebEncoders.Base64UrlEncode(FileDatas[3].Id.ToByteArray().Take(4).ToArray())},
         };
     }
 }

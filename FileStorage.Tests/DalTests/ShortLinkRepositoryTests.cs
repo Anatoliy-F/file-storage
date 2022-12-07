@@ -1,6 +1,5 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Repositories;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace FileStorage.Tests.DalTests
 {
@@ -13,8 +12,8 @@ namespace FileStorage.Tests.DalTests
             //Arrange
             using var context = new AppDbContext(TestHelper.GetUnitTestDbOptions());
             var linkRepo = new ShortLinkRepository(context);
-            var existingLink = WebEncoders.Base64UrlEncode(TestHelper.FileDatas[0].Id.ToByteArray().Take(4).ToArray());
-            var notExistYet = WebEncoders.Base64UrlEncode(TestHelper.FileDatas[4].Id.ToByteArray().Take(4).ToArray());
+            var existingLink = TestHelper.ShortLinks[0].Link;
+            var notExistYet = "AAAAAA";
 
             //Act
             var check1 = await linkRepo.IsCollision(existingLink);
@@ -47,7 +46,7 @@ namespace FileStorage.Tests.DalTests
             //Arrange
             using var context = new AppDbContext(TestHelper.GetUnitTestDbOptions());
             var linkRepo = new ShortLinkRepository(context);
-            var existingLink = WebEncoders.Base64UrlEncode(TestHelper.FileDatas[0].Id.ToByteArray().Take(4).ToArray());
+            var existingLink = TestHelper.ShortLinks[0].Link;
 
             //Act
             var content = (await linkRepo.GetFileContentByLinkAsync(existingLink))?.AppFileNav?.Content;
@@ -62,7 +61,7 @@ namespace FileStorage.Tests.DalTests
             //Arrange
             using var context = new AppDbContext(TestHelper.GetUnitTestDbOptions());
             var linkRepo = new ShortLinkRepository(context);
-            var existingLink = WebEncoders.Base64UrlEncode(TestHelper.FileDatas[0].Id.ToByteArray().Take(4).ToArray());
+            var existingLink = TestHelper.ShortLinks[0].Link;
 
             //Act
             var file = await linkRepo.GetFileDataByLinkAsync(existingLink);
@@ -78,7 +77,7 @@ namespace FileStorage.Tests.DalTests
             //Arrange
             using var context = new AppDbContext(TestHelper.GetUnitTestDbOptions());
             var linkRepo = new ShortLinkRepository(context);
-            var existingLink = WebEncoders.Base64UrlEncode(TestHelper.FileDatas[0].Id.ToByteArray().Take(4).ToArray());
+            var existingLink = TestHelper.ShortLinks[0].Link;
 
             //Act
             var link = await linkRepo.GetShortLinkAsync(existingLink);
@@ -93,7 +92,7 @@ namespace FileStorage.Tests.DalTests
             //Arrange
             using var context = new AppDbContext(TestHelper.GetUnitTestDbOptions());
             var linkRepo = new ShortLinkRepository(context);
-            var existingLink = WebEncoders.Base64UrlEncode(TestHelper.FileDatas[0].Id.ToByteArray().Take(4).ToArray());
+            var existingLink = TestHelper.ShortLinks[0].Link;
 
             //Act
             var link = await linkRepo.GetShortLinkWithRelatedAsync(existingLink);
