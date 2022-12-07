@@ -26,12 +26,12 @@ namespace FileStorage.Tests.BusinessTests
         {
             //Arrange
             var mockLogger = new Mock<ILogger<UnitOfWork>>();
-            var mockUserManager = TestHelper.TestUserManager<AppUser>(null!);
+            var mockUserManager = TestHelper.MockUserManager<AppUser>();
             var mockRoleManager = TestHelper.MockRoleManager<IdentityRole<Guid>>();
             using var context = new AppDbContext(TestHelper.GetUnitTestDbOptions());
 
             var unitOfWork = new UnitOfWork(context, mockLogger.Object, 
-                mockUserManager, mockRoleManager.Object);
+                mockUserManager.Object, mockRoleManager.Object);
             var mapper = TestHelper.CreateMapperProfile();
 
             var linkService = new ShortLinkService(unitOfWork, mapper);
