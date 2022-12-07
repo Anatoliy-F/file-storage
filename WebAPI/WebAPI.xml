@@ -133,7 +133,7 @@
         </member>
         <member name="M:WebAPI.Controllers.FileController.GetShared(BuisnessLogicLayer.Models.QueryModel)">
             <summary>
-            Deprecated. 
+            NO-NO-NO
             </summary>
             <param name="query"></param>
             <returns></returns>

@@ -225,7 +225,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Deprecated. 
+        /// NO-NO-NO
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
