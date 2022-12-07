@@ -18,6 +18,7 @@ namespace BuisnessLogicLayer
             CreateMap<AppFileData, FileDataModel>()
                 .ForMember(dm => dm.Name, d => d.MapFrom(e => WebUtility.HtmlEncode(e.UntrustedName)))
                 .ForMember(dm => dm.UploadDateTime, d => d.MapFrom(e => e.UploadDT))
+                .ForMember(dm => dm.TimeStamp, d => d.MapFrom(e => e.TimeStamp))
                 .ForMember(dm => dm.OwnerId, d => d.MapFrom(e => e.OwnerId))
                 .ForMember(dm => dm.OwnerName, d => d.MapFrom(e => e.OwnerNav == null ? string.Empty : e.OwnerNav.UserName))
                 .ForMember(dm => dm.ShortLink, d => d.MapFrom(e => e.ShortLinkNav == null ? string.Empty : e.ShortLinkNav.Link))
@@ -33,6 +34,7 @@ namespace BuisnessLogicLayer
 
             CreateMap<FileDataModel, AppFileData>()
                 .ForMember(fd => fd.UntrustedName, dm => dm.MapFrom(e => e.Name))
+                .ForMember(fd => fd.TimeStamp, dm => dm.MapFrom(e => e.TimeStamp))
                 .ForMember(fd => fd.FileViewers, dm => dm.MapFrom(e => e.Viewers.Count > 0 ? e.Viewers.Select(fv => new AppUser { 
                     Id = fv.Id,
                     ConcurrencyStamp = fv.Concurrency

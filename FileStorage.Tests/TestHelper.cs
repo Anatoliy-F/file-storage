@@ -135,7 +135,7 @@ namespace FileStorage.Tests
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File5.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 14:00:00"),
                 OwnerId = Users[2].Id, IsPublic = true},
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File6.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 15:00:00"),
-                OwnerId = Users[2].Id, IsPublic = false},
+                OwnerId = Users[2].Id, IsPublic = false, TimeStamp = new byte[] {1}},
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File7.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 16:00:00"),
                 OwnerId = Users[3].Id, IsPublic = true, FileViewers = new[] { Users[0] } },
             new AppFileData {Id = Guid.NewGuid(), UntrustedName = "File8.txt", Size = 11, UploadDT = DateTime.Parse("11/11/2022 17:00:00"),
