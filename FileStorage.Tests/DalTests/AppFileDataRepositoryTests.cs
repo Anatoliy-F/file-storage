@@ -1,15 +1,10 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileStorage.Tests.DalTests
 {
+    [Collection("Sequential")]
     public class AppFileDataRepositoryTests
     {
         [Fact]

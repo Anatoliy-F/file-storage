@@ -21,7 +21,7 @@ namespace DataAccessLayer.Repositories
         {
         }
 
-        // <summary>
+        /// <summary>
         /// Contructor to interact with cli ef tools
         /// </summary>
         /// <param name="options">DbContextOptions<AppDbContext> options</param>

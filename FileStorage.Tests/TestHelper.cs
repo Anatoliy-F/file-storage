@@ -35,22 +35,16 @@ namespace FileStorage.Tests
             context.AppFiles.AddRange(Files);
             context.SaveChanges();
 
-            //share files
-           /* var file1 = context.AppFilesData.Find(FileDatas[6].Id);
-            file1.FileViewers = new[] { Users[0] };
-            var file2 = context.AppFilesData.Find(FileDatas[7].Id);
-            file2.FileViewers = new[] { Users[0] };
-            context.SaveChanges();*/
         }
 
         public static byte[] fileContent = { 0xEF, 0xBB, 0xBF, 0x63, 0x6F, 0x6E, 0x74, 0x65, 0x6E, 0x74 };
 
         public static List<AppUser> Users = new()
         {
-            new AppUser { Id = Guid.NewGuid(), UserName = "User1", Email = "user1@mail.com"},
-            new AppUser { Id = Guid.NewGuid(), UserName = "User2", Email = "user2@mail.com"},
-            new AppUser { Id = Guid.NewGuid(), UserName = "User3", Email = "user3@mail.com"},
-            new AppUser { Id = Guid.NewGuid(), UserName = "User4", Email = "user4@mail.com"},
+            new AppUser { Id = Guid.NewGuid(), UserName = "User1", Email = "user1@mail.com", NormalizedEmail = "USER1@MAIL.COM"},
+            new AppUser { Id = Guid.NewGuid(), UserName = "User2", Email = "user2@mail.com", NormalizedEmail = "USER2@MAIL.COM"},
+            new AppUser { Id = Guid.NewGuid(), UserName = "User3", Email = "user3@mail.com", NormalizedEmail = "USER3@MAIL.COM"},
+            new AppUser { Id = Guid.NewGuid(), UserName = "User4", Email = "user4@mail.com", NormalizedEmail = "USER4@MAIL.COM"},
         };
 
         public static List<AppFileData> FileDatas = new()
