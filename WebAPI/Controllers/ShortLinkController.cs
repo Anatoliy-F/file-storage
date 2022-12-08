@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
         [SwaggerResponse(404, "Not found by this link")]
         [SwaggerResponse(403, "Access denied, file sharing closed")]
         [SwaggerResponse(400, "The request was invalid")]
-        public async Task<IActionResult> DownloadFile(string link)
+        public async Task<ActionResult> DownloadFile(string link)
         {
             var result = await _shortLinkService.GetFileByShortLinkAsync(link);
 
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         [SwaggerResponse(404, "Not found by this link")]
         [SwaggerResponse(403, "Access denied, file sharing closed")]
         [SwaggerResponse(400, "The request was invalid")]
-        public async Task<IActionResult> GetFileData(string link)
+        public async Task<ActionResult> GetFileData(string link)
         {
             var result = await _shortLinkService.GetShortFileDataAsync(link);
             if(result.ResponseResult == ResponseResult.Success && result.Data != null)
@@ -143,7 +143,7 @@ namespace WebAPI.Controllers
             }
             else
             {
-                return BadRequest(result.ErrorMessage);
+                return MapResponseFromBLL(result);
             }
         }
 

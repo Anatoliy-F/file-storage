@@ -29,8 +29,5 @@
     <ProjectReference Include="..\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ApiTests\" />
-  </ItemGroup>
 
 </Project>
