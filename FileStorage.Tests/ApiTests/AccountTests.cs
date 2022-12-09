@@ -1,26 +1,9 @@
-﻿using DataAccessLayer.Data;
-using DataAccessLayer.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WebAPI.Controllers;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Security.Policy;
+﻿using BuisnessLogicLayer.Models;
 using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
-using BuisnessLogicLayer.Models;
 using System.Net;
+using System.Text;
 using WebAPI.Models;
 
 namespace FileStorage.Tests.ApiTests
@@ -89,7 +72,7 @@ namespace FileStorage.Tests.ApiTests
             Assert.NotNull(wrongContent);
             Assert.Equal(false, wrongActual?.Success);
 
-            //Act2
+            //Act2 Check Login
             var user2 = new LoginRequestModel
             {
                 Email = "UserTest@mail.com",
@@ -102,10 +85,9 @@ namespace FileStorage.Tests.ApiTests
             Assert.Equal(HttpStatusCode.OK, httpResponse2.StatusCode);
             Assert.NotNull(content2);
             Assert.Equal(true, actual2?.Success);
-
         }
 
-        [Fact]
+        /*[Fact]
         public async Task Can_Login_User()
         {
             //Arrange
@@ -139,19 +121,13 @@ namespace FileStorage.Tests.ApiTests
             Assert.Equal(HttpStatusCode.BadRequest, wronghttpResponse.StatusCode);
             Assert.NotNull(wrongContent);
             Assert.Equal(false, wrongActual?.Success);
-        }
+        }*/
+
 
         [Fact]
         public async Task Can_Get_Users()
         {
             //Arrange
-            /*_client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureTestServices(services =>
-                {
-                    services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>();
-                });
-            }).CreateClient();*/
 
             //Act
             var httpResponse = await _client.GetAsync(RequestUri);
@@ -211,8 +187,5 @@ namespace FileStorage.Tests.ApiTests
             Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
             Assert.Equal(HttpStatusCode.BadRequest, wrongHttpResponse.StatusCode);
         }
-
-
-
     }
 }
