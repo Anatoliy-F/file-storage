@@ -21,13 +21,14 @@ using Microsoft.AspNetCore.Authorization.Policy;
 using Newtonsoft.Json;
 using BuisnessLogicLayer.Models;
 using System.Net;
+using WebAPI.Models;
 
 namespace FileStorage.Tests.ApiTests
 {
     [Collection("Sequential")]
     public class AccountTests
     {
-        private /*readonly*/ HttpClient _client;
+        private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory _factory;
         private const string RequestUri = "api/Account/";
 
@@ -41,6 +42,103 @@ namespace FileStorage.Tests.ApiTests
                     services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>();
                 });
             }).CreateClient();
+        }
+
+        [Fact]
+        public async Task Can_Register_User()
+        {
+            //Arrange
+            var user = new RegistrationRequestModel
+            {
+                UserName = "TestUser",
+                Email = "UserTest@mail.com",
+                Password = "Tesr$4uSer",
+                ConfirmPassword = "Tesr$4uSer"
+            };
+
+            var badUser = new RegistrationRequestModel
+            {
+                UserName = "TestUser",
+                Email = "UserTestmail.com",
+                Password = "Tesr$4uSer",
+                ConfirmPassword = "Te$4uSer"
+            };
+
+            //Act
+            var httpResponse = await _client.PostAsJsonAsync<RegistrationRequestModel>
+                (RequestUri + "Registration", user);
+            var content = await httpResponse.Content.ReadAsStringAsync();
+            var actual = JsonConvert.DeserializeObject<RegistrationResponseModel>(content);
+
+            var badHttpResponse = await _client.PostAsJsonAsync<RegistrationRequestModel>
+                (RequestUri + "Registration", badUser);
+            var badContent = await badHttpResponse.Content.ReadAsStringAsync();
+
+            var wronghttpResponse = await _client.PostAsJsonAsync<RegistrationRequestModel>
+                (RequestUri + "Registration", user);
+            var wrongContent = await wronghttpResponse.Content.ReadAsStringAsync();
+            var wrongActual = JsonConvert.DeserializeObject<RegistrationResponseModel>(wrongContent);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
+            Assert.NotNull(content);
+            Assert.Equal(true, actual?.Success);
+            Assert.Equal(HttpStatusCode.BadRequest, badHttpResponse.StatusCode);
+            Assert.NotNull(badContent);
+            Assert.Equal(HttpStatusCode.BadRequest, wronghttpResponse.StatusCode);
+            Assert.NotNull(wrongContent);
+            Assert.Equal(false, wrongActual?.Success);
+
+            //Act2
+            var user2 = new LoginRequestModel
+            {
+                Email = "UserTest@mail.com",
+                Password = "Tesr$4uSer",
+            };
+            var httpResponse2 = await _client.PostAsJsonAsync<LoginRequestModel>
+               (RequestUri + "Login", user2);
+            var content2 = await httpResponse.Content.ReadAsStringAsync();
+            var actual2 = JsonConvert.DeserializeObject<LoginResponseModel>(content);
+            Assert.Equal(HttpStatusCode.OK, httpResponse2.StatusCode);
+            Assert.NotNull(content2);
+            Assert.Equal(true, actual2?.Success);
+
+        }
+
+        [Fact]
+        public async Task Can_Login_User()
+        {
+            //Arrange
+            var user = new LoginRequestModel
+            {
+                Email = "UserTest@mail.com",
+                Password = "Tesr$4uSer",
+            };
+
+            var badUser = new LoginRequestModel
+            {
+                Email = "UserTest33@mail.com",
+                Password = "Tesr$4uSer",
+            };
+
+            //Act
+            var httpResponse = await _client.PostAsJsonAsync<LoginRequestModel>
+               (RequestUri + "Login", user);
+            var content = await httpResponse.Content.ReadAsStringAsync();
+            var actual = JsonConvert.DeserializeObject<LoginResponseModel>(content);
+
+            var wronghttpResponse = await _client.PostAsJsonAsync<LoginRequestModel>
+                (RequestUri + "Login", badUser);
+            var wrongContent = await wronghttpResponse.Content.ReadAsStringAsync();
+            var wrongActual = JsonConvert.DeserializeObject<LoginResponseModel>(wrongContent);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
+            Assert.NotNull(content);
+            Assert.Equal(true, actual?.Success);
+            Assert.Equal(HttpStatusCode.BadRequest, wronghttpResponse.StatusCode);
+            Assert.NotNull(wrongContent);
+            Assert.Equal(false, wrongActual?.Success);
         }
 
         [Fact]
@@ -115,6 +213,6 @@ namespace FileStorage.Tests.ApiTests
         }
 
 
-       
+
     }
 }
