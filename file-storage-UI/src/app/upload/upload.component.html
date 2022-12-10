@@ -1,0 +1,57 @@
+<mat-card class="upload">
+    <p mat-card-title>File upload</p>
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+        <br>
+        <form [formGroup]="form">
+
+            <mat-form-field style="width: 100%;">
+                <mat-label>Note:</mat-label>
+                <input matInput formControlName="note" required placeholder="note">
+                <mat-error *ngFor="let error of getErrors(form.get('note')!, 'Note')">
+                    {{error}}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field style="width: 100%;">
+                <mat-label>File:</mat-label>
+                <button mat-icon-button matPrefix (click)="f_input.click()">
+                    <mat-icon>attach_file</mat-icon>
+                </button>
+                <input type="text" readonly matInput formControlName="file">
+                <input type="file" multiple hidden #f_input 
+                (change)="onFileInputChange(f_input.files!)">
+                <mat-error *ngFor="let error of getErrors(form.get('file')!, 'File')">
+                    {{error}}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- <mat-form-field>
+                <mat-label>File:</mat-label>
+                <input matInput formControlName="file" required placeholder="file" type="file">
+                <mat-error *ngFor="let error of getErrors(form.get('file')!, 'File')">
+                    {{error}}
+                </mat-error>
+            </mat-form-field> -->
+
+        </form>
+    </mat-card-content>
+    <mat-divider></mat-divider>
+    <mat-card-actions align="end">
+        <button mat-stroked-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
+            Upload
+        </button>
+    </mat-card-actions>
+</mat-card>
+
+<!-- <div class="row" style="margin-bottom:15px;">
+    <div class="col-md-3">
+        <input type="file" #file placeholder="Choose file" (change)="uploadFile(file.files!)" style="display:none;">
+        <button type="button" class="btn btn-success" (click)="file.click()">Upload File</button>
+    </div>
+    <div class="col-md-4">
+        <span class="upload" *ngIf="progress! > 0">{{progress}}%</span>
+        <span class="upload" *ngIf="message">{{message}}</span>
+    </div>
+</div> -->

@@ -1,0 +1,54 @@
+<div class="registration">
+    <h1>Registration</h1>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <p>
+            <mat-error *ngIf="registrationResult && !registrationResult.success">
+                <span *ngFor="let error in registrationresult.errors">
+                    <strong>Error: </strong> {{error}}
+                </span>
+            </mat-error>
+        </p>
+
+        <mat-form-field>
+            <mat-label>Name:</mat-label>
+            <input matInput formControlName="userName" placeholder="Insert name" required>
+            <mat-error *ngFor="let error of getErrors(form.get('userName')!, 'Name')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Email:</mat-label>
+            <input matInput formControlName="email" placeholder="Insert email" required>
+            <mat-error *ngFor="let error of getErrors(form.get('email')!, 'Email')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Password:</mat-label>
+            <input matInput type="password" formControlName="password" placeholder="Insert password" required>
+            <mat-error *ngFor="let error of getErrors(form.get('password')!, 'Password')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Password:</mat-label>
+            <input matInput type="password" formControlName="confirm" placeholder="Repeat password" required>
+            <mat-error *ngFor="let error of getErrors(form.get('confirm')!, 'Confirm password')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <div>
+            <button mat-flat-button color="primary" type="submit">
+                Registration
+            </button>
+            <button mat-flat-button color="secondary" [routerLink]="['/']">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+

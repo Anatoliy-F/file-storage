@@ -1,0 +1,37 @@
+<div class="user-data-edit">
+    <h1>Edit user data</h1>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- <p>
+            <mat-error *ngIf="user">
+                <span *ngFor="let error in registrationresult.errors">
+                    <strong>Error: </strong> {{error}}
+                </span>
+            </mat-error>
+        </p> -->
+
+        <mat-form-field>
+            <mat-label>Name:</mat-label>
+            <input matInput formControlName="name" placeholder="Insert name" required>
+            <mat-error *ngFor="let error of getErrors(form.get('name')!, 'Name')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Email:</mat-label>
+            <input matInput formControlName="email" placeholder="Insert email" required>
+            <mat-error *ngFor="let error of getErrors(form.get('email')!, 'Email')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <div>
+            <button mat-flat-button color="primary" type="submit">
+                Submit
+            </button>
+            
+        </div>
+    </form>
+    <button mat-button (click)="onBack()">Back</button>
+    <button mat-button (click)="onDelete()">Delete</button>
+</div>

@@ -1,0 +1,39 @@
+<div class="file-data-edit">
+    <h1>Edit files data</h1>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- <p>
+            <mat-error *ngIf="registrationResult && !registrationResult.success">
+                <span *ngFor="let error in registrationresult.errors">
+                    <strong>Error: </strong> {{error}}
+                </span>
+            </mat-error>
+        </p> -->
+
+        <mat-form-field>
+            <mat-label>Name:</mat-label>
+            <input matInput formControlName="name" placeholder="Insert file name" required>
+            <mat-error *ngFor="let error of getErrors(form.get('name')!, 'Name')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Note:</mat-label>
+            <textarea matInput formControlName="note" placeholder="Insert note" required></textarea>
+            <mat-error *ngFor="let error of getErrors(form.get('note')!, 'Note')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="isPublic"></mat-slide-toggle>
+
+        <div>
+            <button mat-flat-button color="primary" type="submit">
+                Submit
+            </button>
+            
+        </div>
+    </form>
+    <button mat-button (click)="onBack()">Back</button>
+</div>
+

@@ -1,0 +1,49 @@
+<!-- TODO: Place spinner in center -->
+<mat-spinner *ngIf="!fileData"></mat-spinner>
+<mat-card *ngIf="fileData">
+    <mat-card-header>
+        <mat-card-title>{{fileData.name}}</mat-card-title>
+        <mat-card-subtitle>file name</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <p><span>Note: </span>{{fileData.note}}</p>
+        <p><span>Size: </span>{{fileData.size}} bytes</p>
+        <p><span>Upload date and time: </span>{{fileData.uploadDateTime | date : 'medium'}}</p>
+        <p><span>Access: </span>{{fileData.isPublic}}
+            <!-- <mat-slide-toggle formControlName="isPublic"></mat-slide-toggle> -->
+        </p>
+        <p><span>ShortLink: </span>{{fileData.shortLink}}
+            <button mat-button [disabled]="!fileData.isPublic" (click)="onCreateShortLink()">Create Short Link</button>
+            <button mat-button [disabled]="!fileData.shortLink" (click)="onDeleteShortLink()">Delete Short Link</button>
+        </p>
+
+        <!-- TODO: add ng*If to check viewers -->
+        <mat-list>
+            <div mat-subheader>Viewers | <button  mat-button (click)="addViewer=!addViewer">Add Viewer</button></div>
+            <div [hidden]="!addViewer">
+                <mat-form-field>
+                    <input matInput #viewer placeholder="Type user email">
+                </mat-form-field>
+                <button  mat-button (click)="onAddViewer(viewer.value)">Add Viewer</button>
+            </div>
+            
+
+            <mat-list-item *ngFor="let viewer of fileData.viewers">
+                {{viewer.name}} | {{viewer.email}}
+            </mat-list-item>
+        </mat-list>
+    </mat-card-content>
+    <mat-card-actions>
+        <!-- <button mat-button (click)="onDownload()">DownLoad</button> -->
+        <button mat-button><a (click)="onDownload()" [href]="downloadUrl" download="{{fileData.name}}">DownLoad</a></button>
+        <button mat-button><a [routerLink]="['/editFileData', fileData.id]">Edit</a></button>
+        <button mat-button><a [routerLink]="['/shareFile', fileData.id]">Share</a></button>
+        <button mat-button (click)="onDelete()">Delete</button>
+        <button mat-button (click)="onApplyChanges()">Save Changes</button>
+        <button mat-button (click)="onBack()">Back</button>
+        
+    </mat-card-actions>
+</mat-card>
+<div>
+    {{fileData | json}}
+</div>
