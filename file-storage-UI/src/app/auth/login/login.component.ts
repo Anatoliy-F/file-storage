@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router'; 
-import { FormGroup, FormControl, Validators, AbstractControl, AsyncValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { BaseFormComponent } from 'src/app/base-form.component';
 import { AuthService } from '../auth.service';
@@ -42,7 +42,7 @@ export class LoginComponent extends BaseFormComponent implements OnInit {
       .subscribe(result => {
         console.log(result);
         this.loginResult = result;
-        if(result.success /*&& result.token*/) {
+        if(result.success) {
           this.router.navigate(["/"]);
         }
       }, error => {

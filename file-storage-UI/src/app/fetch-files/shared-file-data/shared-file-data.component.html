@@ -21,7 +21,6 @@
         </mat-list>
     </mat-card-content>
     <mat-card-actions>
-        <!-- <button mat-button (click)="onDownload()">DownLoad</button> -->
         <button mat-button><a (click)="onDownload()" [href]="downloadUrl" download="{{fileData.name}}">DownLoad</a></button>
         <button mat-button (click)="onRefuse()">Refuse</button>
         <button mat-button (click)="onBack()">Back</button>
