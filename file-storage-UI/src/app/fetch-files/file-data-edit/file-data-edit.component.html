@@ -1,14 +1,6 @@
 <div class="file-data-edit">
-    <h1>Edit files data</h1>
+    <h1>Edit file data</h1>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <!-- <p>
-            <mat-error *ngIf="registrationResult && !registrationResult.success">
-                <span *ngFor="let error in registrationresult.errors">
-                    <strong>Error: </strong> {{error}}
-                </span>
-            </mat-error>
-        </p> -->
-
         <mat-form-field>
             <mat-label>Name:</mat-label>
             <input matInput formControlName="name" placeholder="Insert file name" required>
@@ -25,15 +17,14 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-slide-toggle formControlName="isPublic"></mat-slide-toggle>
-
-        <div>
-            <button mat-flat-button color="primary" type="submit">
-                Submit
-            </button>
-            
-        </div>
+        <mat-slide-toggle formControlName="isPublic">Create Public Access</mat-slide-toggle>
     </form>
-    <button mat-button (click)="onBack()">Back</button>
+    <div>
+        <button mat-flat-button color="primary" (click)="onSubmit()">
+            Submit
+        </button>
+        <button mat-button (click)="onBack()">Back</button>
+    </div>
+    
 </div>
 

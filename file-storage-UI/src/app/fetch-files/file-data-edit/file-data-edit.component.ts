@@ -75,6 +75,7 @@ export class FileDataEditComponent extends BaseFormComponent implements OnInit {
       this.fetchFileService.put(this.fileData)
         .subscribe(result => {
           console.log(result);
+          this.router.navigate(["/fileData/", this.fileData!.id]);
         }, error => {
           console.log(error);
         })

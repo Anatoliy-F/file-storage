@@ -14,8 +14,9 @@ import { FetchSharedFilesComponent } from './fetch-files/fetch-shared-files/fetc
 import { SharedFileDataComponent } from './fetch-files/shared-file-data/shared-file-data.component';
 
 const routes: Routes = [
-  {path: '', component: HomeComponent, pathMatch: 'full'},
+  {path: 'add', component: HomeComponent},
   {path: 'myFiles', component: FetchFilesComponent},
+  {path: '', component: FetchFilesComponent},
   {path: 'users', component: ManageUsersComponent},
   {path: 'login', component: LoginComponent },
   {path: 'register', component: RegistrationComponent},

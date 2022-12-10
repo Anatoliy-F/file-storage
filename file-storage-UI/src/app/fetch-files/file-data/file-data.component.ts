@@ -17,7 +17,6 @@ import { environment } from 'src/environments/environment';
 export class FileDataComponent implements OnInit {
 
   title = "Loading data, please wait..."
-  //TODO: solve this
   file?: Blob;
   fileData?: FileData;
   id?: string;
@@ -39,8 +38,6 @@ export class FileDataComponent implements OnInit {
 
   loadData(){
     let idParam = this.activatedRoute.snapshot.paramMap.get('id');
-    
-    //TODO: check null/undefined
     this.id = idParam!;
 
     if(this.id){
@@ -77,8 +74,10 @@ export class FileDataComponent implements OnInit {
       this.fetchFilesService.download(this.id)
       .subscribe(result => {
         this.file = new Blob([result], { type: "application/octet-stream" })
-        this.downloadUrl = window.URL.createObjectURL(this.file);
-        //window.open(url);
+        //this.downloadUrl = window.URL.createObjectURL(this.file);
+        //window.open(this.downloadUrl);
+        let url = window.URL.createObjectURL(this.file);
+      window.open(url);
         //window.open(window.URL.createObjectURL(result)); //open content in new window
         console.log('Success');
       }, error => {
