@@ -12,7 +12,7 @@ namespace WebAPI.Controllers
     /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize(Roles = "Administrator")]
+    //[Authorize(Roles = "Administrator")]
     public class SeedController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         private readonly IWebHostEnvironment _env;
 
         /// <summary>
-        /// nitialize new instance of SeedController
+        /// Initialize new instance of SeedController
         /// </summary>
         /// <param name="context">Persistence store</param>
         /// <param name="roleManager">Managing user roles in a persistence store</param>
@@ -37,7 +37,9 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Seeding database fith test files
+        /// Seeding database with test files
+        /// Using only in Development environment.
+        /// Comment out [Authorize] attribute
         /// </summary>
         /// <returns>Inserted files objects</returns>
         /// <exception cref="SecurityException">Throws if invoke in nin-development environment</exception>
@@ -132,7 +134,9 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Seeding database fith test users
+        /// Seeding database with test users.
+        /// Using only in Development environment.
+        /// Comment out [Authorize] attribute
         /// </summary>
         /// <returns>Inserted user objects</returns>
         /// <exception cref="SecurityException">Throws if invoke in nin-development environment</exception>

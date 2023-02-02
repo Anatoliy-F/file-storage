@@ -201,7 +201,7 @@
         </member>
         <member name="M:WebAPI.Controllers.SeedController.#ctor(DataAccessLayer.Data.AppDbContext,Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole{System.Guid}},Microsoft.AspNetCore.Identity.UserManager{DataAccessLayer.Entities.AppUser},Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
             <summary>
-            nitialize new instance of SeedController
+            Initialize new instance of SeedController
             </summary>
             <param name="context">Persistence store</param>
             <param name="roleManager">Managing user roles in a persistence store</param>
@@ -210,14 +210,18 @@
         </member>
         <member name="M:WebAPI.Controllers.SeedController.CreateFiles">
             <summary>
-            Seeding database fith test files
+            Seeding database with test files
+            Using only in Development environment.
+            Comment out [Authorize] attribute
             </summary>
             <returns>Inserted files objects</returns>
             <exception cref="T:System.Security.SecurityException">Throws if invoke in nin-development environment</exception>
         </member>
         <member name="M:WebAPI.Controllers.SeedController.CreateDefaultUsers">
             <summary>
-            Seeding database fith test users
+            Seeding database with test users.
+            Using only in Development environment.
+            Comment out [Authorize] attribute
             </summary>
             <returns>Inserted user objects</returns>
             <exception cref="T:System.Security.SecurityException">Throws if invoke in nin-development environment</exception>
