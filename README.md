@@ -8,7 +8,7 @@
 - **For registered users - the ability to place files and manage files**
 - **For admin - the ability to manage users and their files**
 
-### file-storage-UI contains a draft of thу front-end project Angular)
+### file-storage-UI contains a draft of thу front-end project (Angular)
 
 
 
