@@ -21,7 +21,7 @@ namespace DataAccessLayer.Data
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            var connectionString = @"Data Source=DESKTOP-OHE8HBB\SQLEXPRESS;Initial Catalog=FileStorage;trusted_connection=true;Encrypt=False";
+            var connectionString = @"Server=(localdb)\mssqllocaldb;Database=filestorage;Trusted_Connection=True;";
             optionsBuilder.UseSqlServer(connectionString);
             return new AppDbContext(optionsBuilder.Options);
         }
